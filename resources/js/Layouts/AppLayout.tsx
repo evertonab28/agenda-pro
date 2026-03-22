@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { 
     LayoutDashboard, 
     Calendar, 
@@ -11,15 +11,38 @@ import {
     CreditCard,
     DollarSign,
     PiggyBank,
-    Banknote
+    Banknote,
+    CheckCircle2,
+    XCircle,
+    X
 } from 'lucide-react';
 import { route } from '@/utils/route';
 import { Link, usePage } from '@inertiajs/react';
 
-
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { url } = usePage();
+  const { url, props } = usePage<any>();
   const isCurrent = (path: string) => url.startsWith(path);
+  const flash = props.flash || {};
+
+  const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (flash.success) {
+      setMessage({ text: flash.success, type: 'success' });
+      setVisible(true);
+    } else if (flash.error) {
+      setMessage({ text: flash.error, type: 'error' });
+      setVisible(true);
+    }
+  }, [flash]);
+
+  useEffect(() => {
+    if (visible) {
+      const timer = setTimeout(() => setVisible(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col md:flex-row dark:bg-zinc-950">
@@ -114,6 +137,27 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* Toast Notification */}
+      {visible && message && (
+        <div className="fixed bottom-6 right-6 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${
+            message.type === 'success' 
+              ? 'bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-900/50 dark:text-emerald-400' 
+              : 'bg-red-50 border-red-100 text-red-800 dark:bg-red-950/40 dark:border-red-900/50 dark:text-red-400'
+          }`}>
+            {message.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            ) : (
+              <XCircle className="w-5 h-5 text-red-500" />
+            )}
+            <p className="text-sm font-bold pr-4">{message.text}</p>
+            <button onClick={() => setVisible(false)} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors">
+              <X className="w-4 h-4 opacity-50" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
