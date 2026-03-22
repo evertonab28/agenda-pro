@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Appointment extends Model
 {
+    use HasFactory;
 protected $fillable = [
 'customer_id',
 'service_id',
+'professional_id',
 'starts_at',
 'ends_at',
 'status',
@@ -21,6 +24,11 @@ protected $fillable = [
 'source',
 'notes',
 ];
+
+public function professional(): BelongsTo
+{
+return $this->belongsTo(User::class, 'professional_id');
+}
 
 protected $casts = [
 'starts_at' => 'datetime',

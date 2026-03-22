@@ -1,8 +1,20 @@
 import { ReactNode } from 'react';
 import { Home, Calendar, Users, Settings, LogOut } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+
+// Simple route helper for Ziggy-less environments
+const routeHelper = (name: string) => {
+  const routes: any = {
+    'dashboard': '/dashboard',
+    'agenda': '/agenda',
+  };
+  return routes[name] || '#';
+};
 
 export default function AppLayout({ children }: { children: ReactNode }) {
+  const { url } = usePage();
+  const isCurrent = (path: string) => url.startsWith(path);
+
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col md:flex-row dark:bg-zinc-950">
       {/* Sidebar */}
@@ -11,14 +23,28 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           Agenda Pro
         </div>
         <nav className="p-4 space-y-1">
-          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-md font-medium">
+          <Link 
+            href={routeHelper('dashboard')} 
+            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+              isCurrent('/dashboard') 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+            }`}
+          >
             <Home className="w-5 h-5" />
             Dashboard
           </Link>
-          <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800 rounded-md font-medium">
+          <Link 
+            href={routeHelper('agenda')} 
+            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+              isCurrent('/agenda') 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+            }`}
+          >
             <Calendar className="w-5 h-5" />
             Agenda
-          </a>
+          </Link>
           <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800 rounded-md font-medium">
             <Users className="w-5 h-5" />
             Clientes
