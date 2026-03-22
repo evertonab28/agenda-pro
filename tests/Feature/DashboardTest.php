@@ -33,4 +33,27 @@ class DashboardTest extends TestCase
         $response->assertStatus(200);
         $this->assertTrue(str_contains($response->headers->get('Content-Disposition'), 'attachment; filename="dashboard-'));
     }
+
+    public function test_dashboard_day_details_valid()
+    {
+        $response = $this->getJson('/dashboard/day/2024-01-01');
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'appointments' => ['data'],
+            'financial' => ['paid', 'pending', 'overdue'],
+            'status_distribution'
+        ]);
+    }
+
+    public function test_dashboard_day_details_invalid()
+    {
+        $response = $this->getJson('/dashboard/day/2024-13-45');
+        $response->assertStatus(422);
+    }
+
+    public function test_dashboard_pending_pagination_params_accepted()
+    {
+        $response = $this->get('/dashboard?pending_page=2&pending_search=test&pending_status=overdue');
+        $response->assertStatus(200);
+    }
 }
