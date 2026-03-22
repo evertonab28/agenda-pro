@@ -16,7 +16,7 @@ class AgendaStoreRequest extends FormRequest
         return [
             'customer_id' => 'required|exists:customers,id',
             'service_id' => 'required|exists:services,id',
-            'professional_id' => 'required|exists:users,id',
+            'professional_id' => 'required|exists:professionals,id',
             'starts_at' => 'required|date|after_or_equal:now',
             'ends_at' => 'required|date|after:starts_at',
             'status' => 'nullable|string|in:scheduled,confirmed,completed,no_show,canceled',

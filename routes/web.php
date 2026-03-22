@@ -37,4 +37,21 @@ Route::get('/', function () {
 
     Route::resource('customers', \App\Http\Controllers\CustomerController::class);
     Route::patch('customers/{customer}/status', [\App\Http\Controllers\CustomerController::class, 'toggleStatus'])->name('customers.status');
+
+    // Módulo de Configurações
+    Route::prefix('configuracoes')->name('configuracoes.')->group(function () {
+        Route::resource('servicos', \App\Http\Controllers\ServiceController::class)->names('services');
+        Route::resource('profissionais', \App\Http\Controllers\ProfessionalController::class)->names('professionals');
+        
+        // Schedules
+        Route::get('horarios', [\App\Http\Controllers\ScheduleController::class, 'index'])->name('schedules.index');
+        Route::post('horarios', [\App\Http\Controllers\ScheduleController::class, 'store'])->name('schedules.store');
+        
+        // Holidays
+        Route::resource('feriados', \App\Http\Controllers\HolidayController::class)->names('holidays');
+        
+        // General
+        Route::get('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'index'])->name('general.index');
+        Route::post('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'store'])->name('general.store');
+    });
 // });

@@ -74,6 +74,74 @@ class AgendaService
     }
 
     /**
+     * Check if a professional is available at a given time.
+     */
+    public function isAvailable(int $professionalId, string $startsAt, string $endsAt, $excludeId = null): array
+    {
+        $start = Carbon::parse($startsAt);
+        $end = Carbon::parse($endsAt);
+        $date = $start->toDateString();
+        $weekday = $start->dayOfWeek;
+
+        // 1. Check existing conflicts
+        if ($this->hasConflict($professionalId, $startsAt, $endsAt, $excludeId)) {
+            return ['available' => false, 'message' => 'Já existe um agendamento neste horário.'];
+        }
+
+        // 2. Check Holidays/Blocked dates
+        $isHoliday = \App\Models\Holiday::where(function ($q) use ($date, $professionalId) {
+                $q->where('date', $date)
+                    ->where(function ($sq) use ($professionalId) {
+                        $sq->whereNull('professional_id')
+                            ->orWhere('professional_id', $professionalId);
+                    });
+            })
+            ->orWhere(function ($q) use ($start, $professionalId) {
+                $q->where('repeats_yearly', true)
+                    ->whereMonth('date', $start->month)
+                    ->whereDay('date', $start->day)
+                    ->where(function ($sq) use ($professionalId) {
+                        $sq->whereNull('professional_id')
+                            ->orWhere('professional_id', $professionalId);
+                    });
+            })
+            ->exists();
+
+        if ($isHoliday) {
+            return ['available' => false, 'message' => 'Data bloqueada ou feriado.'];
+        }
+
+        // 3. Check Weekly Schedule
+        $schedule = \App\Models\ProfessionalSchedule::where('professional_id', $professionalId)
+            ->where('weekday', $weekday)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$schedule) {
+            return ['available' => false, 'message' => 'O profissional não atende neste dia.'];
+        }
+
+        $open = Carbon::parse($date . ' ' . $schedule->start_time);
+        $close = Carbon::parse($date . ' ' . $schedule->end_time);
+
+        if ($start->lt($open) || $end->gt($close)) {
+            return ['available' => false, 'message' => "Fora do horário de expediente ({$schedule->start_time} - {$schedule->end_time})."];
+        }
+
+        // 4. Check Breaks
+        if ($schedule->break_start && $schedule->break_end) {
+            $breakStart = Carbon::parse($date . ' ' . $schedule->break_start);
+            $breakEnd = Carbon::parse($date . ' ' . $schedule->break_end);
+
+            if ($start->lt($breakEnd) && $end->gt($breakStart)) {
+                return ['available' => false, 'message' => "Horário coincide com o intervalo ({$schedule->break_start} - {$schedule->break_end})."];
+            }
+        }
+
+        return ['available' => true];
+    }
+
+    /**
      * Calculate end date based on service duration.
      */
     public function calculateEndDate(int $serviceId, string $startsAt): Carbon

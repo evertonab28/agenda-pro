@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreServiceRequest extends FormRequest
+class StoreProfessionalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true; // Adjust based on policy
+        return true;
     }
 
     /**
@@ -20,12 +20,13 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|unique:services,name',
-            'duration_minutes' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6})$/'],
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'specialty' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
-            'description' => 'nullable|string',
+            'services' => 'nullable|array',
+            'services.*' => 'exists:services,id',
         ];
     }
 }

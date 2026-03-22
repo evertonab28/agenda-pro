@@ -32,8 +32,8 @@ class AgendaController extends Controller
 
         return Inertia::render('Agenda/Index', [
             'events' => $this->agendaService->getAgendaEvents($filters),
-            'professionals' => User::where('role', 'professional')->orWhere('role', 'admin')->get(['id', 'name']),
-            'services' => Service::where('active', true)->get(['id', 'name', 'duration_minutes', 'price']),
+            'professionals' => \App\Models\Professional::where('is_active', true)->get(['id', 'name']),
+            'services' => Service::where('is_active', true)->get(['id', 'name', 'duration_minutes', 'price']),
             'customers' => Customer::all(['id', 'name', 'phone']),
             'filters' => $filters,
         ]);
@@ -42,9 +42,10 @@ class AgendaController extends Controller
     public function store(AgendaStoreRequest $request)
     {
         $data = $request->validated();
+        $availability = $this->agendaService->isAvailable($data['professional_id'], $data['starts_at'], $data['ends_at']);
 
-        if ($this->agendaService->hasConflict($data['professional_id'], $data['starts_at'], $data['ends_at'])) {
-            return back()->withErrors(['starts_at' => 'O profissional já possui um agendamento neste horário.']);
+        if (!$availability['available']) {
+            return back()->withErrors(['starts_at' => $availability['message']]);
         }
 
         Appointment::create($data);
@@ -55,9 +56,10 @@ class AgendaController extends Controller
     public function update(AgendaStoreRequest $request, Appointment $appointment)
     {
         $data = $request->validated();
+        $availability = $this->agendaService->isAvailable($data['professional_id'], $data['starts_at'], $data['ends_at'], $appointment->id);
 
-        if ($this->agendaService->hasConflict($data['professional_id'], $data['starts_at'], $data['ends_at'], $appointment->id)) {
-            return back()->withErrors(['starts_at' => 'O profissional já possui um agendamento neste horário.']);
+        if (!$availability['available']) {
+            return back()->withErrors(['starts_at' => $availability['message']]);
         }
 
         $appointment->update($data);
