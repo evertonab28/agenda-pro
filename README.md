@@ -1,58 +1,93 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📅 Agenda Pro
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Agenda Pro** é um sistema moderno de gestão de agendamentos e visão financeira voltado para clínicas, profissionais autônomos e pequenos negócios que desejam controle total sobre seus horários e receitas.
 
-## About Laravel
+Construído utilizando os padrões mais modernos de desenvolvimento web, a aplicação oferece uma experiência de Single Page Application (SPA) veloz e reativa com uma arquitetura robusta no backend.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Tecnologias Utilizadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Este projeto adota uma stack moderna e de alta performance:
 
-## Learning Laravel
+### Backend
+- **[Laravel](https://laravel.com/) (PHP)**: Framework robusto para a construção da API e lógica de negócios.
+- **[Inertia.js](https://inertiajs.com/)**: O "elo" que conecta as rotas e os dados do backend do Laravel diretamente aos componentes React, sem a necessidade de construir uma API JSON separada.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Frontend
+- **[React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)**: Biblioteca para interfaces ricas, fortemente tipada para evitar bugs e escalar melhor.
+- **[Vite](https://vitejs.dev/)**: Ferramenta de build de frontend super rápida, em conjunto com o `laravel-vite-plugin`.
+- **[Tailwind CSS v4](https://tailwindcss.com/)**: Framework utilitário de CSS que torna a estilização ágil e responsiva.
+- **[Shadcn/UI](https://ui.shadcn.com/)**: Biblioteca de componentes baseada no Radix UI e e TailwindCSS, responsável por toda estética moderna dos inputs, cards, badges e tabelas do sistema.
+- **[Recharts](https://recharts.org/)**: Biblioteca React para criação de gráficos fluidos e customizados.
+- **[Lucide React](https://lucide.dev/)**: Pack de ícones consistente e minimalista.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🎯 Funcionalidades Principais (Dashboard)
 
-## Agentic Development
+- **Visão Analítica Global:** Acompanhe o total de agendamentos, taxa de confirmação e taxa de faltas (no-show) de forma instantânea.
+- **Controle Financeiro Direto:** Visualize imediatamente a soma financeira atrelada aos serviços, dividida por status (Pago, Pendente, e Em Atraso).
+- **Gráficos Dinâmicos (Série Diária):** Gráfico interativo evidenciando o cruzamento entre Agendamentos realizados vs Receita financeira (R$) num dado dia, ajudando a entender picos de demanda.
+- **Tabela Crítica de Inadimplência:** Identificação em tempo real, acompanhada de indicativos visuais (Tags coloridas dinâmicas), de todos os débitos e vencimentos programados dos clientes/pacientes.
+- **Filtro de Período Inteligente:** Navegação retroativa ou futura por datas usando busca dinâmica e veloz provida pelo ecossistema Inertia.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
-```bash
-composer require laravel/boost --dev
+## ⚙️ Como Executar o Projeto Localmente
 
-php artisan boost:install
-```
+Antes de começar, garanta que você tenha o **PHP**, **Composer**, **Node.js** e um banco de dados (ex: MySQL/SQLite/PostgreSQL) configurados.
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+1. **Clone do repositório / Baixe os arquivos:**
+   ```bash
+   git clone <url-do-repositorio>
+   cd agenda-pro
+   ```
 
-## Contributing
+2. **Instale as dependências do Backend (Laravel):**
+   ```bash
+   composer install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Instale as dependências do Frontend (NPM):**
+   ```bash
+   npm install
+   ```
 
-## Code of Conduct
+4. **Configure seu ambiente (`.env`):**
+   ```bash
+   cp .env.example .env
+   # Gere a key do Laravel:
+   php artisan key:generate
+   ```
+   *Certifique-se de preencher as variáveis do banco de dados (DB_CONNECTION, DB_DATABASE...) corretamente.*
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. **Migre o banco de dados (Criação das Tabelas):**
+   ```bash
+   php artisan migrate
+   # Se houver seeders com dados falsos para teste:
+   # php artisan migrate --seed
+   ```
 
-## Security Vulnerabilities
+6. **Inicie os Servidores (Você precisará de 2 abas no terminal):**
+   
+   Aba 1 (Backend PHP):
+   ```bash
+   php artisan serve
+   ```
+   
+   Aba 2 (Frontend Vite):
+   ```bash
+   npm run dev
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7. **Acesse a Aplicação:**
+   Acesse [http://localhost:8000](http://localhost:8000) (ou especificamente na rota `/dashboard`) pelo seu navegador!
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🧱 Abordagem de Design e Componentização
+
+Toda a inferência visual do sistema é pautada nos arquivos-base do **Shadcn/UI**, que ficam alojados em `resources/js/components/ui`. As adaptações de layout principal (Sidebar de menu cruzando com o conteúdo dinâmico) acontecem em `AppLayout.tsx`. 
+
+O uso ostensivo da arquitetura MVC moderna, mesclando Controladores que empacotam e pré-formatam os dados do BD diretamente para a `view` em Typescript, dispensa o intermédio burocrático de APIs Redux ou requests paralelos desnecessários.
