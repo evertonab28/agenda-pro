@@ -3,13 +3,15 @@ import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
 import ChargeForm from '../Components/ChargeForm';
-import { Charge } from '@/types';
+import { Charge, Customer } from '@/types';
+import { route } from '@/utils/route';
 
 interface Props {
     charge: Charge;
+    customers: Customer[];
 }
 
-export default function ChargeEdit({ charge }: Props) {
+export default function ChargeEdit({ charge, customers }: Props) {
     const handleCancel = () => {
         if (confirm('Tem certeza que deseja cancelar esta cobrança? Esta ação não pode ser desfeita.')) {
             router.delete(route('finance.charges.destroy', charge.id));
@@ -27,7 +29,7 @@ export default function ChargeEdit({ charge }: Props) {
                         Voltar para Cobranças
                     </Link>
 
-                    {charge.status !== 'cancelled' && charge.status !== 'paid' && (
+                    {charge.status !== 'canceled' && charge.status !== 'paid' && (
                         <button 
                             type="button" 
                             onClick={handleCancel}
@@ -46,7 +48,7 @@ export default function ChargeEdit({ charge }: Props) {
                     </h1>
                 </div>
 
-                {charge.status === 'cancelled' ? (
+                {charge.status === 'canceled' ? (
                     <div className="bg-red-50 border border-red-200 p-6 rounded-xl text-center mb-6">
                         <h3 className="text-lg font-medium text-red-800">Esta cobrança está cancelada</h3>
                         <p className="mt-1 text-sm text-red-600">Não é possível editar cobranças canceladas.</p>
@@ -57,7 +59,7 @@ export default function ChargeEdit({ charge }: Props) {
                         <p className="mt-1 text-sm text-emerald-600">Cobranças totalmente pagas não podem ter valores alterados.</p>
                     </div>
                 ) : (
-                    <ChargeForm charge={charge} />
+                    <ChargeForm charge={charge} customers={customers} />
                 )}
             </div>
         </AppLayout>

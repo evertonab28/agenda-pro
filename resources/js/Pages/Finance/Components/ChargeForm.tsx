@@ -1,20 +1,22 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
-import { Charge } from '@/types';
+import { Charge, Customer } from '@/types';
 import { Save, AlertCircle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { route } from '@/utils/route';
 
 interface Props {
     charge?: Charge;
+    customers: any[];
 }
 
-export default function ChargeForm({ charge }: Props) {
+export default function ChargeForm({ charge, customers }: Props) {
     const isEditing = !!charge;
 
     const { data, setData, post, put, processing, errors } = useForm({
         description: charge?.description || '',
-        customer_id: charge?.customer_id || '',
-        amount: charge?.amount || '',
+        customer_id: charge?.customer_id ? String(charge.customer_id) : '',
+        amount: charge?.amount ? String(charge.amount) : '',
         due_date: charge?.due_date ? format(parseISO(charge.due_date), 'yyyy-MM-dd') : '',
         payment_method: charge?.payment_method || '',
         notes: charge?.notes || '',
@@ -97,7 +99,26 @@ export default function ChargeForm({ charge }: Props) {
                             {errors.due_date && <p className="mt-2 text-sm text-red-600">{errors.due_date}</p>}
                         </div>
 
-                        {/* Customer_id field omitted for simplicity. In a real scenario we'd use an async select component like react-select */}
+                        <div className="sm:col-span-6">
+                            <label htmlFor="customer_id" className="block text-sm font-medium text-gray-700">Cliente (Opcional)</label>
+                            <div className="mt-1">
+                                <select
+                                    id="customer_id"
+                                    name="customer_id"
+                                    className={`shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md ${errors.customer_id ? 'border-red-300 text-red-900' : ''}`}
+                                    value={data.customer_id}
+                                    onChange={e => setData('customer_id', e.target.value)}
+                                >
+                                    <option value="">Selecione um cliente...</option>
+                                    {customers.map(customer => (
+                                        <option key={customer.id} value={customer.id}>
+                                            {customer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {errors.customer_id && <p className="mt-2 text-sm text-red-600">{errors.customer_id}</p>}
+                        </div>
 
                         <div className="sm:col-span-3">
                             <label htmlFor="payment_method" className="block text-sm font-medium text-gray-700">Método Esperado</label>

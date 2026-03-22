@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from '@inertiajs/react';
 import { Search, Filter, Calendar as CalendarIcon, X } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
+import { route } from '@/utils/route';
 
 interface Filters {
     search?: string;
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export default function ChargeFilters({ filters }: Props) {
+    if (!filters) return null;
+
     const { data, setData, get, processing } = useForm<Filters>({
         search: filters.search || '',
         status: filters.status || 'all',

@@ -3,8 +3,14 @@ import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
 import ChargeForm from '../Components/ChargeForm';
+import { route } from '@/utils/route';
+import { Customer } from '@/types';
 
-export default function ChargeCreate() {
+interface Props {
+    customers: Customer[];
+}
+
+export default function ChargeCreate({ customers }: Props) {
     return (
         <AppLayout>
             <Head title="Nova Cobrança" />
@@ -24,7 +30,7 @@ export default function ChargeCreate() {
                     </h1>
                 </div>
 
-                <ChargeForm />
+                <ChargeForm customers={customers} />
             </div>
         </AppLayout>
     );

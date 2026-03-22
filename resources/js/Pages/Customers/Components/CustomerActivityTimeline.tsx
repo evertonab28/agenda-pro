@@ -22,6 +22,17 @@ interface TimelineEvent {
   status?: string;
 }
 
+const safeFormat = (dateStr: string, formatStr: string) => {
+  if (!dateStr) return 'N/A';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    return format(date, formatStr, { locale: ptBR });
+  } catch (e) {
+    return 'Error';
+  }
+};
+
 export default function CustomerActivityTimeline({ appointments, financialHistory, customer }: Props) {
   // Combine and sort events
   const events: TimelineEvent[] = [
@@ -36,8 +47,8 @@ export default function CustomerActivityTimeline({ appointments, financialHistor
     ...appointments.map(app => ({
       type: 'appointment',
       date: app.starts_at,
-      title: `Agendamento: ${app.service.name}`,
-      description: `Profissional: ${app.professional.name}`,
+      title: `Agendamento: ${app.service?.name || 'Serviço não informado'}`,
+      description: `Profissional: ${app.professional?.name || 'Profissional não informado'}`,
       icon: Calendar,
       color: app.status === 'completed' ? 'bg-zinc-500 text-white' : 'bg-blue-500 text-white',
       status: app.status,

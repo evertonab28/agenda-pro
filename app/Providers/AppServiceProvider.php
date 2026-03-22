@@ -21,6 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            if ($user->role === 'admin') {
+                return true;
+            }
+        });
+
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Charge::class, \App\Policies\ChargePolicy::class);
+
         \App\Models\Appointment::observe(\App\Observers\AppointmentObserver::class);
         \App\Models\Charge::observe(\App\Observers\ChargeObserver::class);
         \App\Models\Receipt::observe(\App\Observers\ReceiptObserver::class);

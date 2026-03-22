@@ -13,6 +13,7 @@ class ChargePolicy
      */
     public function viewAny(User $user): bool
     {
+        \Illuminate\Support\Facades\Log::info('ChargePolicy@viewAny called for user: ' . $user->id . ' with role: ' . $user->role);
         return true;
     }
 

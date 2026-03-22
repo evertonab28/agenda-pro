@@ -19,6 +19,17 @@ export default function CustomerFinancialTable({ financialHistory }: Props) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
+  const safeFormat = (dateStr: string, formatStr: string) => {
+    if (!dateStr) return 'N/A';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return format(date, formatStr, { locale: ptBR });
+    } catch (e) {
+      return 'Error';
+    }
+  };
+
   const getStatusBadge = (charge: any) => {
     if (charge.paid_at) {
       return (
@@ -78,7 +89,7 @@ export default function CustomerFinancialTable({ financialHistory }: Props) {
                   <TableCell className="py-5 pl-8">
                     <div className="flex flex-col">
                       <span className="font-bold text-zinc-900 dark:text-zinc-100">
-                        {format(parseISO(charge.due_date), "dd 'de' MMM, yyyy", { locale: ptBR })}
+                        {safeFormat(charge.due_date, "dd 'de' MMM, yyyy")}
                       </span>
                       <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">ID: #{charge.id}</span>
                     </div>
@@ -107,7 +118,7 @@ export default function CustomerFinancialTable({ financialHistory }: Props) {
                            {charge.payment_method || 'PIX'}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
-                          {format(parseISO(charge.paid_at), "dd/MM/yy 'às' HH:mm")}
+                          {safeFormat(charge.paid_at, "dd/MM/yy 'às' HH:mm")}
                         </span>
                       </div>
                     ) : (

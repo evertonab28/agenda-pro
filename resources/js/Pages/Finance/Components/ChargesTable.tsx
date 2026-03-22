@@ -5,6 +5,7 @@ import { ptBR } from 'date-fns/locale';
 import { Check, Edit, Eye, CreditCard, User } from 'lucide-react';
 import ReceivePaymentModal from './ReceivePaymentModal';
 import { Link } from '@inertiajs/react';
+import { route } from '@/utils/route';
 
 interface Props {
     charges: any[]; 
@@ -13,6 +14,17 @@ interface Props {
 export default function ChargesTable({ charges }: Props) {
     const [selectedCharge, setSelectedCharge] = useState<any>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+    const safeFormat = (dateStr: string, formatStr: string) => {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            return format(date, formatStr, { locale: ptBR });
+        } catch (e) {
+            return 'Error';
+        }
+    };
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -85,7 +97,7 @@ export default function ChargesTable({ charges }: Props) {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm text-gray-900">
-                                            {format(parseISO(charge.due_date), "dd 'de' MMM, yyyy", { locale: ptBR })}
+                                            {safeFormat(charge.due_date, "dd 'de' MMM, yyyy")}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">

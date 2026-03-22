@@ -24,17 +24,17 @@ class CustomerController extends Controller
         // Search filter
         $query->when(fn() => $request->filled('search'), function ($q) use ($request) {
             $search = $request->input('search');
-            $q->where(function ($sub) use ($search) {
-                $sub->where('name', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
+            $q->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('document', 'like', "%{$search}%");
             });
         });
 
+        // Status filter
         $query->when(fn() => $request->filled('status') && $request->input('status') !== 'all', function ($q) use ($request) {
-            $status = $request->input('status') === 'active';
-            $q->where(function ($sub) use ($status) {
-                $sub->where('is_active', $status);
-            });
+            $q->where('is_active', $request->input('status') === 'active');
         });
 
         // Financial Pending filter
@@ -81,7 +81,7 @@ class CustomerController extends Controller
         $appointments = $customer->appointments()
             ->with(['service', 'professional'])
             ->where(function ($q) {
-                $q->where('status', '!=', 'canceled');
+                $q->where('appointments.status', '!=', 'canceled');
             })
             ->orderBy('appointment_date', 'desc')
             ->orderBy('start_time', 'desc')
@@ -90,7 +90,7 @@ class CustomerController extends Controller
         $charges = $customer->charges()
             ->withSum('receipts', 'amount_received')
             ->where(function ($q) {
-                $q->where('status', '!=', 'canceled');
+                $q->where('charges.status', '!=', 'canceled');
             })
             ->orderBy('due_date', 'desc')
             ->paginate(10, ['*'], 'charges_page');

@@ -3,6 +3,8 @@ import { useForm } from '@inertiajs/react';
 import { X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Charge } from '@/types'; // Assumindo tipagem padrão, podemos contornar com any se falhar.
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { route } from '@/utils/route';
 
 interface Props {
     charge: any; // Type it properly if possible
@@ -40,12 +42,16 @@ export default function ReceivePaymentModal({ charge, isOpen, onClose }: Props) 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('finance.charges.receive', charge.id), {
+        const targetUrl = route('finance.charges.receive', charge.id || charge);        
+        post(targetUrl, {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
                 onClose();
             },
+            onError: (err) => {
+                console.error('Error registering receipt:', err);
+            }
         });
     };
 
@@ -113,7 +119,7 @@ export default function ReceivePaymentModal({ charge, isOpen, onClose }: Props) 
                                     id="amount_received"
                                     className={`focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md ${errors.amount_received ? 'border-red-300 text-red-900' : ''}`}
                                     value={data.amount_received}
-                                    onChange={e => setData('amount_received', parseFloat(e.target.value) || '')}
+                                    onChange={e => setData('amount_received', parseFloat(e.target.value) || 0)}
                                     required
                                 />
                             </div>

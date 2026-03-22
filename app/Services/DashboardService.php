@@ -107,7 +107,7 @@ class DashboardService
 
     private function applyFilters($query, array $filters)
     {
-        return $query->when(fn() => !empty($filters['status']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
+        return $query->when(!empty($filters['status']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             if ($q->getModel() instanceof Charge) {
                 $q->where(function ($sub) use ($filters) {
                     $sub->whereIn('appointments.status', $filters['status']);
@@ -117,12 +117,12 @@ class DashboardService
                     $sub->whereIn('status', $filters['status']);
                 });
             }
-        })->when(fn() => !empty($filters['service_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
+        })->when(!empty($filters['service_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             $col = $q->getModel() instanceof Charge ? 'appointments.service_id' : 'service_id';
             $q->where(function ($sub) use ($filters, $col) {
                 $sub->where($col, $filters['service_id']);
             });
-        })->when(fn() => !empty($filters['professional_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
+        })->when(!empty($filters['professional_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             if (Schema::hasColumn('appointments', 'professional_id')) {
                 $col = $q->getModel() instanceof Charge ? 'appointments.professional_id' : 'professional_id';
                 $q->where(function ($sub) use ($filters, $col) {
@@ -153,9 +153,9 @@ class DashboardService
               });
         });
 
-        $pendingAmount = (clone $chargesQuery)->where('status', 'pending')->sum('amount');
-        $paidAmount = (clone $chargesQuery)->where('status', 'paid')->sum('amount');
-        $overdueAmount = (clone $chargesQuery)->where('status', 'overdue')->sum('amount');
+        $pendingAmount = (clone $chargesQuery)->where('charges.status', 'pending')->sum('amount');
+        $paidAmount = (clone $chargesQuery)->where('charges.status', 'paid')->sum('amount');
+        $overdueAmount = (clone $chargesQuery)->where('charges.status', 'overdue')->sum('amount');
 
         return [
             'appointments_total' => $total,
@@ -172,7 +172,9 @@ class DashboardService
 
     private function getTimeseries(Carbon $from, Carbon $to, array $filters)
     {
-        $appointmentsQuery = Appointment::whereBetween('starts_at', [$from, $to]);
+        $appointmentsQuery = Appointment::where(function ($q) use ($from, $to) {
+            $q->whereBetween('starts_at', [$from, $to]);
+        });
         $appointmentsQuery = $this->applyFilters($appointmentsQuery, $filters);
 
         $appointmentsDaily = (clone $appointmentsQuery)
@@ -243,15 +245,27 @@ class DashboardService
                 $q->whereBetween('appointments.starts_at', [$from, $to]);
             })
             ->where(function ($q) {
-                $q->whereIn('charges.status', ['paid', 'pending', 'overdue']);
+                $q->where('appointments.status', '!=', 'canceled');
             })
-            ->whereNotNull('appointments.service_id')
+            ->where(function ($q) {
+                $q->whereNotNull('appointments.service_id');
+            })
             ->groupBy('appointments.service_id');
 
-        if (!empty($filters['status'])) $revQuery->whereIn('appointments.status', $filters['status']);
-        if (!empty($filters['service_id'])) $revQuery->where('appointments.service_id', $filters['service_id']);
-        if (!empty($filters['professional_id']) && Schema::hasColumn('appointments', 'professional_id')) {
-            $revQuery->where('appointments.professional_id', $filters['professional_id']);
+        if (!empty($filters['status'])) {
+            $revQuery->where(function ($q) use ($filters) {
+                $q->whereIn('appointments.status', $filters['status']);
+            });
+        }
+        if (!empty($filters['service_id'])) {
+            $revQuery->where(function ($q) use ($filters) {
+                $q->where('appointments.service_id', $filters['service_id']);
+            });
+        }
+        if (!empty($filters['professional_id']) && \Illuminate\Support\Facades\Schema::hasColumn('appointments', 'professional_id')) {
+            $revQuery->where(function ($q) use ($filters) {
+                $q->where('appointments.professional_id', $filters['professional_id']);
+            });
         }
 
         $revAgg = $revQuery->get()->keyBy('service_id');

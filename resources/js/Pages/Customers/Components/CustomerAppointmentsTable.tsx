@@ -22,7 +22,26 @@ const statusMap: any = {
   'canceled': { label: 'Cancelado', color: 'bg-zinc-100 text-zinc-400 border-zinc-100', icon: XCircle },
 };
 
+const safeFormat = (dateStr: string, formatStr: string) => {
+  if (!dateStr) return 'N/A';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    return format(date, formatStr, { locale: ptBR });
+  } catch (e) {
+    return 'Error';
+  }
+};
+
 export default function CustomerAppointmentsTable({ appointments }: Props) {
+  if (!appointments || !appointments.data) {
+    return (
+      <div className="bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 p-8 text-center text-muted-foreground">
+        Nenhum dado de agendamento disponível.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm">
@@ -61,23 +80,23 @@ export default function CustomerAppointmentsTable({ appointments }: Props) {
                     <TableCell className="py-5 pl-8">
                       <div className="flex flex-col">
                         <span className="font-bold text-zinc-900 dark:text-zinc-100">
-                          {format(parseISO(app.starts_at), "dd 'de' MMMM, yyyy", { locale: ptBR })}
+                          {safeFormat(app.starts_at, "dd 'de' MMMM, yyyy")}
                         </span>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {format(parseISO(app.starts_at), "HH:mm")} - {format(parseISO(app.ends_at), "HH:mm")}
+                          {safeFormat(app.starts_at, "HH:mm")} - {safeFormat(app.ends_at, "HH:mm")}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="py-5">
                       <span className="px-3 py-1 bg-primary/5 text-primary rounded-lg text-sm font-bold border border-primary/10">
-                        {app.service.name}
+                        {app.service?.name || 'Serviço não informado'}
                       </span>
                     </TableCell>
                     <TableCell className="py-5">
                       <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                         <User className="w-4 h-4 text-muted-foreground" />
-                        {app.professional.name}
+                        {app.professional?.name || 'Profissional não informado'}
                       </div>
                     </TableCell>
                     <TableCell className="py-5 text-center">

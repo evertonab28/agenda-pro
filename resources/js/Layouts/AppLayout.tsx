@@ -1,17 +1,21 @@
 import { ReactNode } from 'react';
-import { LayoutDashboard, Calendar, Users, Settings, LogOut, Banknote } from 'lucide-react';
+import { 
+    LayoutDashboard, 
+    Calendar, 
+    Users, 
+    Settings, 
+    LogOut,
+    Plus,
+    Search,
+    Bell,
+    CreditCard,
+    DollarSign,
+    PiggyBank,
+    Banknote
+} from 'lucide-react';
+import { route } from '@/utils/route';
 import { Link, usePage } from '@inertiajs/react';
 
-// Simple route helper for Ziggy-less environments
-const routeHelper = (name: string) => {
-  const routes: any = {
-    'dashboard': '/dashboard',
-    'agenda': '/agenda',
-    'customers': '/customers',
-    'finance.dashboard': '/financeiro',
-  };
-  return routes[name] || '#';
-};
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { url } = usePage();
@@ -26,7 +30,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
         <nav className="p-4 space-y-1">
           <Link 
-            href={routeHelper('dashboard')} 
+            href={route('dashboard')} 
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
               isCurrent('/dashboard') 
                 ? 'bg-primary/10 text-primary' 
@@ -37,7 +41,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             Dashboard
           </Link>
           <Link 
-            href={routeHelper('agenda')} 
+            href={route('agenda')} 
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
               isCurrent('/agenda') 
                 ? 'bg-primary/10 text-primary' 
@@ -48,7 +52,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             Agenda
           </Link>
           <Link 
-            href={routeHelper('customers')} 
+            href={route('customers.index')} 
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
               isCurrent('/customers') 
                 ? 'bg-primary/10 text-primary' 
@@ -59,15 +63,26 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             Clientes
           </Link>
           <Link 
-            href={routeHelper('finance.dashboard')} 
+            href={route('finance.dashboard')} 
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              isCurrent('/financeiro') 
+              url === '/financeiro' 
                 ? 'bg-primary/10 text-primary' 
                 : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
             }`}
           >
             <Banknote className="w-5 h-5" />
             Financeiro
+          </Link>
+          <Link 
+            href={route('finance.charges.index')} 
+            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+              isCurrent('/financeiro/cobrancas') 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Banknote className="w-5 h-5 opacity-50" />
+            Gestão de Cobranças
           </Link>
           <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800 rounded-md font-medium">
             <Settings className="w-5 h-5" />

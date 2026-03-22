@@ -28,6 +28,16 @@ interface Props {
 }
 
 export default function Show({ customer, summary, appointments, financial_history }: Props) {
+  if (!customer) {
+    return (
+      <AppLayout>
+        <div className="max-w-7xl mx-auto p-12 text-center text-muted-foreground">
+          Cliente não encontrado ou dados incompletos.
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <Head title={`${customer.name} - Perfil do Cliente`} />

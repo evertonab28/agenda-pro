@@ -5,6 +5,8 @@ import { Plus, Search, Download, FileText } from 'lucide-react';
 import ChargeFilters from '../Components/ChargeFilters';
 import ChargesTable from '../Components/ChargesTable';
 import Pagination from '@/components/Pagination';
+import { route } from '@/utils/route';
+import { Charge } from '@/types';
 
 interface Filters {
     search?: string;
@@ -16,7 +18,7 @@ interface Filters {
 
 interface Props {
     charges: {
-        data: any[];
+        data: Charge[];
         links: any[];
         total: number;
     };

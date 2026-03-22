@@ -1,7 +1,23 @@
 import React from 'react';
-import { Head, usePage, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Banknote, TrendingDown, AlertCircle, DollarSign, Activity, Calendar } from 'lucide-react';
+import {
+    Plus,
+    TrendingUp,
+    TrendingDown,
+    Clock,
+    AlertCircle,
+    CheckCircle2,
+    Calendar,
+    ChevronRight,
+    ArrowUpRight,
+    Search,
+    Banknote,
+    Activity,
+    ExternalLink,
+    DollarSign
+} from 'lucide-react';
+import { route } from '@/utils/route';
 
 interface FinanceMetrics {
     received: number;
@@ -18,7 +34,7 @@ interface Props {
 
 export default function Dashboard({ metrics, filters }: Props) {
     const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        router.get('/financeiro', { period: e.target.value }, { preserveState: true });
+        router.get(route('finance.dashboard'), { period: e.target.value }, { preserveState: true });
     };
 
     const formatCurrency = (value: number) => {
@@ -46,17 +62,27 @@ export default function Dashboard({ metrics, filters }: Props) {
                         </p>
                     </div>
                     
-                    <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
-                        <Calendar className="h-4 w-4 text-gray-400 ml-2" />
-                        <select 
-                            className="border-0 bg-transparent text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer"
-                            value={filters.period || 'month'}
-                            onChange={handlePeriodChange}
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
+                            <Calendar className="h-4 w-4 text-gray-400 ml-2" />
+                            <select 
+                                className="border-0 bg-transparent text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer"
+                                value={filters.period || 'month'}
+                                onChange={handlePeriodChange}
+                            >
+                                <option value="week">Esta Semana</option>
+                                <option value="month">Este Mês</option>
+                                <option value="year">Este Ano</option>
+                            </select>
+                        </div>
+
+                        <Link
+                            href="/financeiro/cobrancas/create"
+                            className="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700 focus:bg-emerald-700 active:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
                         >
-                            <option value="week">Esta Semana</option>
-                            <option value="month">Este Mês</option>
-                            <option value="year">Este Ano</option>
-                        </select>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Nova Cobrança
+                        </Link>
                     </div>
                 </div>
 
@@ -84,6 +110,12 @@ export default function Dashboard({ metrics, filters }: Props) {
                             <h3 className="text-sm font-medium text-gray-500">A Receber</h3>
                         </div>
                         <p className="text-2xl font-bold text-gray-900 relative z-10">{formatCurrency(metrics.pending)}</p>
+                        <Link 
+                            href="/financeiro/cobrancas?status=pending"
+                            className="mt-2 text-xs text-blue-600 font-medium hover:underline flex items-center gap-1 relative z-10"
+                        >
+                            Ver todas <ExternalLink className="h-3 w-3" />
+                        </Link>
                     </div>
 
                     {/* Vencido */}
@@ -96,6 +128,12 @@ export default function Dashboard({ metrics, filters }: Props) {
                             <h3 className="text-sm font-medium text-red-800">Vencido</h3>
                         </div>
                         <p className="text-2xl font-bold text-red-700 relative z-10">{formatCurrency(metrics.overdue)}</p>
+                        <Link 
+                            href="/financeiro/cobrancas?status=overdue"
+                            className="mt-2 text-xs text-red-600 font-medium hover:underline flex items-center gap-1 relative z-10"
+                        >
+                            Ver pendências <ExternalLink className="h-3 w-3" />
+                        </Link>
                     </div>
 
                     {/* Ticket Médio */}
