@@ -19,8 +19,12 @@ class CustomerFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'phone' => $this->faker->phoneNumber,
+            'phone' => $this->faker->numerify('###########'), // 11 digits
             'email' => $this->faker->unique()->safeEmail,
+            'document' => $this->faker->numerify('###########'), // 11 digits for CPF
+            'birth_date' => $this->faker->date(),
+            'is_active' => true,
+            'notes' => $this->faker->sentence,
         ];
     }
 }

@@ -7,6 +7,7 @@ const routeHelper = (name: string) => {
   const routes: any = {
     'dashboard': '/dashboard',
     'agenda': '/agenda',
+    'customers.index': '/customers',
   };
   return routes[name] || '#';
 };
@@ -45,10 +46,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <Calendar className="w-5 h-5" />
             Agenda
           </Link>
-          <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800 rounded-md font-medium">
+          <Link 
+            href={routeHelper('customers.index')} 
+            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+              isCurrent('/customers') 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+            }`}
+          >
             <Users className="w-5 h-5" />
             Clientes
-          </a>
+          </Link>
           <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800 rounded-md font-medium">
             <Settings className="w-5 h-5" />
             Configurações

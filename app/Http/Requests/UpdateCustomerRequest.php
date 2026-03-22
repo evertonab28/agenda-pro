@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCustomerRequest extends FormRequest
+class UpdateCustomerRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,13 +18,17 @@ class StoreCustomerRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
+        $customerId = $this->route('customer');
+        // Handle both object and ID if necessary, though route model binding usually provides the object
+        $id = ($customerId instanceof \App\Models\Customer) ? $customerId->id : $customerId;
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20', 'unique:customers,phone'],
+            'phone' => ['required', 'string', 'max:20', 'unique:customers,phone,' . $id],
             'email' => ['nullable', 'email', 'max:255'],
             'document' => ['nullable', 'string', 'max:20'],
             'birth_date' => ['nullable', 'date'],

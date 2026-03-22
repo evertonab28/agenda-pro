@@ -8,8 +8,8 @@ use App\Http\Controllers\Api\ChargeController;
 use App\Http\Controllers\Api\MessagingWebhookController;
 use App\Http\Controllers\Api\DashboardController;
 
-Route::apiResource('customers', CustomerController::class);
-Route::apiResource('services', ServiceController::class);
+Route::apiResource('customers', CustomerController::class)->names('api.customers');
+Route::apiResource('services', ServiceController::class)->names('api.services');
 
 Route::get('appointments', [AppointmentController::class, 'index']);
 Route::post('appointments', [AppointmentController::class, 'store']);
