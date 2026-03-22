@@ -8,16 +8,20 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 class DashboardService
 {
     public function getDashboardData(array $filters)
     {
-        $cacheKey = 'dashboard_data_' . md5(json_encode($filters));
+        // Separate metric filters from pure list filters (pagination/search)
+        $metricFilters = Arr::except($filters, ['pending_page', 'pending_search', 'pending_status']);
+        $cacheKey = 'dashboard_data_' . md5(json_encode($metricFilters));
 
-        return Cache::remember($cacheKey, 120, function () use ($filters) {
-            $fromStr = $filters['from'] ?? null;
-            $toStr = $filters['to'] ?? null;
+        $dashboardData = Cache::remember($cacheKey, 120, function () use ($metricFilters) {
+            $fromStr = $metricFilters['from'] ?? null;
+            $toStr = $metricFilters['to'] ?? null;
 
             $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->startOfMonth();
             $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
@@ -27,8 +31,8 @@ class DashboardService
             $prevTo = (clone $from)->subDay()->endOfDay();
             $prevFrom = (clone $prevTo)->subDays($durationInDays)->startOfDay();
 
-            $currentCards = $this->getCardsData($from, $to, $filters);
-            $previousCards = $this->getCardsData($prevFrom, $prevTo, $filters);
+            $currentCards = $this->getCardsData($from, $to, $metricFilters);
+            $previousCards = $this->getCardsData($prevFrom, $prevTo, $metricFilters);
 
             $deltas = $this->calculateDeltas($currentCards, $previousCards);
 
@@ -48,21 +52,22 @@ class DashboardService
                     'cards' => $previousCards,
                 ],
                 'deltas' => $deltas,
-                'timeseries' => $this->getTimeseries($from, $to, $filters),
-                'pending_charges' => $this->getPendingCharges($from, $to, $filters),
+                'timeseries' => $this->getTimeseries($from, $to, $metricFilters),
+                'ranking_services' => $this->getServiceRankings($from, $to, $metricFilters),
+                'ranking_customers' => $this->getCustomerRankings($from, $to, $metricFilters),
             ];
         });
+
+        // Always fetch dynamic listed queries outside of the heavy cache
+        $dashboardData['pending_charges'] = $this->getPendingCharges($filters);
+
+        return $dashboardData;
     }
 
     private function applyFilters($query, array $filters)
     {
         return $query->when(!empty($filters['status']), function ($q) use ($filters) {
-            // Apply status filter. For appointments, use the table alias or directly if it's the root table
-            // We use 'appointments.status' typically but we'll assume 'status' resolves to the root model.
-            // When querying charges joined with appointments, ensure correct qualification.
             if ($q->getModel() instanceof Charge) {
-                // If the model is a Charge joined with appointments, the status filter should apply to appointments
-                // But the user requested generic status filter. Let's assume the user means Appointment status.
                 $q->whereIn('appointments.status', $filters['status']);
             } else {
                 $q->whereIn('status', $filters['status']);
@@ -88,10 +93,8 @@ class DashboardService
         $completed = (clone $appointmentsQuery)->where('status', 'completed')->count();
         $noShow = (clone $appointmentsQuery)->where('status', 'no_show')->count();
 
-        // Charges
         $chargesQuery = Charge::whereHas('appointment', function ($q) use ($from, $to, $filters) {
             $q->whereBetween('starts_at', [$from, $to]);
-            // Apply filters to the appointment related to the charge
             $q->when(!empty($filters['status']), fn($sub) => $sub->whereIn('status', $filters['status']))
               ->when(!empty($filters['service_id']), fn($sub) => $sub->where('service_id', $filters['service_id']))
               ->when(!empty($filters['professional_id']), function($sub) use ($filters) {
@@ -128,7 +131,6 @@ class DashboardService
             ->groupBy('date')
             ->pluck('count', 'date');
 
-        // Charges requires manual join for `selectRaw` and filters
         $chargesQuery = Charge::join('appointments', 'charges.appointment_id', '=', 'appointments.id')
             ->whereBetween('appointments.starts_at', [$from, $to])
             ->whereIn('charges.status', ['paid', 'pending', 'overdue']);
@@ -154,12 +156,139 @@ class DashboardService
         return $timeseries;
     }
 
-    private function getPendingCharges(Carbon $from, Carbon $to, array $filters)
+    private function getServiceRankings(Carbon $from, Carbon $to, array $filters)
     {
+        $query = Appointment::query()
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->select(
+                'appointments.service_id',
+                DB::raw('MAX(services.name) as service_name'),
+                DB::raw('COUNT(appointments.id) as total_appointments')
+            )
+            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->whereNotNull('appointments.service_id')
+            ->groupBy('appointments.service_id');
+
+        if (!empty($filters['status'])) $query->whereIn('appointments.status', $filters['status']);
+        if (!empty($filters['service_id'])) $query->where('appointments.service_id', $filters['service_id']);
+        if (!empty($filters['professional_id']) && Schema::hasColumn('appointments', 'professional_id')) {
+            $query->where('appointments.professional_id', $filters['professional_id']);
+        }
+
+        $appAgg = $query->get()->keyBy('service_id');
+
+        $revQuery = Charge::query()
+            ->join('appointments', 'charges.appointment_id', '=', 'appointments.id')
+            ->select(
+                'appointments.service_id',
+                DB::raw('SUM(charges.amount) as total_revenue')
+            )
+            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->whereIn('charges.status', ['paid', 'pending', 'overdue'])
+            ->whereNotNull('appointments.service_id')
+            ->groupBy('appointments.service_id');
+
+        if (!empty($filters['status'])) $revQuery->whereIn('appointments.status', $filters['status']);
+        if (!empty($filters['service_id'])) $revQuery->where('appointments.service_id', $filters['service_id']);
+        if (!empty($filters['professional_id']) && Schema::hasColumn('appointments', 'professional_id')) {
+            $revQuery->where('appointments.professional_id', $filters['professional_id']);
+        }
+
+        $revAgg = $revQuery->get()->keyBy('service_id');
+        $serviceIds = $appAgg->keys()->merge($revAgg->keys())->unique();
+
+        $rankings = [];
+        foreach ($serviceIds as $serviceId) {
+            $appInfo = $appAgg->get($serviceId);
+            $revInfo = $revAgg->get($serviceId);
+
+            $rankings[] = [
+                'service_id' => $serviceId,
+                'service_name' => $appInfo ? $appInfo->service_name : 'Desconhecido',
+                'total_appointments' => $appInfo ? $appInfo->total_appointments : 0,
+                'total_revenue' => $revInfo ? (float) $revInfo->total_revenue : 0,
+            ];
+        }
+
+        usort($rankings, function ($a, $b) {
+            return $b['total_revenue'] <=> $a['total_revenue'] ?: $b['total_appointments'] <=> $a['total_appointments'];
+        });
+
+        return array_slice($rankings, 0, 10);
+    }
+
+    private function getCustomerRankings(Carbon $from, Carbon $to, array $filters)
+    {
+        $query = Appointment::query()
+            ->leftJoin('customers', 'appointments.customer_id', '=', 'customers.id')
+            ->select(
+                'appointments.customer_id',
+                DB::raw('MAX(customers.name) as customer_name'),
+                DB::raw('COUNT(appointments.id) as total_appointments')
+            )
+            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->whereNotNull('appointments.customer_id')
+            ->groupBy('appointments.customer_id');
+
+        if (!empty($filters['status'])) $query->whereIn('appointments.status', $filters['status']);
+        if (!empty($filters['service_id'])) $query->where('appointments.service_id', $filters['service_id']);
+        if (!empty($filters['professional_id']) && Schema::hasColumn('appointments', 'professional_id')) {
+            $query->where('appointments.professional_id', $filters['professional_id']);
+        }
+
+        $appAgg = $query->get()->keyBy('customer_id');
+
+        $revQuery = Charge::query()
+            ->join('appointments', 'charges.appointment_id', '=', 'appointments.id')
+            ->select(
+                'appointments.customer_id',
+                DB::raw('SUM(charges.amount) as total_spent')
+            )
+            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->where('charges.status', 'paid')
+            ->whereNotNull('appointments.customer_id')
+            ->groupBy('appointments.customer_id');
+
+        if (!empty($filters['status'])) $revQuery->whereIn('appointments.status', $filters['status']);
+        if (!empty($filters['service_id'])) $revQuery->where('appointments.service_id', $filters['service_id']);
+        if (!empty($filters['professional_id']) && Schema::hasColumn('appointments', 'professional_id')) {
+            $revQuery->where('appointments.professional_id', $filters['professional_id']);
+        }
+
+        $revAgg = $revQuery->get()->keyBy('customer_id');
+        $customerIds = $appAgg->keys()->merge($revAgg->keys())->unique();
+
+        $rankings = [];
+        foreach ($customerIds as $customerId) {
+            $appInfo = $appAgg->get($customerId);
+            $revInfo = $revAgg->get($customerId);
+
+            $rankings[] = [
+                'customer_id' => $customerId,
+                'customer_name' => $appInfo ? $appInfo->customer_name : 'Desconhecido',
+                'total_appointments' => $appInfo ? $appInfo->total_appointments : 0,
+                'total_spent' => $revInfo ? (float) $revInfo->total_spent : 0,
+            ];
+        }
+
+        usort($rankings, function ($a, $b) {
+            return $b['total_spent'] <=> $a['total_spent'] ?: $b['total_appointments'] <=> $a['total_appointments'];
+        });
+
+        return array_slice($rankings, 0, 10);
+    }
+
+    private function getPendingCharges(array $filters)
+    {
+        $fromStr = $filters['from'] ?? null;
+        $toStr = $filters['to'] ?? null;
+        $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->startOfMonth();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
+
         $query = Charge::with('appointment.customer')
-            ->whereIn('charges.status', ['pending', 'overdue'])
             ->whereHas('appointment', function ($q) use ($from, $to, $filters) {
                 $q->whereBetween('starts_at', [$from, $to]);
+                
                 $q->when(!empty($filters['status']), fn($sub) => $sub->whereIn('status', $filters['status']))
                   ->when(!empty($filters['service_id']), fn($sub) => $sub->where('service_id', $filters['service_id']))
                   ->when(!empty($filters['professional_id']), function($sub) use ($filters) {
@@ -169,18 +298,78 @@ class DashboardService
                   });
             });
 
-        return $query->orderBy('due_date', 'asc')
-            ->limit(10)
-            ->get()
-            ->map(function ($charge) {
-                return [
-                    'id' => $charge->id,
-                    'customer_name' => collect($charge->appointment->customer)->get('name', 'Desconhecido'),
-                    'amount' => (float) $charge->amount,
-                    'status' => $charge->status,
-                    'due_date' => $charge->due_date ? $charge->due_date->format('Y-m-d') : null,
-                ];
+        // Paginated status filter
+        $status = $filters['pending_status'] ?? 'all';
+        if ($status === 'pending') {
+            $query->where('charges.status', 'pending');
+        } elseif ($status === 'overdue') {
+            $query->where('charges.status', 'overdue');
+        } else {
+            $query->whereIn('charges.status', ['pending', 'overdue']);
+        }
+
+        // Paginated search filter 
+        if (!empty($filters['pending_search'])) {
+            $query->whereHas('appointment.customer', function($q) use ($filters) {
+                $q->where('name', 'like', '%' . $filters['pending_search'] . '%');
             });
+        }
+
+        $query->orderByRaw("CASE WHEN charges.status = 'overdue' THEN 1 ELSE 2 END")
+              ->orderBy('due_date', 'asc');
+
+        $page = $filters['pending_page'] ?? 1;
+        $paginator = $query->paginate(10, ['*'], 'pending_page', $page);
+        
+        $items = collect($paginator->items())->map(function ($charge) {
+            return [
+                'id' => $charge->id,
+                'customer_name' => collect($charge->appointment->customer)->get('name', 'Desconhecido'),
+                'amount' => (float) $charge->amount,
+                'status' => $charge->status,
+                'due_date' => $charge->due_date ? $charge->due_date->format('Y-m-d') : null,
+            ];
+        });
+
+        return [
+            'data' => $items,
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ]
+        ];
+    }
+    
+    public function getDayDetails(string $date, array $filters)
+    {
+        $day = Carbon::parse($date);
+        
+        $query = Appointment::with(['customer', 'service', 'charge'])
+            ->whereBetween('starts_at', [$day->clone()->startOfDay(), $day->clone()->endOfDay()]);
+            
+        $query = $this->applyFilters($query, $filters);
+        
+        $appointments = $query->paginate(15);
+        
+        $appointmentsData = collect($appointments->items());
+        
+        $statusDistribution = $appointmentsData->groupBy('status')->map->count();
+        
+        $paid = $appointmentsData->map(fn($a) => $a->charge)->where('status', 'paid')->sum('amount');
+        $pending = $appointmentsData->map(fn($a) => $a->charge)->where('status', 'pending')->sum('amount');
+        $overdue = $appointmentsData->map(fn($a) => $a->charge)->where('status', 'overdue')->sum('amount');
+        
+        return [
+            'appointments' => $appointments, 
+            'financial' => [
+                'paid' => (float) $paid,
+                'pending' => (float) $pending,
+                'overdue' => (float) $overdue,
+            ],
+            'status_distribution' => $statusDistribution
+        ];
     }
 
     public function calculateDeltas(array $current, array $previous)
@@ -224,7 +413,7 @@ class DashboardService
         $csv .= "\nPending Charges\n";
         $csv .= "Customer,Amount,Due Date,Status\n";
         
-        foreach ($data['pending_charges'] as $charge) {
+        foreach ($data['pending_charges']['data'] ?? [] as $charge) {
             $csv .= "{$charge['customer_name']},{$charge['amount']},{$charge['due_date']},{$charge['status']}\n";
         }
         

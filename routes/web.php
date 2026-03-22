@@ -9,4 +9,5 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardPageController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/day/{date}', [DashboardPageController::class, 'dayDetails'])->name('dashboard.day');
 Route::get('/dashboard/export', [DashboardPageController::class, 'export'])->name('dashboard.export');

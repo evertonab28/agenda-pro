@@ -50,4 +50,26 @@ class DashboardPageController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
+
+    public function dayDetails(string $date, DashboardFilterRequest $request)
+    {
+        try {
+            $parsedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            if (!$parsedDate || $parsedDate->format('Y-m-d') !== $date) {
+                return response()->json(['message' => 'Invalid date format. Expected YYYY-MM-DD.'], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid date format. Expected YYYY-MM-DD.'], 422);
+        }
+
+        $filters = $request->validated();
+        
+        if (!isset($filters['status'])) {
+            $filters['status'] = [];
+        }
+
+        return response()->json(
+            $this->dashboardService->getDayDetails($date, $filters)
+        );
+    }
 }
