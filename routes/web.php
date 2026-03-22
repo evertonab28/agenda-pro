@@ -9,3 +9,4 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardPageController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/export', [DashboardPageController::class, 'export'])->name('dashboard.export');
