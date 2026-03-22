@@ -29,14 +29,27 @@ class DashboardFilterRequest extends FormRequest
     protected function prepareForValidation()
     {
         if ($this->has('from') && $this->has('to')) {
-            $from = strtotime($this->from);
-            $to = strtotime($this->to);
-            if ($from > $to) {
+            $from = \Carbon\Carbon::parse($this->from);
+            $to = \Carbon\Carbon::parse($this->to);
+            if ($from->gt($to)) {
                 $this->merge([
                     'from' => $this->to,
                     'to' => $this->from,
                 ]);
             }
         }
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->has('from') && $this->has('to')) {
+                $from = \Carbon\Carbon::parse($this->from);
+                $to = \Carbon\Carbon::parse($this->to);
+                if ($from->diffInDays($to) > 365) {
+                    $validator->errors()->add('to', 'O período máximo de busca é de 365 dias.');
+                }
+            }
+        });
     }
 }

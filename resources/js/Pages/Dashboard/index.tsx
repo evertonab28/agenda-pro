@@ -10,7 +10,7 @@ import { DayDetailsDrawer } from './Components/DayDetailsDrawer';
 
 export default function DashboardIndex({ 
   filters, range, current, deltas, timeseries, 
-  ranking_services, ranking_customers, pending_charges 
+  ranking_services, ranking_customers, pending_charges, can_export, errors
 }: DashboardProps) {
 
   const [filterState, setFilterState] = useState<FiltersState>({
@@ -37,10 +37,17 @@ export default function DashboardIndex({
   return (
     <AppLayout>
       <div className="space-y-6 pb-12">
+        {errors && Object.keys(errors).length > 0 && (
+           <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/50">
+             {Object.values(errors).map((e: any, idx) => <p key={idx}>{e}</p>)}
+           </div>
+        )}
+
         <DashboardFilters 
           filterState={filterState} 
           setFilterState={setFilterState} 
           exportUrl={exportUrl} 
+          canExport={can_export !== false}
         />
 
         <KpiCards cards={current.cards} deltas={deltas} />

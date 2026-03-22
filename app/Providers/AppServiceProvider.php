@@ -21,6 +21,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \App\Models\Appointment::observe(\App\Observers\AppointmentObserver::class);
+        \App\Models\Charge::observe(\App\Observers\ChargeObserver::class);
+
+        \Illuminate\Support\Facades\Gate::define('export-dashboard', function (\App\Models\User $user) {
+            return in_array($user->role ?? 'admin', ['admin', 'manager']);
+        });
+        
+        \Illuminate\Support\Facades\Gate::define('view-dashboard', function (\App\Models\User $user) {
+            return in_array($user->role ?? 'admin', ['admin', 'manager', 'operator']);
+        });
     }
 }

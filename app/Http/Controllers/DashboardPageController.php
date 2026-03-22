@@ -28,6 +28,7 @@ class DashboardPageController extends Controller
 
         return Inertia::render('Dashboard/index', array_merge([
             'filters' => $filters,
+            'can_export' => $request->user() ? $request->user()->can('export-dashboard') : true,
         ], $dashboardData));
     }
 

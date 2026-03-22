@@ -9,73 +9,114 @@ use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Arr;
 
 class DashboardService
 {
+    private function getCacheKeyPrefix()
+    {
+        return 'dash_v' . Cache::get('dashboard_version', 1) . '_';
+    }
+
+    private function measuredCache(string $key, int $ttlSeconds, \Closure $callback)
+    {
+        $start = microtime(true);
+        $hit = Cache::has($key);
+        $data = Cache::remember($key, $ttlSeconds, $callback);
+        $timeMs = round((microtime(true) - $start) * 1000, 2);
+        
+        return [$data, $timeMs, $hit];
+    }
+
     public function getDashboardData(array $filters)
     {
-        // Separate metric filters from pure list filters (pagination/search)
         $metricFilters = Arr::except($filters, ['pending_page', 'pending_search', 'pending_status']);
-        $cacheKey = 'dashboard_data_' . md5(json_encode($metricFilters));
+        
+        // Include user ID in cache key if user-specific logic applies. Assuming user context is required for true RBAC.
+        $userId = auth()->id() ?? 'guest';
+        $filterHash = md5(json_encode($metricFilters) . $userId);
+        
+        $ttl = env('DASHBOARD_CACHE_TTL', 120);
+        $prefix = $this->getCacheKeyPrefix();
+        $startTime = microtime(true);
 
-        $dashboardData = Cache::remember($cacheKey, 120, function () use ($metricFilters) {
-            $fromStr = $metricFilters['from'] ?? null;
-            $toStr = $metricFilters['to'] ?? null;
+        $fromStr = $metricFilters['from'] ?? null;
+        $toStr = $metricFilters['to'] ?? null;
+        $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->startOfMonth();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
 
-            $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->startOfMonth();
-            $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
+        $durationInDays = $from->diffInDays($to);
+        $prevTo = (clone $from)->subDay()->endOfDay();
+        $prevFrom = (clone $prevTo)->subDays($durationInDays)->startOfDay();
 
-            // Calculate Previous Period
-            $durationInDays = $from->diffInDays($to);
-            $prevTo = (clone $from)->subDay()->endOfDay();
-            $prevFrom = (clone $prevTo)->subDays($durationInDays)->startOfDay();
-
+        [$cardsData, $cardsTime, $cardsHit] = $this->measuredCache("{$prefix}cards_{$filterHash}", $ttl, function() use ($from, $to, $prevFrom, $prevTo, $metricFilters) {
             $currentCards = $this->getCardsData($from, $to, $metricFilters);
             $previousCards = $this->getCardsData($prevFrom, $prevTo, $metricFilters);
-
-            $deltas = $this->calculateDeltas($currentCards, $previousCards);
-
             return [
-                'range' => [
-                    'from' => $from->toDateTimeString(),
-                    'to' => $to->toDateTimeString(),
-                ],
-                'previous_range' => [
-                    'from' => $prevFrom->toDateTimeString(),
-                    'to' => $prevTo->toDateTimeString(),
-                ],
-                'current' => [
-                    'cards' => $currentCards,
-                ],
-                'previous' => [
-                    'cards' => $previousCards,
-                ],
-                'deltas' => $deltas,
-                'timeseries' => $this->getTimeseries($from, $to, $metricFilters),
-                'ranking_services' => $this->getServiceRankings($from, $to, $metricFilters),
-                'ranking_customers' => $this->getCustomerRankings($from, $to, $metricFilters),
+                'current' => ['cards' => $currentCards],
+                'previous' => ['cards' => $previousCards],
+                'deltas' => $this->calculateDeltas($currentCards, $previousCards),
             ];
         });
 
-        // Always fetch dynamic listed queries outside of the heavy cache
-        $dashboardData['pending_charges'] = $this->getPendingCharges($filters);
+        [$timeseriesData, $tsTime, $tsHit] = $this->measuredCache("{$prefix}ts_{$filterHash}", $ttl, function() use ($from, $to, $metricFilters) {
+            return $this->getTimeseries($from, $to, $metricFilters);
+        });
 
-        return $dashboardData;
+        [$rankingServices, $rsTime, $rsHit] = $this->measuredCache("{$prefix}rs_{$filterHash}", $ttl, function() use ($from, $to, $metricFilters) {
+            return $this->getServiceRankings($from, $to, $metricFilters);
+        });
+
+        [$rankingCustomers, $rcTime, $rcHit] = $this->measuredCache("{$prefix}rc_{$filterHash}", $ttl, function() use ($from, $to, $metricFilters) {
+            return $this->getCustomerRankings($from, $to, $metricFilters);
+        });
+
+        $totalTimeMs = round((microtime(true) - $startTime) * 1000, 2);
+
+        $pendingStartTime = microtime(true);
+        $pendingChargesData = $this->getPendingCharges($filters);
+        $pendingTimeMs = round((microtime(true) - $pendingStartTime) * 1000, 2);
+
+        Log::info("Dashboard Load", [
+            'total_time_ms' => $totalTimeMs + $pendingTimeMs,
+            'blocks' => [
+                'cards' => ['ms' => $cardsTime, 'hit' => $cardsHit],
+                'timeseries' => ['ms' => $tsTime, 'hit' => $tsHit],
+                'ranking_services' => ['ms' => $rsTime, 'hit' => $rsHit],
+                'ranking_customers' => ['ms' => $rcTime, 'hit' => $rcHit],
+                'pending_table_dynamic' => ['ms' => $pendingTimeMs],
+            ]
+        ]);
+
+        return array_merge([
+            'range' => [
+                'from' => $from->toDateTimeString(),
+                'to' => $to->toDateTimeString(),
+            ],
+            'previous_range' => [
+                'from' => $prevFrom->toDateTimeString(),
+                'to' => $prevTo->toDateTimeString(),
+            ],
+            'timeseries' => $timeseriesData,
+            'ranking_services' => $rankingServices,
+            'ranking_customers' => $rankingCustomers,
+            'pending_charges' => $pendingChargesData,
+        ], $cardsData);
     }
 
     private function applyFilters($query, array $filters)
     {
-        return $query->when(!empty($filters['status']), function ($q) use ($filters) {
+        return $query->when(!empty($filters['status']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             if ($q->getModel() instanceof Charge) {
                 $q->whereIn('appointments.status', $filters['status']);
             } else {
                 $q->whereIn('status', $filters['status']);
             }
-        })->when(!empty($filters['service_id']), function ($q) use ($filters) {
+        })->when(!empty($filters['service_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             $col = $q->getModel() instanceof Charge ? 'appointments.service_id' : 'service_id';
             $q->where($col, $filters['service_id']);
-        })->when(!empty($filters['professional_id']), function ($q) use ($filters) {
+        })->when(!empty($filters['professional_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             if (Schema::hasColumn('appointments', 'professional_id')) {
                 $col = $q->getModel() instanceof Charge ? 'appointments.professional_id' : 'professional_id';
                 $q->where($col, $filters['professional_id']);
@@ -148,6 +189,7 @@ class DashboardService
             $dateString = $date->format('Y-m-d');
             $timeseries[] = [
                 'date' => $date->format('d/m'),
+                'full_date' => $dateString,
                 'appointments' => $appointmentsDaily->get($dateString, 0),
                 'revenue' => (float) $chargesDaily->get($dateString, 0),
             ];
@@ -298,7 +340,6 @@ class DashboardService
                   });
             });
 
-        // Paginated status filter
         $status = $filters['pending_status'] ?? 'all';
         if ($status === 'pending') {
             $query->where('charges.status', 'pending');
@@ -308,7 +349,6 @@ class DashboardService
             $query->whereIn('charges.status', ['pending', 'overdue']);
         }
 
-        // Paginated search filter 
         if (!empty($filters['pending_search'])) {
             $query->whereHas('appointment.customer', function($q) use ($filters) {
                 $q->where('name', 'like', '%' . $filters['pending_search'] . '%');
@@ -352,7 +392,6 @@ class DashboardService
         $query = $this->applyFilters($query, $filters);
         
         $appointments = $query->paginate(15);
-        
         $appointmentsData = collect($appointments->items());
         
         $statusDistribution = $appointmentsData->groupBy('status')->map->count();

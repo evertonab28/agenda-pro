@@ -6,9 +6,10 @@ interface Props {
   filterState: FiltersState;
   setFilterState: (state: FiltersState) => void;
   exportUrl: string;
+  canExport?: boolean;
 }
 
-export function DashboardFilters({ filterState, setFilterState, exportUrl }: Props) {
+export function DashboardFilters({ filterState, setFilterState, exportUrl, canExport = true }: Props) {
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault();
     router.get('/dashboard', filterState as any, { preserveState: true });
@@ -70,10 +71,12 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl }: Pro
             </button>
           </form>
 
-          <a href={exportUrl} target="_blank" className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-sm font-medium px-4 py-2.5 rounded-lg border shadow-sm transition-colors text-zinc-700 dark:text-zinc-200">
-            <Download className="w-4 h-4" />
-            CSV
-          </a>
+          {canExport && (
+            <a href={exportUrl} target="_blank" className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-sm font-medium px-4 py-2.5 rounded-lg border shadow-sm transition-colors text-zinc-700 dark:text-zinc-200">
+              <Download className="w-4 h-4" />
+              CSV
+            </a>
+          )}
         </div>
       </div>
 

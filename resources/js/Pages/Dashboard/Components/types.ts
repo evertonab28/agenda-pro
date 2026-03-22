@@ -75,4 +75,6 @@ export interface DashboardProps {
   ranking_services: RankingService[];
   ranking_customers: RankingCustomer[];
   pending_charges: PendingChargesData;
+  can_export?: boolean;
+  errors?: Record<string, string>;
 }

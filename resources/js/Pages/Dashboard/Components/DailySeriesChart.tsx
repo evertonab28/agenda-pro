@@ -8,7 +8,7 @@ interface Props {
 
 export function DailySeriesChart({ data, onBarClick }: Props) {
   return (
-    <Card className="shadow-sm col-span-full xl:col-span-8">
+    <Card className="shadow-sm col-span-full xl:col-span-7">
       <CardHeader>
         <CardTitle>Série Diária</CardTitle>
         <CardDescription>Agendamentos e Receita (R$) por dia (clique na barra para drill-down no dia)</CardDescription>
@@ -25,7 +25,13 @@ export function DailySeriesChart({ data, onBarClick }: Props) {
               }
             }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-gray-200 dark:stroke-zinc-800" />
-              <XAxis dataKey="date" className="text-xs text-muted-foreground" tickLine={false} axisLine={false} />
+              <XAxis 
+                dataKey="date" 
+                className="text-[10px] text-muted-foreground" 
+                tickLine={false} 
+                axisLine={false}
+                interval={Math.ceil(data.length / 10)}
+              />
               <YAxis yAxisId="left" className="text-xs text-muted-foreground" tickLine={false} axisLine={false} />
               <YAxis yAxisId="right" orientation="right" className="text-xs text-muted-foreground" tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value}`} />
               <Tooltip 

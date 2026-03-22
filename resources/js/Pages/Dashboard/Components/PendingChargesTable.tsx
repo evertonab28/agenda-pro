@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -24,6 +25,20 @@ interface Props {
 
 export function PendingChargesTable({ data, filterState, setFilterState }: Props) {
   
+  const [searchTerm, setSearchTerm] = useState(filterState.pending_search || '');
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm !== (filterState.pending_search || '')) {
+        const newState = { ...filterState, pending_search: searchTerm, pending_page: 1 };
+        setFilterState(newState);
+        router.get('/dashboard', newState as any, { preserveState: true, preserveScroll: true });
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     router.get('/dashboard', { ...filterState as any, pending_page: 1 }, { preserveState: true, preserveScroll: true });
@@ -51,8 +66,8 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
                 type="text" 
                 placeholder="Buscar cliente..." 
                 className="pl-9 pr-3 py-1.5 text-sm rounded-md border border-gray-200 dark:border-zinc-700 bg-transparent focus:ring-1 focus:ring-primary w-48"
-                value={filterState.pending_search || ''}
-                onChange={e => setFilterState({ ...filterState, pending_search: e.target.value })}
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
             <select 

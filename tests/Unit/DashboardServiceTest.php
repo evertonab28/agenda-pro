@@ -73,7 +73,9 @@ class DashboardServiceTest extends TestCase
                 ],
             ],
             'pending_charges' => [
-                ['customer_name' => 'John Doe', 'amount' => 50, 'due_date' => '2025-01-01', 'status' => 'pending']
+                'data' => [
+                    ['customer_name' => 'John Doe', 'amount' => 50, 'due_date' => '2025-01-01', 'status' => 'pending']
+                ]
             ]
         ];
 
