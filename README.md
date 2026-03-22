@@ -31,6 +31,7 @@ Este projeto adota uma stack moderna e de alta performance:
 - **Gráficos Dinâmicos (Série Diária):** Gráfico interativo evidenciando o cruzamento entre Agendamentos realizados vs Receita financeira (R$) num dado dia, ajudando a entender picos de demanda.
 - **Tabela Crítica de Inadimplência:** Identificação em tempo real, acompanhada de indicativos visuais (Tags coloridas dinâmicas), de todos os débitos e vencimentos programados dos clientes/pacientes.
 - **Filtro de Período Inteligente:** Navegação retroativa ou futura por datas usando busca dinâmica e veloz provida pelo ecossistema Inertia.
+- **Dashboard Filters & Export (V2):** Filtros avançados combinados (Data, Status, ID Profissional, ID Serviço). Exibição de variação percentual (Deltas) em relação ao período anterior nos indicadores chave. Exportação do relatório completo e consolidado diretamente para formato CSV mantendo os filtros ativos.
 
 ---
 
