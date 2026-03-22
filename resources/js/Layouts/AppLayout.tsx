@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Home, Calendar, Users, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Settings, LogOut, Banknote } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 
 // Simple route helper for Ziggy-less environments
@@ -7,7 +7,8 @@ const routeHelper = (name: string) => {
   const routes: any = {
     'dashboard': '/dashboard',
     'agenda': '/agenda',
-    'customers.index': '/customers',
+    'customers': '/customers',
+    'finance.dashboard': '/financeiro',
   };
   return routes[name] || '#';
 };
@@ -32,7 +33,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
             }`}
           >
-            <Home className="w-5 h-5" />
+            <LayoutDashboard className="w-5 h-5" />
             Dashboard
           </Link>
           <Link 
@@ -47,7 +48,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             Agenda
           </Link>
           <Link 
-            href={routeHelper('customers.index')} 
+            href={routeHelper('customers')} 
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
               isCurrent('/customers') 
                 ? 'bg-primary/10 text-primary' 
@@ -56,6 +57,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           >
             <Users className="w-5 h-5" />
             Clientes
+          </Link>
+          <Link 
+            href={routeHelper('finance.dashboard')} 
+            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+              isCurrent('/financeiro') 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Banknote className="w-5 h-5" />
+            Financeiro
           </Link>
           <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800 rounded-md font-medium">
             <Settings className="w-5 h-5" />

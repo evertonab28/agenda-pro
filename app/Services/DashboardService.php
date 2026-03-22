@@ -107,19 +107,27 @@ class DashboardService
 
     private function applyFilters($query, array $filters)
     {
-        return $query->when(!empty($filters['status']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
+        return $query->when(fn() => !empty($filters['status']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             if ($q->getModel() instanceof Charge) {
-                $q->whereIn('appointments.status', $filters['status']);
+                $q->where(function ($sub) use ($filters) {
+                    $sub->whereIn('appointments.status', $filters['status']);
+                });
             } else {
-                $q->whereIn('status', $filters['status']);
+                $q->where(function ($sub) use ($filters) {
+                    $sub->whereIn('status', $filters['status']);
+                });
             }
-        })->when(!empty($filters['service_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
+        })->when(fn() => !empty($filters['service_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             $col = $q->getModel() instanceof Charge ? 'appointments.service_id' : 'service_id';
-            $q->where($col, $filters['service_id']);
-        })->when(!empty($filters['professional_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
+            $q->where(function ($sub) use ($filters, $col) {
+                $sub->where($col, $filters['service_id']);
+            });
+        })->when(fn() => !empty($filters['professional_id']), function (\Illuminate\Database\Eloquent\Builder $q) use ($filters) {
             if (Schema::hasColumn('appointments', 'professional_id')) {
                 $col = $q->getModel() instanceof Charge ? 'appointments.professional_id' : 'professional_id';
-                $q->where($col, $filters['professional_id']);
+                $q->where(function ($sub) use ($filters, $col) {
+                    $sub->where($col, $filters['professional_id']);
+                });
             }
         });
     }
@@ -173,8 +181,12 @@ class DashboardService
             ->pluck('count', 'date');
 
         $chargesQuery = Charge::join('appointments', 'charges.appointment_id', '=', 'appointments.id')
-            ->whereBetween('appointments.starts_at', [$from, $to])
-            ->whereIn('charges.status', ['paid', 'pending', 'overdue']);
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('appointments.starts_at', [$from, $to]);
+            })
+            ->where(function ($q) {
+                $q->whereIn('charges.status', ['paid', 'pending', 'overdue']);
+            });
         
         $chargesQuery = $this->applyFilters($chargesQuery, $filters);
 
@@ -207,7 +219,9 @@ class DashboardService
                 DB::raw('MAX(services.name) as service_name'),
                 DB::raw('COUNT(appointments.id) as total_appointments')
             )
-            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('appointments.starts_at', [$from, $to]);
+            })
             ->whereNotNull('appointments.service_id')
             ->groupBy('appointments.service_id');
 
@@ -225,8 +239,12 @@ class DashboardService
                 'appointments.service_id',
                 DB::raw('SUM(charges.amount) as total_revenue')
             )
-            ->whereBetween('appointments.starts_at', [$from, $to])
-            ->whereIn('charges.status', ['paid', 'pending', 'overdue'])
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('appointments.starts_at', [$from, $to]);
+            })
+            ->where(function ($q) {
+                $q->whereIn('charges.status', ['paid', 'pending', 'overdue']);
+            })
             ->whereNotNull('appointments.service_id')
             ->groupBy('appointments.service_id');
 
@@ -286,15 +304,25 @@ class DashboardService
                 'appointments.customer_id',
                 DB::raw('SUM(charges.amount) as total_spent')
             )
-            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->whereBetween('charges.paid_at', [$from, $to])
             ->where('charges.status', 'paid')
             ->whereNotNull('appointments.customer_id')
             ->groupBy('appointments.customer_id');
 
-        if (!empty($filters['status'])) $revQuery->whereIn('appointments.status', $filters['status']);
-        if (!empty($filters['service_id'])) $revQuery->where('appointments.service_id', $filters['service_id']);
+        if (!empty($filters['status'])) {
+            $revQuery->where(function ($sub) use ($filters) {
+                $sub->whereIn('appointments.status', $filters['status']);
+            });
+        }
+        if (!empty($filters['service_id'])) {
+            $revQuery->where(function ($sub) use ($filters) {
+                $sub->where('appointments.service_id', $filters['service_id']);
+            });
+        }
         if (!empty($filters['professional_id']) && Schema::hasColumn('appointments', 'professional_id')) {
-            $revQuery->where('appointments.professional_id', $filters['professional_id']);
+            $revQuery->where(function ($sub) use ($filters) {
+                $sub->where('appointments.professional_id', $filters['professional_id']);
+            });
         }
 
         $revAgg = $revQuery->get()->keyBy('customer_id');

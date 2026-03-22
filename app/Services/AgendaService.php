@@ -21,7 +21,9 @@ class AgendaService
             ]);
 
         if (!empty($filters['professional_id'])) {
-            $query->where('professional_id', $filters['professional_id']);
+            $query->where(function ($q) use ($filters) {
+                $q->where('professional_id', $filters['professional_id']);
+            });
         }
 
         if (!empty($filters['status'])) {
@@ -29,7 +31,9 @@ class AgendaService
         }
 
         if (!empty($filters['service_id'])) {
-            $query->where('service_id', $filters['service_id']);
+            $query->where(function ($q) use ($filters) {
+                $q->where('service_id', $filters['service_id']);
+            });
         }
 
         return $query->get()->map(function ($app) {

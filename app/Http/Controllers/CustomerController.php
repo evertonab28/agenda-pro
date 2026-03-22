@@ -22,17 +22,19 @@ class CustomerController extends Controller
             }]);
 
         // Search filter
-        $query->when($request->input('search'), function ($q, $search) {
-            $q->where(function ($q2) use ($search) {
-                $q2->where('name', 'like', "%{$search}%")
-                   ->orWhere('phone', 'like', "%{$search}%")
-                   ->orWhere('email', 'like', "%{$search}%");
+        $query->when(fn() => $request->filled('search'), function ($q) use ($request) {
+            $search = $request->input('search');
+            $q->where(function ($sub) use ($search) {
+                $sub->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         });
 
-        // Status filter
-        $query->when($request->has('status') && $request->status !== 'all', function ($q) use ($request) {
-            $q->where('is_active', $request->status === 'active');
+        $query->when(fn() => $request->filled('status') && $request->input('status') !== 'all', function ($q) use ($request) {
+            $status = $request->input('status') === 'active';
+            $q->where(function ($sub) use ($status) {
+                $sub->where('is_active', $status);
+            });
         });
 
         // Financial Pending filter
@@ -76,11 +78,28 @@ class CustomerController extends Controller
             'total_overdue' => $customer->charges()->whereNull('paid_at')->where('due_date', '<', now()->toDateString())->sum('amount'),
         ];
 
+        $appointments = $customer->appointments()
+            ->with(['service', 'professional'])
+            ->where(function ($q) {
+                $q->where('status', '!=', 'canceled');
+            })
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->paginate(10, ['*'], 'appointments_page');
+
+        $charges = $customer->charges()
+            ->withSum('receipts', 'amount_received')
+            ->where(function ($q) {
+                $q->where('status', '!=', 'canceled');
+            })
+            ->orderBy('due_date', 'desc')
+            ->paginate(10, ['*'], 'charges_page');
+
         return Inertia::render('Customers/Show', [
             'customer' => $customer,
             'summary' => $summary,
-            'appointments' => $customer->appointments()->with(['service', 'professional'])->latest('starts_at')->paginate(5),
-            'financial_history' => $customer->charges()->with('appointment.service')->latest('due_date')->paginate(5),
+            'appointments' => $appointments,
+            'financial_history' => $charges,
         ]);
     }
 

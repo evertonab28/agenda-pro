@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Charge extends Model
 {
-protected $fillable = [
+    use HasFactory;
+
+    protected $fillable = [
+'description',
+'customer_id',
 'appointment_id',
 'amount',
 'status',
@@ -16,6 +21,7 @@ protected $fillable = [
 'paid_at',
 'payment_method',
 'external_reference',
+'notes',
 ];
 
 protected $casts = [
@@ -32,5 +38,15 @@ return $this->belongsTo(Appointment::class);
 public function reminders(): HasMany
 {
 return $this->hasMany(ReminderLog::class);
+}
+
+public function customer(): BelongsTo
+{
+return $this->belongsTo(Customer::class);
+}
+
+public function receipts(): HasMany
+{
+return $this->hasMany(Receipt::class);
 }
 }

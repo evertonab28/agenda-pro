@@ -7,12 +7,26 @@ use Illuminate\Support\Facades\Cache;
 
 class ChargeObserver
 {
-    private function invalidateDashboard()
+    /**
+     * Handle the Charge "saved" event.
+     */
+    public function saved(Charge $charge): void
     {
-        Cache::increment('dashboard_version');
+        $this->clearCache();
     }
 
-    public function created(Charge $model) { $this->invalidateDashboard(); }
-    public function updated(Charge $model) { $this->invalidateDashboard(); }
-    public function deleted(Charge $model) { $this->invalidateDashboard(); }
+    /**
+     * Handle the Charge "deleted" event.
+     */
+    public function deleted(Charge $charge): void
+    {
+        $this->clearCache();
+    }
+
+    protected function clearCache(): void
+    {
+        // For now, simpler to flush since keys are date-dependent
+        // In a high-traffic app, we'd use better tagging.
+        Cache::flush(); 
+    }
 }
