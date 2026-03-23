@@ -43,6 +43,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/agenda/{appointment}/checkout', [\App\Http\Controllers\AgendaCheckoutController::class, 'show'])->name('agenda.checkout.show');
     Route::post('/agenda/{appointment}/checkout', [\App\Http\Controllers\AgendaCheckoutController::class, 'store'])->name('agenda.checkout.store');
 
+    Route::resource('lista-espera', \App\Http\Controllers\WaitlistController::class)->names('waitlist');
+    Route::post('lista-espera/{entry}/converter', [\App\Http\Controllers\WaitlistController::class, 'convert'])->name('waitlist.convert');
+
+    Route::resource('pacotes', \App\Http\Controllers\PackageController::class)->names('packages');
+    Route::post('pacotes/{package}/vender', [\App\Http\Controllers\PackageController::class, 'sell'])->name('packages.sell');
+    Route::post('clientes/{customer}/credito', [\App\Http\Controllers\CustomerController::class, 'addCredit'])->name('customers.add-credit');
+
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+        Route::get('/executivo', [\App\Http\Controllers\ExecutiveDashboardController::class, 'index'])->name('executive');
+    });
+
+    Route::prefix('crm')->name('crm.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\CRMController::class, 'index'])->name('index');
+        Route::get('/segmento/{segment}', [\App\Http\Controllers\CRMController::class, 'segment'])->name('segment');
+    });
     // Módulo Financeiro
     Route::prefix('financeiro')->name('finance.')->group(function () {
         Route::get('/', [\App\Http\Controllers\FinanceController::class, 'dashboard'])->name('dashboard');

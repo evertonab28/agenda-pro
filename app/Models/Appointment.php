@@ -23,6 +23,7 @@ protected $fillable = [
 'confirmed_at',
 'source',
 'notes',
+'cancel_reason',
 ];
 
 public function professional(): BelongsTo

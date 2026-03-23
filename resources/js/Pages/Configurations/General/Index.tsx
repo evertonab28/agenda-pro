@@ -15,13 +15,23 @@ interface Props {
         max_window_days: number;
         timezone: string;
         currency: string;
+        no_show_fee_enabled: boolean;
+        no_show_fee_amount: number;
+        default_buffer_minutes: number;
     };
 }
 
 export default function Index({ settings }: Props) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
-        ...settings,
-        currency: settings.currency || 'BRL'
+        company_name: settings.company_name || '',
+        slot_duration: settings.slot_duration || 30,
+        min_advance_minutes: settings.min_advance_minutes || 60,
+        max_window_days: settings.max_window_days || 30,
+        timezone: settings.timezone || 'America/Sao_Paulo',
+        currency: settings.currency || 'BRL',
+        no_show_fee_enabled: Boolean(settings.no_show_fee_enabled),
+        no_show_fee_amount: Number(settings.no_show_fee_amount),
+        default_buffer_minutes: Number(settings.default_buffer_minutes)
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -113,6 +123,19 @@ export default function Index({ settings }: Props) {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <Label htmlFor="default_buffer_minutes">Buffer Padrão (minutos)</Label>
+                                    <Input
+                                        id="default_buffer_minutes"
+                                        type="number"
+                                        min="0"
+                                        value={data.default_buffer_minutes}
+                                        onChange={(e) => setData('default_buffer_minutes', parseInt(e.target.value))}
+                                    />
+                                    <p className="text-[10px] text-gray-500">Intervalo automático sugerido entre atendimentos.</p>
+                                    {errors.default_buffer_minutes && <p className="text-xs text-red-500">{errors.default_buffer_minutes}</p>}
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="timezone">Timezone (Fuso Horário)</Label>
                                     <Select 
                                         id="timezone"
@@ -141,6 +164,44 @@ export default function Index({ settings }: Props) {
                                     <p className="text-[10px] text-gray-500">Moeda padrão para cobranças e relatórios.</p>
                                     {errors.currency && <p className="text-xs text-red-500">{errors.currency}</p>}
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Financial/Penalty Section */}
+                        <div className="space-y-4 col-span-full">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">Gestão de Faltas & Financeiro</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-3">
+                                    <div className="flex items-center space-x-2">
+                                        <input
+                                            id="no_show_fee_enabled"
+                                            type="checkbox"
+                                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                            checked={data.no_show_fee_enabled}
+                                            onChange={(e) => setData('no_show_fee_enabled', e.target.checked)}
+                                        />
+                                        <Label htmlFor="no_show_fee_enabled" className="text-sm font-medium leading-none cursor-pointer">
+                                            Cobrar Taxa de No-Show (Falta)
+                                        </Label>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 italic pl-6">Gera uma cobrança automática se o status for alterado para "Falta".</p>
+                                </div>
+
+                                {data.no_show_fee_enabled && (
+                                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <Label htmlFor="no_show_fee_amount">Valor da Taxa (R$)</Label>
+                                        <Input
+                                            id="no_show_fee_amount"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.no_show_fee_amount}
+                                            onChange={(e) => setData('no_show_fee_amount', parseFloat(e.target.value))}
+                                            placeholder="0.00"
+                                        />
+                                        {errors.no_show_fee_amount && <p className="text-xs text-red-500">{errors.no_show_fee_amount}</p>}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

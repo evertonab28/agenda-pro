@@ -1,20 +1,27 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { 
-    LayoutDashboard, 
-    Calendar, 
-    Users, 
-    Settings, 
-    LogOut,
-    Plus,
-    Search,
-    Bell,
-    CreditCard,
-    DollarSign,
-    PiggyBank,
-    Banknote,
-    CheckCircle2,
-    XCircle,
-    X
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  Settings,
+  LogOut,
+  ChevronRight,
+  Plus,
+  Search,
+  Bell,
+  Menu,
+  X,
+  User,
+  CreditCard,
+  TrendingUp,
+  Package,
+  Banknote,
+  SearchIcon,
+  HelpCircle,
+  CheckCircle2,
+  XCircle,
+  PiggyBank,
+  DollarSign
 } from 'lucide-react';
 import { route } from '@/utils/route';
 import { Link, usePage } from '@inertiajs/react';
@@ -56,13 +63,24 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <Link 
               href={route('dashboard')} 
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/dashboard') 
+                isCurrent('/dashboard') && !isCurrent('/dashboard/executivo')
                   ? 'bg-primary/10 text-primary' 
                   : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
               }`}
             >
               <LayoutDashboard className="w-5 h-5" />
-              Dashboard
+              Geral
+            </Link>
+            <Link 
+              href={route('dashboard.executive')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/dashboard/executivo') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <TrendingUp className="w-5 h-5 text-primary/70" />
+              BI Executivo
             </Link>
             <Link 
               href={route('agenda')} 
@@ -87,6 +105,28 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               Clientes
             </Link>
             <Link 
+              href={route('waitlist.index')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/lista-espera') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Users className="w-5 h-5 opacity-70" />
+              Lista de Espera
+            </Link>
+            <Link 
+              href={route('packages.index')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/pacotes') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Package className="w-5 h-5" />
+              Pacotes
+            </Link>
+            <Link 
               href={route('finance.dashboard')} 
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 url === '/financeiro' 
@@ -107,6 +147,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             >
               <Banknote className="w-5 h-5 opacity-50" />
               Gestão de Cobranças
+            </Link>
+            <Link 
+              href={route('crm.index')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/crm') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Users className="w-5 h-5 opacity-50" />
+              CRM & Retenção
             </Link>
             {props.auth.can.manage_users && (
               <Link 

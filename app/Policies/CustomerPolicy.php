@@ -33,6 +33,16 @@ class CustomerPolicy
         return in_array($user->role, ['admin', 'manager']);
     }
 
+    public function addCredit(User $user, Customer $customer): bool
+    {
+        return in_array($user->role, ['admin', 'manager']);
+    }
+
+    public function managePackages(User $user, Customer $customer): bool
+    {
+        return in_array($user->role, ['admin', 'manager', 'operator']);
+    }
+
     public function restore(User $user, Customer $customer): bool
     {
         return $user->role === 'admin';
@@ -41,13 +51,5 @@ class CustomerPolicy
     public function forceDelete(User $user, Customer $customer): bool
     {
         return $user->role === 'admin';
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Customer $customer): bool
-    {
-        return true;
     }
 }

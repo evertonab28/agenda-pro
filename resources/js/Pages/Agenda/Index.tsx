@@ -70,6 +70,7 @@ export default function AgendaIndex({ events, professionals, services, customers
     ends_at: '',
     notes: '',
     status: 'scheduled',
+    cancel_reason: '',
   });
 
   useEffect(() => {
@@ -141,6 +142,7 @@ export default function AgendaIndex({ events, professionals, services, customers
       ends_at: format(parseISO(event.end), "yyyy-MM-dd'T'HH:mm"),
       notes: event.notes || '',
       status: event.status,
+      cancel_reason: event.cancel_reason || '',
     });
     setShowModal(true);
   };
@@ -506,6 +508,17 @@ export default function AgendaIndex({ events, professionals, services, customers
                   </div>
                 </div>
               )}
+              {data.status === 'canceled' && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Motivo</Label>
+                  <Input 
+                    placeholder="Motivo do cancelamento..."
+                    className="col-span-3 border-orange-200 focus:ring-orange-500" 
+                    value={data.cancel_reason} 
+                    onChange={e => setData('cancel_reason', e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             {errors.starts_at && <p className="text-sm text-red-500 text-center mb-2">{errors.starts_at}</p>}
             <DialogFooter className="flex-col sm:flex-row gap-2">
@@ -518,6 +531,26 @@ export default function AgendaIndex({ events, professionals, services, customers
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
                 
+                {selectedEvent && (
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200"
+                    onClick={() => {
+                        const { cancel_reason, ...rescheduleData } = data;
+                        reset();
+                        setData({ 
+                          ...rescheduleData, 
+                          status: 'scheduled',
+                          notes: (data.notes ? data.notes + '\n' : '') + '[Reagendamento]' 
+                        });
+                        setSelectedEvent(null);
+                    }}
+                  >
+                    Reagendar
+                  </Button>
+                )}
+
                 {selectedEvent && selectedEvent.status !== 'completed' && selectedEvent.status !== 'canceled' && (
                   <Button 
                     type="button" 

@@ -82,7 +82,7 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, canEx
 
       <div className="flex flex-wrap gap-2 text-sm">
         <span className="text-muted-foreground flex items-center font-medium mr-2">Status do Serviço:</span>
-        {['confirmed', 'completed', 'no_show', 'pending', 'cancelled'].map(status => (
+        {['confirmed', 'completed', 'no_show', 'pending', 'canceled'].map(status => (
           <button 
             key={status} 
             onClick={() => handleStatusToggle(status)}

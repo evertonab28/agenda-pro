@@ -105,13 +105,77 @@ class CheckoutService
     }
 
     /**
-     * Finalize the appointment status.
+     * Pay a charge using wallet balance.
      */
+    public function payWithWallet(Charge $charge, WalletService $walletService): Receipt
+    {
+        return DB::transaction(function () use ($charge, $walletService) {
+            $customer = $charge->customer;
+            
+            // Debit from wallet
+            $walletService->debit(
+                $customer, 
+                (float)$charge->amount, 
+                "Pagamento da cobrança #{$charge->id}", 
+                'charge', 
+                $charge->id
+            );
+
+            // Register payment
+            return $this->registerPayment($charge, [
+                'amount_received' => $charge->amount,
+                'method' => 'wallet',
+                'received_at' => now(),
+                'notes' => "Pago via Carteira",
+            ]);
+        });
+    }
+
+    /**
+     * Pay a charge using a package session.
+     */
+    public function payWithPackage(Charge $charge, CustomerPackage $customerPackage, PackageService $packageService): void
+    {
+        DB::transaction(function () use ($charge, $customerPackage, $packageService) {
+            // Consume session
+            $packageService->consumeSession($customerPackage, $charge->appointment);
+
+            // Mark charge as paid via package
+            $charge->update([
+                'status' => ChargeStatus::Paid->value,
+                'paid_at' => now(),
+                'notes' => ($charge->notes ? $charge->notes . "\n" : "") . "Pago via Pacote (ID: {$customerPackage->id})",
+            ]);
+
+            AuditService::log(auth()->user(), 'charge.paid_via_package', $charge, [
+                'customer_package_id' => $customerPackage->id
+            ]);
+        });
+    }
+
     public function finalizeAppointment(Appointment $appointment): void
     {
         if ($appointment->status !== AppointmentStatus::Completed->value) {
             $appointment->update(['status' => AppointmentStatus::Completed->value]);
             AuditService::log(auth()->user(), 'appointment.finalized', $appointment);
         }
+    }
+
+    /**
+     * Generate a no-show fee charge if enabled in settings.
+     */
+    public function generateNoShowFee(Appointment $appointment): ?Charge
+    {
+        $enabled = \App\Models\Setting::get('no_show_fee_enabled', false);
+        $amount = \App\Models\Setting::get('no_show_fee_amount', 0);
+
+        if (!$enabled || $amount <= 0) {
+            return null;
+        }
+
+        return $this->ensureChargeForAppointment($appointment, [
+            'amount' => $amount,
+            'description' => "Taxa de No-Show: " . ($appointment->service->name ?? 'Serviço'),
+        ]);
     }
 }

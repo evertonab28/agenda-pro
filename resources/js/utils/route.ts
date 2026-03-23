@@ -28,6 +28,13 @@ const routes: Record<string, string> = {
     'configuracoes.general.index': '/configuracoes/geral',
     'configuracoes.general.store': '/configuracoes/geral',
     'agenda.checkout.store': '/agenda/:id/checkout',
+    'waitlist.index': '/lista-espera',
+    'waitlist.store': '/lista-espera',
+    'dashboard.executive': '/dashboard/executivo',
+    'packages.index': '/pacotes',
+    'packages.store': '/pacotes',
+    'crm.index': '/crm',
+    'crm.segment': '/crm/segmento/:segment',
 };
 
 export function route(name: string, params?: any): string {
@@ -62,15 +69,24 @@ export function route(name: string, params?: any): string {
     if (name === 'agenda.update') return `/agenda/${params?.id || params}`;
     if (name === 'agenda.destroy') return `/agenda/${params?.id || params}`;
     if (name === 'agenda.status') return `/agenda/${params?.id || params}/status`;
+    if (name === 'waitlist.update') return `/lista-espera/${params?.id || params}`;
+    if (name === 'waitlist.destroy') return `/lista-espera/${params?.id || params}`;
+    if (name === 'waitlist.convert') return `/lista-espera/${params?.id || params}/converter`;
+    if (name === 'packages.update') return `/pacotes/${params?.id || params}`;
+    if (name === 'packages.sell') return `/pacotes/${params?.id || params}/vender`;
     if (name === 'agenda.finalize') return `/agenda/${params?.id || params}/finalizar`;
     if (name === 'agenda.checkout.show') return `/agenda/${params?.id || params}/checkout`;
     if (name === 'agenda.checkout.store') return `/agenda/${params?.id || params}/checkout`;
-    
+    if (name === 'dashboard.executive') return '/dashboard/executivo';
+    if (name === 'customers.index') return '/customers';
     if (name === 'customers.show') return `/customers/${params?.id || params}`;
     if (name === 'customers.edit') return `/customers/${params?.id || params}/edit`;
     if (name === 'customers.update') return `/customers/${params?.id || params}`;
     if (name === 'customers.destroy') return `/customers/${params?.id || params}`;
     if (name === 'customers.status') return `/customers/${params?.id || params}/status`;
+    if (name === 'customers.add-credit') return `/clientes/${params?.id || params}/credito`;
+    if (name === 'crm.index') return '/crm';
+    if (name === 'crm.segment') return `/crm/segmento/${params?.segment || params?.id || params}`;
 
     if (name === 'configuracoes.services.show') return `/configuracoes/servicos/${params?.id || params}`;
     if (name === 'configuracoes.services.edit') return `/configuracoes/servicos/${params?.id || params}/edit`;

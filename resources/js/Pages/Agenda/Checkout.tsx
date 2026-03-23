@@ -25,6 +25,8 @@ interface Props {
         amount_paid: number;
         balance: number;
     };
+    wallet_balance: number;
+    available_packages: any[];
 }
 
 const methodIcons: any = {
@@ -32,6 +34,8 @@ const methodIcons: any = {
     card: <CreditCard className="w-4 h-4" />,
     cash: <DollarSign className="w-4 h-4" />,
     transfer: <Wallet className="w-4 h-4" />,
+    wallet: <Wallet className="w-4 h-4 text-primary" />,
+    package: <History className="w-4 h-4 text-emerald-500" />,
     other: <Banknote className="w-4 h-4" />,
 };
 
@@ -40,16 +44,23 @@ const methodLabels: any = {
     card: 'Cartão',
     cash: 'Dinheiro',
     transfer: 'Transferência',
+    wallet: 'Carteira (Saldo)',
+    package: 'Pacote de Sessões',
     other: 'Outro',
 };
 
-export default function Checkout({ appointment, customer, professional, service, charge, receipts, summary }: Props) {
+export default function Checkout({ 
+    appointment, customer, professional, service, charge, 
+    receipts, summary, wallet_balance, available_packages 
+}: Props) {
     const { data, setData, post, processing, errors } = useForm({
         amount_received: summary.balance,
         received_at: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
         method: 'pix',
         notes: '',
-        fee_amount: 0,
+        customer_package_id: '',
+        nps_score: null as number | null,
+        nps_comment: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -201,13 +212,49 @@ export default function Checkout({ appointment, customer, professional, service,
                                                 onChange={(e: any) => setData('method', e.target.value)}
                                                 className="w-full h-10 rounded-md border"
                                             >
-                                                <SelectItem value="pix">PIX</SelectItem>
-                                                <SelectItem value="card">Cartão</SelectItem>
-                                                <SelectItem value="cash">Dinheiro</SelectItem>
-                                                <SelectItem value="transfer">Transferência</SelectItem>
-                                                <SelectItem value="other">Outro</SelectItem>
+                                                <option value="pix">PIX</option>
+                                                <option value="card">Cartão</option>
+                                                <option value="cash">Dinheiro</option>
+                                                <option value="wallet">Carteira (Saldo: {formatCurrency(wallet_balance)})</option>
+                                                {available_packages.length > 0 && <option value="package">Pacote de Sessões</option>}
+                                                <option value="transfer">Transferência</option>
+                                                <option value="other">Outro</option>
                                             </Select>
+                                            {errors.method && <p className="text-xs text-red-500">{errors.method}</p>}
                                         </div>
+
+                                        {data.method === 'wallet' && (
+                                            <div className={`p-3 rounded-lg border text-sm ${wallet_balance < summary.balance ? 'bg-red-50 border-red-200 text-red-700' : 'bg-primary/5 border-primary/20 text-primary'}`}>
+                                                <div className="flex items-center gap-2 font-bold mb-1">
+                                                    <Wallet className="w-4 h-4" /> Uso de Saldo Interno
+                                                </div>
+                                                <p>Saldo disponível: {formatCurrency(wallet_balance)}</p>
+                                                {wallet_balance < summary.balance && (
+                                                    <p className="mt-1 text-xs font-medium">Saldo insuficiente para quitar o total. O débito será realizado e restará um saldo devedor.</p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {data.method === 'package' && (
+                                            <div className="space-y-2 animate-in fade-in duration-300">
+                                                <Label>Selecionar Pacote Disponível</Label>
+                                                <Select
+                                                    value={data.customer_package_id}
+                                                    onChange={(e: any) => setData('customer_package_id', e.target.value)}
+                                                    className="w-full h-10 rounded-md border"
+                                                >
+                                                    <option value="">Selecione o pacote...</option>
+                                                    {available_packages.map(cp => (
+                                                        <option key={cp.id} value={cp.id}>
+                                                            {cp.package.name} ({cp.remaining_sessions} sessões restantes)
+                                                        </option>
+                                                    ))}
+                                                </Select>
+                                                <p className="text-[10px] text-muted-foreground italic">
+                                                    O agendamento será quitado usando 1 sessão deste pacote.
+                                                </p>
+                                            </div>
+                                        )}
 
                                         <div className="space-y-2">
                                             <Label htmlFor="received_at">Data/Hora Recebimento</Label>
@@ -226,6 +273,33 @@ export default function Checkout({ appointment, customer, professional, service,
                                                 placeholder="Ex: Pagamento adiantado, desconto cliente fiel..."
                                                 value={data.notes}
                                                 onChange={e => setData('notes', e.target.value)}
+                                            />
+                                        </div>
+
+                                        {/* NPS Section */}
+                                        <div className="pt-6 border-t mt-6 space-y-4">
+                                            <Label className="text-zinc-900 font-bold block">Como foi a experiência do cliente? (NPS)</Label>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {[...Array(11).keys()].map(score => (
+                                                    <button
+                                                        key={score}
+                                                        type="button"
+                                                        onClick={() => setData('nps_score', score)}
+                                                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all border ${
+                                                            data.nps_score === score 
+                                                                ? 'bg-primary text-white border-primary shadow-md scale-110' 
+                                                                : 'bg-white text-zinc-600 border-zinc-200 hover:border-primary/50'
+                                                        }`}
+                                                    >
+                                                        {score}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <Textarea 
+                                                placeholder="Comentário opcional do cliente..."
+                                                value={data.nps_comment}
+                                                onChange={e => setData('nps_comment', e.target.value)}
+                                                className="text-xs min-h-[60px]"
                                             />
                                         </div>
                                     </CardContent>

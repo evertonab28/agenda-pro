@@ -17,7 +17,7 @@ class DashboardFilterRequest extends FormRequest
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
             'status' => ['nullable', 'array'],
-            'status.*' => ['string', 'in:confirmed,completed,no_show,pending,cancelled'],
+            'status.*' => ['string', 'in:confirmed,completed,no_show,pending,canceled'],
             'professional_id' => ['nullable', 'integer'],
             'service_id' => ['nullable', 'integer'],
             'pending_page' => ['nullable', 'integer', 'min:1'],

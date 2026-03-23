@@ -35,7 +35,7 @@ export default function ChargesTable({ charges }: Props) {
             case 'paid': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
             case 'partial': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'overdue': return 'bg-red-100 text-red-800 border-red-200';
-            case 'cancelled': return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'canceled': return 'bg-gray-100 text-gray-800 border-gray-200';
             default: return 'bg-blue-100 text-blue-800 border-blue-200'; // pending
         }
     };
@@ -45,7 +45,7 @@ export default function ChargesTable({ charges }: Props) {
             case 'paid': return 'Pago';
             case 'partial': return 'Parcial';
             case 'overdue': return 'Vencido';
-            case 'cancelled': return 'Cancelado';
+            case 'canceled': return 'Cancelado';
             default: return 'Pendente';
         }
     };
@@ -84,7 +84,7 @@ export default function ChargesTable({ charges }: Props) {
                         {charges.map((charge) => {
                             const received = charge.receipts_sum_amount_received || 0;
                             const openBalance = Math.max(0, charge.amount - received);
-                            const canReceive = openBalance > 0 && charge.status !== 'cancelled';
+                            const canReceive = openBalance > 0 && charge.status !== 'canceled';
 
                             return (
                                 <tr key={charge.id} className="hover:bg-gray-50 transition-colors">
@@ -102,7 +102,7 @@ export default function ChargesTable({ charges }: Props) {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-medium text-gray-900">{formatCurrency(charge.amount)}</div>
-                                        {charge.status !== 'paid' && charge.status !== 'cancelled' && (
+                                        {charge.status !== 'paid' && charge.status !== 'canceled' && (
                                             <div className="text-xs text-red-600 font-medium">Falta {formatCurrency(openBalance)}</div>
                                         )}
                                     </td>

@@ -18,7 +18,7 @@ const getStatusBadge = (status: string) => {
     case 'completed': return <Badge className="bg-emerald-500 hover:bg-emerald-600">Concluído</Badge>;
     case 'no_show': return <Badge className="bg-red-500 hover:bg-red-600">Falta</Badge>;
     case 'pending': return <Badge className="bg-amber-500 hover:bg-amber-600">Pendente</Badge>;
-    case 'cancelled': return <Badge variant="destructive">Cancelado</Badge>;
+    case 'canceled': return <Badge variant="destructive">Cancelado</Badge>;
     default: return <Badge variant="outline">{status}</Badge>;
   }
 };

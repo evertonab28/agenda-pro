@@ -70,16 +70,11 @@ export default function Edit({ user }: { user: User }) {
                                 <Label htmlFor="role">Perfil de Acesso</Label>
                                 <Select
                                     value={data.role}
-                                    onValueChange={(value: any) => setData('role', value)}
+                                    onChange={(e: any) => setData('role', e.target.value)}
                                 >
-                                    <SelectTrigger id="role" className="w-full">
-                                        <SelectValue placeholder="Selecione um perfil" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="admin">Administrador</SelectItem>
-                                        <SelectItem value="manager">Gerente</SelectItem>
-                                        <SelectItem value="operator">Operador</SelectItem>
-                                    </SelectContent>
+                                    <SelectItem value="admin">Administrador</SelectItem>
+                                    <SelectItem value="manager">Gerente</SelectItem>
+                                    <SelectItem value="operator">Operador</SelectItem>
                                 </Select>
                                 {errors.role && <p className="text-sm text-red-600 font-medium">{errors.role}</p>}
                             </div>

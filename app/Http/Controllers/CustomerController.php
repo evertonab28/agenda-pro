@@ -127,12 +127,34 @@ class CustomerController extends Controller
             ->orderBy('due_date', 'desc')
             ->paginate(10, ['*'], 'charges_page');
 
+        $customer->load(['wallet', 'customerPackages.package']);
+
         return Inertia::render('Customers/Show', [
             'customer' => $customer,
             'summary' => $summary,
             'appointments' => $appointments,
             'financial_history' => $charges,
+            'wallet_transactions' => $customer->wallet ? $customer->wallet->transactions()->latest()->take(10)->get() : [],
+            'packages' => $customer->customerPackages()->with('package')->get(),
         ]);
+    }
+
+    /**
+     * Add manual credit to customer wallet.
+     */
+    public function addCredit(Request $request, Customer $customer, \App\Services\WalletService $walletService)
+    {
+        $this->authorize('addCredit', $customer);
+        $this->authorize('update', $customer);
+
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'description' => 'required|string|max:255',
+        ]);
+
+        $walletService->credit($customer, $request->amount, $request->description);
+
+        return back()->with('success', 'Crédito adicionado com sucesso!');
     }
 
     public function edit(Customer $customer)

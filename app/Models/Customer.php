@@ -47,4 +47,14 @@ class Customer extends Model
     {
         return $this->hasManyThrough(Charge::class, Appointment::class);
     }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function customerPackages(): HasMany
+    {
+        return $this->hasMany(CustomerPackage::class);
+    }
 }

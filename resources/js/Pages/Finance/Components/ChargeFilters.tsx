@@ -86,7 +86,7 @@ export default function ChargeFilters({ filters }: Props) {
                     <option value="partial">Parcial</option>
                     <option value="paid">Pago</option>
                     <option value="overdue">Vencido</option>
-                    <option value="cancelled">Cancelado</option>
+                    <option value="canceled">Cancelado</option>
                 </select>
 
                 <select

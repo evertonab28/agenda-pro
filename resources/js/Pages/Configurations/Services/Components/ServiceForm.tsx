@@ -10,6 +10,7 @@ interface Service {
     id?: number;
     name: string;
     duration_minutes: number;
+    buffer_minutes: number;
     price: string | number;
     color: string | null;
     is_active: boolean;
@@ -25,6 +26,7 @@ export default function ServiceForm({ service, onSubmitSuccess }: Props) {
     const { data, setData, post, put, processing, errors } = useForm({
         name: service?.name || '',
         duration_minutes: service?.duration_minutes || 30,
+        buffer_minutes: (service as any)?.buffer_minutes || 0,
         price: service?.price || '',
         color: service?.color || '#3b82f6',
         is_active: service?.is_active ?? true,
@@ -86,6 +88,19 @@ export default function ServiceForm({ service, onSubmitSuccess }: Props) {
                         required
                     />
                     {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="buffer_minutes">Intervalo Entre Atendimentos (Buffer - min)</Label>
+                    <Input
+                        id="buffer_minutes"
+                        type="number"
+                        min="0"
+                        value={data.buffer_minutes}
+                        onChange={(e) => setData('buffer_minutes', parseInt(e.target.value))}
+                        placeholder="0"
+                    />
+                    {errors.buffer_minutes && <p className="text-sm text-red-500">{errors.buffer_minutes}</p>}
                 </div>
 
                 <div className="space-y-2">

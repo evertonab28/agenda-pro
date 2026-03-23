@@ -36,7 +36,7 @@ class AgendaController extends Controller
         return Inertia::render('Agenda/Index', [
             'events'        => $this->agendaService->getAgendaEvents($filters),
             'professionals' => \App\Models\Professional::where('is_active', true)->get(['id', 'name']),
-            'services'      => Service::where('is_active', true)->get(['id', 'name', 'duration_minutes', 'price']),
+            'services'      => Service::where('is_active', true)->get(['id', 'name', 'duration_minutes', 'buffer_minutes', 'price']),
             'customers'     => Customer::all(['id', 'name', 'phone']),
             'filters'       => $filters,
         ]);
@@ -47,7 +47,13 @@ class AgendaController extends Controller
         $this->authorize('create', Appointment::class);
 
         $data = $request->validated();
-        $availability = $this->agendaService->isAvailable($data['professional_id'], $data['starts_at'], $data['ends_at']);
+        $availability = $this->agendaService->isAvailable(
+            $data['professional_id'], 
+            $data['starts_at'], 
+            $data['ends_at'], 
+            null, 
+            $data['service_id']
+        );
 
         if (!$availability['available']) {
             return back()->withErrors(['starts_at' => $availability['message']]);
@@ -64,7 +70,13 @@ class AgendaController extends Controller
         $this->authorize('update', $appointment);
 
         $data = $request->validated();
-        $availability = $this->agendaService->isAvailable($data['professional_id'], $data['starts_at'], $data['ends_at'], $appointment->id);
+        $availability = $this->agendaService->isAvailable(
+            $data['professional_id'], 
+            $data['starts_at'], 
+            $data['ends_at'], 
+            $appointment->id, 
+            $data['service_id']
+        );
 
         if (!$availability['available']) {
             return back()->withErrors(['starts_at' => $availability['message']]);
@@ -76,17 +88,30 @@ class AgendaController extends Controller
         return redirect()->route('agenda')->with('success', 'Agendamento atualizado com sucesso.');
     }
 
-    public function status(Request $request, Appointment $appointment)
+    public function status(Request $request, Appointment $appointment, \App\Services\CheckoutService $checkoutService)
     {
         $this->authorize('update', $appointment);
 
         $request->validate([
             'status' => 'required|string|in:' . implode(',', AppointmentStatus::values()),
+            'cancel_reason' => 'nullable|string|max:255',
         ]);
 
-        $appointment->update(['status' => $request->status]);
-        AuditService::log(auth()->user(), 'appointment.status_changed', $appointment, ['status' => $request->status]);
+        $updateData = ['status' => $request->status];
+        if ($request->has('cancel_reason')) {
+            $updateData['cancel_reason'] = $request->cancel_reason;
+        }
 
+        $appointment->update($updateData);
+
+        if ($request->status === \App\Enums\AppointmentStatus::NoShow->value) {
+            $checkoutService->generateNoShowFee($appointment);
+        }
+
+        AuditService::log(auth()->user(), 'appointment.status_changed', $appointment, [
+            'status' => $request->status,
+            'reason' => $request->cancel_reason
+        ]);
         return redirect()->route('agenda')->with('success', 'Status atualizado.');
     }
 
