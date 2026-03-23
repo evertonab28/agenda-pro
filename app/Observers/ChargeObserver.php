@@ -3,21 +3,15 @@
 namespace App\Observers;
 
 use App\Models\Charge;
-use Illuminate\Support\Facades\Cache;
+use App\Services\CacheService;
 
 class ChargeObserver
 {
-    /**
-     * Handle the Charge "saved" event.
-     */
     public function saved(Charge $charge): void
     {
         $this->clearCache();
     }
 
-    /**
-     * Handle the Charge "deleted" event.
-     */
     public function deleted(Charge $charge): void
     {
         $this->clearCache();
@@ -25,8 +19,7 @@ class ChargeObserver
 
     protected function clearCache(): void
     {
-        // For now, simpler to flush since keys are date-dependent
-        // In a high-traffic app, we'd use better tagging.
-        Cache::flush(); 
+        CacheService::invalidateDashboard();
+        CacheService::invalidateFinance();
     }
 }

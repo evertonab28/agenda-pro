@@ -27,10 +27,13 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        \Illuminate\Support\Facades\Gate::policy(\App\Models\Charge::class, \App\Policies\ChargePolicy::class);
-        \Illuminate\Support\Facades\Gate::policy(\App\Models\Appointment::class, \App\Policies\AppointmentPolicy::class);
-        \Illuminate\Support\Facades\Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
-        \Illuminate\Support\Facades\Gate::policy(\App\Models\Customer::class, \App\Policies\CustomerPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Charge::class,       \App\Policies\ChargePolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Appointment::class,  \App\Policies\AppointmentPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\User::class,         \App\Policies\UserPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Customer::class,     \App\Policies\CustomerPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Service::class,      \App\Policies\ServicePolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Professional::class, \App\Policies\ProfessionalPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Holiday::class,      \App\Policies\HolidayPolicy::class);
 
 
         \App\Models\Appointment::observe(\App\Observers\AppointmentObserver::class);
@@ -43,6 +46,10 @@ class AppServiceProvider extends ServiceProvider
         
         \Illuminate\Support\Facades\Gate::define('view-dashboard', function (\App\Models\User $user) {
             return in_array($user->role ?? 'admin', ['admin', 'manager', 'operator']);
+        });
+
+        \Illuminate\Support\Facades\Gate::define('manage-settings', function (\App\Models\User $user) {
+            return $user->role === 'admin';
         });
     }
 }

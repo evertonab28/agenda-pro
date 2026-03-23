@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Charge;
 use App\Services\FinanceService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -16,7 +17,7 @@ class FinanceController extends Controller
 
     public function dashboard(Request $request)
     {
-        // $this->authorize('viewAny', \App\Models\Charge::class);
+        $this->authorize('viewAny', Charge::class);
 
         $period = $request->query('period', 'month');
         $startDate = Carbon::now()->startOfMonth();
@@ -30,22 +31,25 @@ class FinanceController extends Controller
             $endDate = Carbon::now()->endOfYear();
         }
 
+        $ttl = (int) config('cache.finance_ttl', env('FINANCE_CACHE_TTL', 120));
         $cacheKey = "finance_metrics_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}";
-        
-        $metrics = Cache::remember($cacheKey, 120, function () use ($startDate, $endDate) {
+
+        $metrics = Cache::remember($cacheKey, $ttl, function () use ($startDate, $endDate) {
             return $this->financeService->getDashboardMetrics($startDate, $endDate);
         });
 
-        // Gráficos (mocked for now, will implement later in FinanceService if needed)
-        $chartData = [
-            'dailyReceipts' => [], // To be implemented
-            'paymentMethods' => [] // To be implemented
-        ];
+        $chartKey = "finance_charts_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}";
+        $chartData = Cache::remember($chartKey, $ttl, function () use ($startDate, $endDate) {
+            return [
+                'dailyReceipts'  => $this->financeService->getDailyReceipts($startDate, $endDate),
+                'paymentMethods' => $this->financeService->getPaymentMethodBreakdown($startDate, $endDate),
+            ];
+        });
 
         return Inertia::render('Finance/Dashboard', [
-            'metrics' => $metrics,
+            'metrics'   => $metrics,
             'chartData' => $chartData,
-            'filters' => $request->only(['period']),
+            'filters'   => $request->only(['period']),
         ]);
     }
 }

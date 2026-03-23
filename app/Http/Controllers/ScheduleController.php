@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Professional;
 use App\Models\Service;
 use App\Models\ProfessionalSchedule;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -17,9 +18,10 @@ class ScheduleController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', \App\Models\ProfessionalSchedule::class);
         $professionals = Professional::where('is_active', true)->orderBy('name')->get();
         $selectedProfessionalId = $request->input('professional_id', $professionals->first()?->id);
-        
+
         $schedules = [];
         if ($selectedProfessionalId) {
             $schedules = ProfessionalSchedule::where('professional_id', $selectedProfessionalId)
@@ -28,9 +30,9 @@ class ScheduleController extends Controller
         }
 
         return Inertia::render('Configurations/Schedules/Index', [
-            'professionals' => $professionals,
+            'professionals'          => $professionals,
             'selectedProfessionalId' => (int) $selectedProfessionalId,
-            'schedules' => $schedules
+            'schedules'              => $schedules,
         ]);
     }
 
@@ -39,6 +41,8 @@ class ScheduleController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', \App\Models\ProfessionalSchedule::class);
+        
         $request->validate([
             'professional_id' => 'required|exists:professionals,id',
             'schedules' => 'required|array',
@@ -65,6 +69,8 @@ class ScheduleController extends Controller
                 ]
             );
         }
+
+        AuditService::log(auth()->user(), 'professional_schedules.bulk_updated', null, ['professional_id' => $request->professional_id]);
 
         if (Service::exists() && Professional::exists() && ProfessionalSchedule::exists()) {
             return redirect()->route('dashboard')->with('success', 'Sistema configurado com sucesso! Bem-vindo ao Agenda Pro.');

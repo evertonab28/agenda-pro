@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use App\Services\AuditService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Customer::class);
         $query = Customer::query()
             ->withCount(['appointments' => function ($query) {
                 $query->where('status', '!=', 'canceled');
@@ -84,17 +86,21 @@ class CustomerController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Customer::class);
         return Inertia::render('Customers/Create');
     }
 
     public function store(StoreCustomerRequest $request)
     {
-        Customer::create($request->validated());
+        $this->authorize('create', Customer::class);
+        $customer = Customer::create($request->validated());
+        AuditService::log(auth()->user(), 'customer.created', $customer);
         return redirect()->route('customers.index')->with('success', 'Cliente criado com sucesso!');
     }
 
     public function show(Customer $customer)
     {
+        $this->authorize('view', $customer);
         $customer->loadCount('appointments');
         
         // Detailed summary data
@@ -131,6 +137,7 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
+        $this->authorize('update', $customer);
         return Inertia::render('Customers/Edit', [
             'customer' => $customer
         ]);
@@ -138,23 +145,29 @@ class CustomerController extends Controller
 
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
+        $this->authorize('update', $customer);
         $customer->update($request->validated());
+        AuditService::log(auth()->user(), 'customer.updated', $customer);
         return redirect()->route('customers.show', $customer)->with('success', 'Cliente atualizado com sucesso!');
     }
 
     public function destroy(Customer $customer)
     {
+        $this->authorize('delete', $customer);
         if ($customer->appointments()->exists()) {
             return back()->with('error', 'Não é possível excluir cliente com agendamentos vinculados. Inative-o em vez disso.');
         }
 
+        AuditService::log(auth()->user(), 'customer.deleted', $customer);
         $customer->delete();
         return redirect()->route('customers.index')->with('success', 'Cliente excluído com sucesso!');
     }
 
     public function toggleStatus(Customer $customer)
     {
+        $this->authorize('update', $customer);
         $customer->update(['is_active' => !$customer->is_active]);
+        AuditService::log(auth()->user(), 'customer.status_toggled', $customer);
         return back()->with('success', 'Status do cliente atualizado!');
     }
 }

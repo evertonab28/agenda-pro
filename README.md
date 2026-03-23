@@ -78,6 +78,78 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 
 ---
 
+## 🔐 Matriz de Permissões
+
+| Funcionalidade | Admin | Manager | Operator |
+|---|:---:|:---:|:---:|
+| Dashboard Analítico | ✅ | ✅ | ✅ |
+| Exportar CSV | ✅ | ✅ | ❌ |
+| Agenda — Ver | ✅ | ✅ | ✅ |
+| Agenda — Criar/Editar | ✅ | ✅ | ✅ |
+| Agenda — Excluir | ✅ | ✅ | ❌ |
+| Clientes — CRUD | ✅ | ✅ | ✅ |
+| Financeiro — Ver | ✅ | ✅ | ✅ |
+| Financeiro — Criar/Editar cobrança | ✅ | ✅ | ❌ |
+| Financeiro — Registrar recebimento | ✅ | ✅ | ✅ |
+| Configurações (Serviços/Profissionais) | ✅ | ✅ | ❌ |
+| Usuários — CRUD | ✅ | ❌ | ❌ |
+
+---
+
+## ⚙️ Variáveis de Ambiente (Cache)
+
+```env
+DASHBOARD_CACHE_TTL=120   # TTL do cache do Dashboard em segundos
+FINANCE_CACHE_TTL=120     # TTL do cache Financeiro em segundos
+```
+
+---
+
+## 🔧 Comandos de Manutenção
+
+```bash
+# Limpar todos os caches
+php artisan cache:clear && php artisan config:clear && php artisan route:clear
+
+# Reprocessar fila de jobs
+php artisan queue:restart
+
+# Verificar status das migrations
+php artisan migrate:status
+
+# Ver logs de auditoria
+php artisan tinker --execute="App\Models\AuditLog::latest()->limit(10)->get()->toArray();"
+```
+
+## ⏰ Cron Necessário
+
+Adicione ao `crontab -e` do servidor:
+```cron
+* * * * * cd /path/to/agenda-pro && php artisan schedule:run >> /dev/null 2>&1
+```
+
+---
+
+## 🩺 Troubleshooting Básico
+
+| Sintoma | Solução Rápida |
+|---|---|
+| Tela em branco | `npm run build` e `php artisan config:clear` |
+| Erro 500 | Ver `storage/logs/laravel.log` |
+| Acesso negado (403) | Verificar `role` do usuário no banco |
+| Login em loop | `php artisan cache:clear` + verificar `SESSION_DRIVER` |
+| Agenda sem eventos | Verificar filtros de data (from/to) na URL |
+
+---
+
+## 📁 Documentação Operacional
+
+- [Deploy Checklist](docs/deploy-checklist.md)
+- [Backup & Restore](docs/backup-restore.md)
+- [Runbook de Incidentes](docs/runbook-incidentes.md)
+
+---
+
 ## 🎨 Filosofia de Design
 
 O Agenda Pro segue princípios de **Micro-frontend Architecture** dentro do ecossistema Monolito, utilizando componentes reutilizáveis alojados em `resources/js/components/ui`. O foco é uma interface limpa, com modo escuro nativo e animações sutis que melhoram a percepção de performance.

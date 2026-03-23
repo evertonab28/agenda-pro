@@ -58,11 +58,48 @@ class FinanceService
         $defaultRate = $totalExpected > 0 ? ($overdueAmount / $totalExpected) * 100 : 0;
 
         return [
-            'received' => $receivedAmount,
-            'pending' => $pendingAmount,
-            'overdue' => $overdueAmount,
+            'received'      => $receivedAmount,
+            'pending'       => $pendingAmount,
+            'overdue'       => $overdueAmount,
             'averageTicket' => $averageTicket,
-            'defaultRate' => $defaultRate,
+            'defaultRate'   => $defaultRate,
         ];
+    }
+
+    /**
+     * Daily receipts time-series for finance charts.
+     * Returns: [['date' => 'YYYY-MM-DD', 'total' => float], ...]
+     */
+    public function getDailyReceipts(Carbon $startDate, Carbon $endDate): array
+    {
+        return \App\Models\Receipt::whereBetween('received_at', [$startDate, $endDate])
+            ->selectRaw('DATE(received_at) as date, SUM(amount_received) as total')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(fn($row) => [
+                'date'  => $row->date,
+                'total' => (float) $row->total,
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Breakdown of receipts by payment method.
+     * Returns: [['method' => string, 'total' => float, 'count' => int], ...]
+     */
+    public function getPaymentMethodBreakdown(Carbon $startDate, Carbon $endDate): array
+    {
+        return \App\Models\Receipt::whereBetween('received_at', [$startDate, $endDate])
+            ->selectRaw('method, SUM(amount_received) as total, COUNT(*) as count')
+            ->groupBy('method')
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn($row) => [
+                'method' => $row->method,
+                'total'  => (float) $row->total,
+                'count'  => (int) $row->count,
+            ])
+            ->toArray();
     }
 }

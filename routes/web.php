@@ -27,12 +27,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('usuarios', \App\Http\Controllers\UserController::class)->names('users');
     Route::patch('usuarios/{user}/status', [\App\Http\Controllers\UserController::class, 'toggleStatus'])->name('users.status');
 
-    Route::get('/dashboard', [DashboardPageController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardPageController::class, 'index'])->name('dashboard')->middleware('can:view-dashboard');
     Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->name('onboarding.index');
 
- // ->middleware('can:view-dashboard');
-    Route::get('/dashboard/day/{date}', [DashboardPageController::class, 'dayDetails'])->name('dashboard.day'); // ->middleware('can:view-dashboard');
-    Route::get('/dashboard/export', [DashboardPageController::class, 'export'])->name('dashboard.export'); // ->middleware('can:export-dashboard');
+    Route::get('/dashboard/day/{date}', [DashboardPageController::class, 'dayDetails'])->name('dashboard.day')->middleware('can:view-dashboard');
+    Route::get('/dashboard/export', [DashboardPageController::class, 'export'])->name('dashboard.export')->middleware('can:export-dashboard');
 
     Route::get('/agenda', [\App\Http\Controllers\AgendaController::class, 'index'])->name('agenda');
     Route::post('/agenda', [\App\Http\Controllers\AgendaController::class, 'store'])->name('agenda.store');

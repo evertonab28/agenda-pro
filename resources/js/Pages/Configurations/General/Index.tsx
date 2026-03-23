@@ -14,11 +14,15 @@ interface Props {
         min_advance_minutes: number;
         max_window_days: number;
         timezone: string;
+        currency: string;
     };
 }
 
 export default function Index({ settings }: Props) {
-    const { data, setData, post, processing, errors, recentlySuccessful } = useForm(settings);
+    const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
+        ...settings,
+        currency: settings.currency || 'BRL'
+    });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -111,15 +115,31 @@ export default function Index({ settings }: Props) {
                                 <div className="space-y-2">
                                     <Label htmlFor="timezone">Timezone (Fuso Horário)</Label>
                                     <Select 
-                                    value={data.timezone} 
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('timezone', e.target.value)}
-                                >
-                                    <SelectItem value="America/Sao_Paulo">Brasília (BRT)</SelectItem>
-                                    <SelectItem value="America/Cuiaba">Cuiabá (AMT)</SelectItem>
-                                    <SelectItem value="America/Manaus">Manaus (AMT)</SelectItem>
-                                    <SelectItem value="UTC">UTC</SelectItem>
-                                </Select>
+                                        id="timezone"
+                                        value={data.timezone} 
+                                        onChange={(e) => setData('timezone', e.target.value)}
+                                    >
+                                        <SelectItem value="America/Sao_Paulo">Brasília (BRT)</SelectItem>
+                                        <SelectItem value="America/Cuiaba">Cuiabá (AMT)</SelectItem>
+                                        <SelectItem value="America/Manaus">Manaus (AMT)</SelectItem>
+                                        <SelectItem value="UTC">UTC</SelectItem>
+                                    </Select>
                                     {errors.timezone && <p className="text-xs text-red-500">{errors.timezone}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="currency">Moeda (Símbolo)</Label>
+                                    <Select 
+                                        id="currency"
+                                        value={data.currency} 
+                                        onChange={(e) => setData('currency', e.target.value)}
+                                    >
+                                        <SelectItem value="BRL">Real (R$)</SelectItem>
+                                        <SelectItem value="USD">Dólar (US$)</SelectItem>
+                                        <SelectItem value="EUR">Euro (€)</SelectItem>
+                                    </Select>
+                                    <p className="text-[10px] text-gray-500">Moeda padrão para cobranças e relatórios.</p>
+                                    {errors.currency && <p className="text-xs text-red-500">{errors.currency}</p>}
                                 </div>
                             </div>
                         </div>

@@ -14,15 +14,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 interface OnboardingProps {
     step: number;
+    hasSettings: boolean;
     hasServices: boolean;
     hasProfessionals: boolean;
     hasSchedules: boolean;
 }
 
-export default function Index({ step, hasServices, hasProfessionals, hasSchedules }: OnboardingProps) {
+export default function Index({ step, hasSettings, hasServices, hasProfessionals, hasSchedules }: OnboardingProps) {
     const steps = [
         {
             id: 1,
+            title: 'Configurações',
+            description: 'Nome da empresa, fuso horário e moeda.',
+            icon: <Settings className="w-5 h-5" />,
+            route: route('configuracoes.general.index'),
+            completed: hasSettings
+        },
+        {
+            id: 2,
             title: 'Serviços',
             description: 'Cadastre os serviços que sua empresa oferece.',
             icon: <Settings className="w-5 h-5" />,
@@ -30,7 +39,7 @@ export default function Index({ step, hasServices, hasProfessionals, hasSchedule
             completed: hasServices
         },
         {
-            id: 2,
+            id: 3,
             title: 'Profissionais',
             description: 'Adicione os profissionais que realizam os serviços.',
             icon: <Users className="w-5 h-5" />,
@@ -38,7 +47,7 @@ export default function Index({ step, hasServices, hasProfessionals, hasSchedule
             completed: hasProfessionals
         },
         {
-            id: 3,
+            id: 4,
             title: 'Horários',
             description: 'Defina a agenda de trabalho de cada profissional.',
             icon: <Calendar className="w-5 h-5" />,
@@ -84,17 +93,18 @@ export default function Index({ step, hasServices, hasProfessionals, hasSchedule
 
             <div className="mt-8 p-4 bg-primary/5 rounded-xl border border-primary/10 text-center">
                 <p className="text-sm text-primary font-medium">
-                    {step === 1 ? 'Primeiro, adicione pelo menos um serviço.' : 
-                     step === 2 ? 'Ótimo! Agora cadastre um profissional.' : 
+                    {step === 1 ? 'Primeiro, configure os dados da sua empresa.' : 
+                     step === 2 ? 'Ótimo! Agora adicione os serviços oferecidos.' : 
+                     step === 3 ? 'Perfeito! Cadastre pelo menos um profissional.' : 
                      'Quase lá! Defina os horários de trabalho.'}
                 </p>
             </div>
 
-            {hasServices && hasProfessionals && hasSchedules && (
+            {hasSettings && hasServices && hasProfessionals && hasSchedules && (
                 <div className="mt-8">
                     <Link href={route('dashboard')}>
                         <Button className="w-full h-12 text-lg font-bold flex items-center justify-center gap-2">
-                            Ir para o Dashboard <ArrowRight className="w-5 h-5" />
+                            Tudo pronto! Ir para o Dashboard <ArrowRight className="w-5 h-5" />
                         </Button>
                     </Link>
                 </div>
