@@ -8,10 +8,9 @@ import { route } from '@/utils/route';
 
 interface Props {
     charge: Charge;
-    customers: Customer[];
 }
 
-export default function ChargeEdit({ charge, customers }: Props) {
+export default function ChargeEdit({ charge }: Props) {
     const handleCancel = () => {
         if (confirm('Tem certeza que deseja cancelar esta cobrança? Esta ação não pode ser desfeita.')) {
             router.delete(route('finance.charges.destroy', charge.id));
@@ -59,7 +58,7 @@ export default function ChargeEdit({ charge, customers }: Props) {
                         <p className="mt-1 text-sm text-emerald-600">Cobranças totalmente pagas não podem ter valores alterados.</p>
                     </div>
                 ) : (
-                    <ChargeForm charge={charge} customers={customers} />
+                    <ChargeForm charge={charge} />
                 )}
             </div>
         </AppLayout>

@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { route } from '@/lib/route';
+import CustomerAutocomplete from '@/components/CustomerAutocomplete';
 
 // Using global route from '@/lib/route'
 
@@ -420,14 +421,12 @@ export default function AgendaIndex({ events, professionals, services, customers
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="customer" className="text-right">Cliente</Label>
                 <div className="col-span-3">
-                  <Select 
-                    value={data.customer_id} 
-                    onChange={(e: any) => setData('customer_id', e.target.value)}
-                    className="w-full h-9 rounded-md border"
-                  >
-                    <SelectItem value="">Selecione o cliente</SelectItem>
-                    {customers.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                  </Select>
+                  <CustomerAutocomplete 
+                    value={data.customer_id}
+                    onChange={(id) => setData('customer_id', id)}
+                    error={errors.customer_id}
+                    placeholder="Busque por nome ou telefone..."
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">

@@ -75,6 +75,8 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
    - Terminal 2: `npm run dev`
 
 5. **Acesso**: [http://localhost:8000](http://localhost:8000)
+   - **E-mail padrão**: `test@example.com`
+   - **Senha padrão**: `password`
 
 ---
 

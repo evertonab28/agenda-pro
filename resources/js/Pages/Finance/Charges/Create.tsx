@@ -6,11 +6,7 @@ import ChargeForm from '../Components/ChargeForm';
 import { route } from '@/utils/route';
 import { Customer } from '@/types';
 
-interface Props {
-    customers: Customer[];
-}
-
-export default function ChargeCreate({ customers }: Props) {
+export default function ChargeCreate() {
     return (
         <AppLayout>
             <Head title="Nova Cobrança" />
@@ -30,7 +26,7 @@ export default function ChargeCreate({ customers }: Props) {
                     </h1>
                 </div>
 
-                <ChargeForm customers={customers} />
+                <ChargeForm />
             </div>
         </AppLayout>
     );

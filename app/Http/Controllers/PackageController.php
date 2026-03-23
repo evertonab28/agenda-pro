@@ -11,21 +11,21 @@ use Inertia\Inertia;
 
 class PackageController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(\App\Models\Package::class, 'package');
-    }
+    // Removing constructor that used authorizeResource as it causes issues in Laravel 11 with the base Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Package::class);
         return Inertia::render('Packages/Index', [
             'packages' => Package::with('service')->get(),
             'services' => Service::where('is_active', true)->get(['id', 'name']),
+            'customers' => \App\Models\Customer::where('is_active', true)->get(['id', 'name']),
         ]);
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Package::class);
         $data = $request->validate([
             'service_id' => 'required|exists:services,id',
             'name' => 'required|string|max:255',
@@ -42,6 +42,7 @@ class PackageController extends Controller
 
     public function update(Request $request, Package $package)
     {
+        $this->authorize('update', $package);
         $data = $request->validate([
             'service_id' => 'required|exists:services,id',
             'name' => 'required|string|max:255',
@@ -62,6 +63,7 @@ class PackageController extends Controller
      */
     public function sell(Request $request, Package $package, PackageService $packageService)
     {
+        $this->authorize('sell', Package::class);
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
         ]);

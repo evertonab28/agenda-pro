@@ -12,17 +12,19 @@ class Charge extends Model
     use HasFactory;
 
     protected $fillable = [
-'description',
-'customer_id',
-'appointment_id',
-'amount',
-'status',
-'due_date',
-'paid_at',
-'payment_method',
-'external_reference',
-'notes',
-];
+        'description',
+        'customer_id',
+        'appointment_id',
+        'amount',
+        'status',
+        'due_date',
+        'paid_at',
+        'payment_method',
+        'external_reference',
+        'notes',
+        'reference_type',
+        'reference_id',
+    ];
 
 protected $casts = [
 'amount' => 'decimal:2',

@@ -9,10 +9,21 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
-public function index()
-{
-return Customer::latest()->paginate(20);
-}
+    public function index(Request $request)
+    {
+        $query = Customer::where('is_active', true);
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->latest()->paginate(20);
+    }
 
 public function store(StoreCustomerRequest $request)
 {

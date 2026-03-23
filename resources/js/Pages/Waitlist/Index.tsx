@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectItem } from '@/components/ui/select';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import CustomerAutocomplete from '@/components/CustomerAutocomplete';
 import { 
     Users, Plus, Search, MoreHorizontal, Calendar, 
     Clock, Trash2, Edit2, CheckCircle2, AlertCircle,
@@ -209,11 +210,13 @@ export default function WaitlistIndex({ entries, customers, services, profession
                     <form onSubmit={handleSubmit} className="space-y-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2 col-span-2">
-                                <Label>Cliente</Label>
-                                <Select value={data.customer_id} onChange={e => setData('customer_id', e.target.value)}>
-                                    <SelectItem value="">Selecione o cliente</SelectItem>
-                                    {customers.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                                </Select>
+                                <CustomerAutocomplete 
+                                    label="Cliente"
+                                    value={data.customer_id}
+                                    onChange={(id) => setData('customer_id', id)}
+                                    error={errors.customer_id}
+                                    placeholder="Busque por nome ou telefone..."
+                                />
                             </div>
                             <div className="space-y-2">
                                 <Label>Serviço Desejado</Label>

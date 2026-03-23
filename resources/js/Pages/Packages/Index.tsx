@@ -8,18 +8,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package as PackageIcon, Plus, Edit2, Archive, CheckCircle2, ShoppingBag } from 'lucide-react';
+import { Select, SelectItem } from '@/components/ui/select';
+import { Package as PackageIcon, Plus, Edit2, Archive, CheckCircle2, ShoppingBag, ShoppingCart, User, MoreHorizontal, Calendar, AlertCircle } from 'lucide-react';
 import { route } from '@/utils/route';
+import CustomerAutocomplete from '@/components/CustomerAutocomplete';
 
 interface Props {
     packages: any[];
     services: any[];
+    customers: any[];
 }
 
-export default function PackageIndex({ packages, services }: Props) {
+export default function PackageIndex({ packages, services, customers }: Props) {
     const [showModal, setShowModal] = useState(false);
+    const [showSellModal, setShowSellModal] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState<any>(null);
+    const [packageToSell, setPackageToSell] = useState<any>(null);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         service_id: '',
@@ -29,6 +33,10 @@ export default function PackageIndex({ packages, services }: Props) {
         price: 0,
         validity_days: 90,
         is_active: true,
+    });
+
+    const { data: sellData, setData: setSellData, post: postSell, processing: sellProcessing, reset: resetSell, errors: sellErrors } = useForm({
+        customer_id: '',
     });
 
     const openModal = (pkg?: any) => {
@@ -54,13 +62,35 @@ export default function PackageIndex({ packages, services }: Props) {
         e.preventDefault();
         if (selectedPackage) {
             put(route('packages.update', selectedPackage.id), {
-                onSuccess: () => setShowModal(false),
+                onSuccess: () => {
+                    setShowModal(false);
+                    // toast.success('Pacote atualizado!');
+                },
             });
         } else {
             post(route('packages.store'), {
-                onSuccess: () => setShowModal(false),
+                onSuccess: () => {
+                    setShowModal(false);
+                    reset();
+                },
             });
         }
+    };
+
+    const openSellModal = (pkg: any) => {
+        setPackageToSell(pkg);
+        resetSell();
+        setShowSellModal(true);
+    };
+
+    const handleSell = (e: React.FormEvent) => {
+        e.preventDefault();
+        postSell(route('packages.sell', packageToSell.id), {
+            onSuccess: () => {
+                setShowSellModal(false);
+                // toast.success('Venda registrada com sucesso!');
+            },
+        });
     };
 
     const formatCurrency = (val: number) => {
@@ -120,7 +150,7 @@ export default function PackageIndex({ packages, services }: Props) {
                                 {!pkg.is_active ? (
                                     <Badge variant="secondary" className="w-full justify-center py-1">Desativado</Badge>
                                 ) : (
-                                    <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => alert('Em breve: Venda direta por aqui!')}>
+                                    <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => openSellModal(pkg)}>
                                         <ShoppingBag className="w-3.5 h-3.5 mr-2" /> Vender Pacote
                                     </Button>
                                 )}
@@ -150,12 +180,14 @@ export default function PackageIndex({ packages, services }: Props) {
                             <Label>Serviço Vinculado</Label>
                             <Select 
                                 value={data.service_id} 
-                                onChange={(e: any) => setData('service_id', e.target.value)}
-                                className="w-full h-10 rounded-md border"
+                                onChange={(e) => setData('service_id', e.target.value)}
                             >
-                                <option value="">Selecione o serviço...</option>
-                                {services.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
+                                <SelectItem value="">Selecione o serviço...</SelectItem>
+                                {services.map(s => (
+                                    <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                                ))}
                             </Select>
+                            {errors.service_id && <p className="text-xs text-red-500 font-medium">{errors.service_id}</p>}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -213,6 +245,44 @@ export default function PackageIndex({ packages, services }: Props) {
                         <DialogFooter className="pt-4">
                             <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
                             <Button type="submit" disabled={processing}>Salvar Pacote</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showSellModal} onOpenChange={setShowSellModal}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Vender Pacote</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSell} className="space-y-6 py-4">
+                        <div className="bg-primary/5 p-4 rounded-lg flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-primary">Pacote Selecionado</p>
+                                <p className="text-lg font-bold">{packageToSell?.name}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs text-muted-foreground">Valor</p>
+                                <p className="font-bold">{packageToSell ? formatCurrency(packageToSell.price) : '-'}</p>
+                            </div>
+                        </div>
+
+                        <CustomerAutocomplete 
+                            label="Selecionar Cliente"
+                            value={sellData.customer_id}
+                            onChange={(id) => setSellData('customer_id', id)}
+                            error={sellErrors.customer_id}
+                            placeholder="Busque por nome ou telefone..."
+                        />
+
+                        <div className="bg-amber-50 border border-amber-100 p-3 rounded text-[11px] text-amber-800 flex gap-2">
+                            <ShoppingBag className="w-4 h-4 shrink-0" />
+                            <p>Ao confirmar, uma cobrança será gerada para o cliente e as sessões serão creditadas no perfil dele.</p>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setShowSellModal(false)}>Cancelar</Button>
+                            <Button type="submit" disabled={sellProcessing}>Confirmar Venda</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

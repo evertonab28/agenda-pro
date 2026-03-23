@@ -4,13 +4,13 @@ import { Charge, Customer } from '@/types';
 import { Save, AlertCircle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { route } from '@/utils/route';
+import CustomerAutocomplete from '@/components/CustomerAutocomplete';
 
 interface Props {
     charge?: Charge;
-    customers: any[];
 }
 
-export default function ChargeForm({ charge, customers }: Props) {
+export default function ChargeForm({ charge }: Props) {
     const isEditing = !!charge;
 
     const { data, setData, post, put, processing, errors } = useForm({
@@ -100,24 +100,13 @@ export default function ChargeForm({ charge, customers }: Props) {
                         </div>
 
                         <div className="sm:col-span-6">
-                            <label htmlFor="customer_id" className="block text-sm font-medium text-gray-700">Cliente (Opcional)</label>
-                            <div className="mt-1">
-                                <select
-                                    id="customer_id"
-                                    name="customer_id"
-                                    className={`shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md ${errors.customer_id ? 'border-red-300 text-red-900' : ''}`}
-                                    value={data.customer_id}
-                                    onChange={e => setData('customer_id', e.target.value)}
-                                >
-                                    <option value="">Selecione um cliente...</option>
-                                    {customers.map(customer => (
-                                        <option key={customer.id} value={customer.id}>
-                                            {customer.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            {errors.customer_id && <p className="mt-2 text-sm text-red-600">{errors.customer_id}</p>}
+                            <CustomerAutocomplete 
+                                label="Cliente (Opcional)"
+                                value={data.customer_id}
+                                onChange={(id) => setData('customer_id', id)}
+                                error={errors.customer_id}
+                                placeholder="Busque por nome ou telefone..."
+                            />
                         </div>
 
                         <div className="sm:col-span-3">

@@ -70,10 +70,7 @@ class ChargeController extends Controller
     public function create()
     {
         $this->authorize('create', Charge::class);
-        $customers = \App\Models\Customer::select('id', 'name')->orderBy('name')->get();
-        return Inertia::render('Finance/Charges/Create', [
-            'customers' => $customers
-        ]);
+        return Inertia::render('Finance/Charges/Create');
     }
 
     public function store(Request $request)
@@ -115,10 +112,8 @@ class ChargeController extends Controller
     public function edit(Charge $charge)
     {
         $this->authorize('update', $charge);
-        $customers = \App\Models\Customer::select('id', 'name')->orderBy('name')->get();
         return Inertia::render('Finance/Charges/Edit', [
             'charge' => $charge,
-            'customers' => $customers
         ]);
     }
 
