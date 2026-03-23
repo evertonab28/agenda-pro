@@ -14,16 +14,14 @@ class AgendaService
      */
     public function getAgendaEvents(array $filters)
     {
-        $query = Appointment::with(['customer', 'service', 'professional'])
+        $query = Appointment::with(['customer', 'service', 'professional', 'charge.receipts'])
             ->whereBetween('starts_at', [
                 Carbon::parse($filters['from'])->startOfDay(),
                 Carbon::parse($filters['to'])->endOfDay(),
             ]);
 
         if (!empty($filters['professional_id'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('professional_id', $filters['professional_id']);
-            });
+            $query->where('professional_id', $filters['professional_id']);
         }
 
         if (!empty($filters['status'])) {
@@ -31,12 +29,13 @@ class AgendaService
         }
 
         if (!empty($filters['service_id'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('service_id', $filters['service_id']);
-            });
+            $query->where('service_id', $filters['service_id']);
         }
 
         return $query->get()->map(function ($app) {
+            $charge = $app->charge;
+            $amountPaid = $charge ? $charge->receipts->sum('amount_received') : 0;
+            
             return [
                 'id' => $app->id,
                 'title' => ($app->customer?->name ?? 'Cliente') . ' - ' . ($app->service?->name ?? 'Serviço'),
@@ -47,6 +46,12 @@ class AgendaService
                 'service' => $app->service,
                 'professional' => $app->professional,
                 'notes' => $app->notes,
+                'charge' => $charge ? [
+                    'id' => $charge->id,
+                    'status' => $charge->status,
+                    'amount' => $charge->amount,
+                    'paid' => $amountPaid,
+                ] : null,
             ];
         });
     }

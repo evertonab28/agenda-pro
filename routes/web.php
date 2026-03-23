@@ -38,6 +38,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/agenda/{appointment}', [\App\Http\Controllers\AgendaController::class, 'update'])->name('agenda.update');
     Route::delete('/agenda/{appointment}', [\App\Http\Controllers\AgendaController::class, 'destroy'])->name('agenda.destroy');
     Route::patch('/agenda/{appointment}/status', [\App\Http\Controllers\AgendaController::class, 'status'])->name('agenda.status');
+    Route::patch('/agenda/{appointment}/finalizar', [\App\Http\Controllers\AgendaController::class, 'finalizeAndCheckout'])->name('agenda.finalize');
+
+    Route::get('/agenda/{appointment}/checkout', [\App\Http\Controllers\AgendaCheckoutController::class, 'show'])->name('agenda.checkout.show');
+    Route::post('/agenda/{appointment}/checkout', [\App\Http\Controllers\AgendaCheckoutController::class, 'store'])->name('agenda.checkout.store');
 
     // Módulo Financeiro
     Route::prefix('financeiro')->name('finance.')->group(function () {

@@ -99,4 +99,18 @@ class AgendaController extends Controller
 
         return redirect()->route('agenda')->with('success', 'Agendamento excluído.');
     }
+
+    public function finalizeAndCheckout(Appointment $appointment, \App\Services\CheckoutService $checkoutService)
+    {
+        $this->authorize('update', $appointment);
+
+        // 1. Mark as completed
+        $checkoutService->finalizeAppointment($appointment);
+
+        // 2. Ensure a charge exists
+        $checkoutService->ensureChargeForAppointment($appointment);
+
+        // 3. Redirect to checkout
+        return redirect()->route('agenda.checkout.show', $appointment->id);
+    }
 }

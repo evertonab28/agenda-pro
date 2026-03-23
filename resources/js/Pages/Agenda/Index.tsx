@@ -32,6 +32,20 @@ const statusColors: any = {
   canceled: 'bg-orange-100 text-orange-700 border-orange-200',
 };
 
+const paymentStatusColors: any = {
+  pending: 'bg-amber-100 text-amber-700 border-amber-200',
+  partial: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  paid: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  none: 'bg-gray-100 text-gray-500 border-gray-200 border-dashed',
+};
+
+const paymentStatusLabels: any = {
+  pending: 'Pendente',
+  partial: 'Parcial',
+  paid: 'Pago',
+  none: 'Sem Cobrança',
+};
+
 export default function AgendaIndex({ events, professionals, services, customers, filters }: Props) {
   // - **Agenda Module**: Implemented a complete operational calendar for daily, weekly, and **monthly** appointment management.
   // - **Redesign**: Overhauled the Weekly view to match the **Google Calendar style**, featuring a refined header, red circular highlights for the current day, and a 'dia inteiro' row.
@@ -363,7 +377,12 @@ export default function AgendaIndex({ events, professionals, services, customers
                                 <div className="hidden sm:flex items-center gap-1 mt-1 font-semibold text-[9px] opacity-70">
                                    <Clock className="w-2.5 h-2.5" />
                                    {format(parseISO(event.start), 'HH:mm')} - {format(parseISO(event.end), 'HH:mm')}
-                                </div>
+                                 </div>
+                                 <div className="mt-1 flex gap-1">
+                                    <Badge variant="outline" className={`text-[8px] px-1 py-0 h-3.5 ${paymentStatusColors[event.charge?.status || 'none']}`}>
+                                      {paymentStatusLabels[event.charge?.status || 'none']}
+                                    </Badge>
+                                 </div>
                              </div>
                           ))}
                         </div>
@@ -489,12 +508,41 @@ export default function AgendaIndex({ events, professionals, services, customers
               )}
             </div>
             {errors.starts_at && <p className="text-sm text-red-500 text-center mb-2">{errors.starts_at}</p>}
-            <DialogFooter className="gap-2 sm:gap-0">
-              {selectedEvent && (
-                <Button type="button" variant="destructive" onClick={deleteAppointment} className="mr-auto">Excluir</Button>
-              )}
-              <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-              <Button type="submit" disabled={processing}>Salvar</Button>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <div className="flex gap-2 mr-auto">
+                {selectedEvent && (
+                  <Button type="button" variant="destructive" size="sm" onClick={deleteAppointment}>Excluir</Button>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
+                
+                {selectedEvent && selectedEvent.status !== 'completed' && selectedEvent.status !== 'canceled' && (
+                  <Button 
+                    type="button" 
+                    variant="default" // Changed from green to default since we want premium look
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={() => router.patch(route('agenda.finalize', selectedEvent.id))}
+                  >
+                    Finalizar e Cobrar
+                  </Button>
+                )}
+
+                {(selectedEvent?.charge || selectedEvent?.status === 'completed') && selectedEvent?.status !== 'canceled' && (
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    onClick={() => router.get(route('agenda.checkout.show', selectedEvent.id))}
+                  >
+                    Abrir Checkout
+                  </Button>
+                )}
+
+                {(!selectedEvent || (selectedEvent.status !== 'completed' && !selectedEvent.charge)) && (
+                   <Button type="submit" disabled={processing}>Salvar</Button>
+                )}
+              </div>
             </DialogFooter>
           </form>
         </DialogContent>

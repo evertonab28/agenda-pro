@@ -27,6 +27,7 @@ const routes: Record<string, string> = {
     'configuracoes.holidays.store': '/configuracoes/feriados',
     'configuracoes.general.index': '/configuracoes/geral',
     'configuracoes.general.store': '/configuracoes/geral',
+    'agenda.checkout.store': '/agenda/:id/checkout',
 };
 
 export function route(name: string, params?: any): string {
@@ -61,6 +62,9 @@ export function route(name: string, params?: any): string {
     if (name === 'agenda.update') return `/agenda/${params?.id || params}`;
     if (name === 'agenda.destroy') return `/agenda/${params?.id || params}`;
     if (name === 'agenda.status') return `/agenda/${params?.id || params}/status`;
+    if (name === 'agenda.finalize') return `/agenda/${params?.id || params}/finalizar`;
+    if (name === 'agenda.checkout.show') return `/agenda/${params?.id || params}/checkout`;
+    if (name === 'agenda.checkout.store') return `/agenda/${params?.id || params}/checkout`;
     
     if (name === 'customers.show') return `/customers/${params?.id || params}`;
     if (name === 'customers.edit') return `/customers/${params?.id || params}/edit`;
