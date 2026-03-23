@@ -1,101 +1,83 @@
 # 📅 Agenda Pro
 
-**Agenda Pro** é um sistema moderno de gestão de agendamentos e visão financeira voltado para clínicas, profissionais autônomos e pequenos negócios que desejam controle total sobre seus horários e receitas.
+**Agenda Pro** é um ecossistema completo e moderno para gestão de agendamentos, controle de clientes e saúde financeira. Projetado para clínicas, estúdios e profissionais liberais, o sistema transforma a complexidade operacional em uma interface fluida, focada em produtividade e insights baseados em dados reais.
 
-Construído utilizando os padrões mais modernos de desenvolvimento web, a aplicação oferece uma experiência de Single Page Application (SPA) veloz e reativa com uma arquitetura robusta no backend.
-
----
-
-## 🚀 Tecnologias Utilizadas
-
-Este projeto adota uma stack moderna e de alta performance:
-
-### Backend
-- **[Laravel](https://laravel.com/) (PHP)**: Framework robusto para a construção da API e lógica de negócios.
-- **[Inertia.js](https://inertiajs.com/)**: O "elo" que conecta as rotas e os dados do backend do Laravel diretamente aos componentes React, sem a necessidade de construir uma API JSON separada.
-
-### Frontend
-- **[React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)**: Biblioteca para interfaces ricas, fortemente tipada para evitar bugs e escalar melhor.
-- **[Vite](https://vitejs.dev/)**: Ferramenta de build de frontend super rápida, em conjunto com o `laravel-vite-plugin`.
-- **[Tailwind CSS v4](https://tailwindcss.com/)**: Framework utilitário de CSS que torna a estilização ágil e responsiva.
-- **[Shadcn/UI](https://ui.shadcn.com/)**: Biblioteca de componentes baseada no Radix UI e e TailwindCSS, responsável por toda estética moderna dos inputs, cards, badges e tabelas do sistema.
-- **[Recharts](https://recharts.org/)**: Biblioteca React para criação de gráficos fluidos e customizados.
-- **[Lucide React](https://lucide.dev/)**: Pack de ícones consistente e minimalista.
+Construído como uma **Single Page Application (SPA)** de alta performance, o Agenda Pro combina a robustez do Laravel com a reatividade instantânea do React.
 
 ---
 
-## 🎯 Funcionalidades Principais (Dashboard)
+## 🚀 Stack Tecnológica
 
-- **Visão Analítica Global:** Acompanhe o total de agendamentos, taxa de confirmação e taxa de faltas (no-show) de forma instantânea.
-- **Controle Financeiro Direto:** Visualize imediatamente a soma financeira atrelada aos serviços, dividida por status (Pago, Pendente, e Em Atraso).
-- **Gráficos Dinâmicos (Série Diária):** Gráfico interativo evidenciando o cruzamento entre Agendamentos realizados vs Receita financeira (R$) num dado dia, ajudando a entender picos de demanda.
-- **Tabela Crítica de Inadimplência:** Identificação em tempo real, acompanhada de indicativos visuais (Tags coloridas dinâmicas), de todos os débitos e vencimentos programados dos clientes/pacientes.
-- **Filtro de Período Inteligente:** Navegação retroativa ou futura por datas usando busca dinâmica e veloz provida pelo ecossistema Inertia.
-- **Dashboard Filters & Export (V2):** Filtros avançados combinados (Data, Status, ID Profissional, ID Serviço). Exibição de variação percentual (Deltas) em relação ao período anterior nos indicadores chave. Exportação do relatório completo e consolidado diretamente para formato CSV mantendo os filtros ativos.
-- **Rankings & Drill-down (V3):** Ranking Top 10 Serviços (por agendamentos e receita) e Top 10 Clientes (por gastos). Tabela de pendências com paginação server-side com suporte a busca de nomes. Série Dinâmica com clique interativo ativando painel lateral (Drill-down) com informações granulares daquele dia específico.
-- **Autenticação & Segurança (V4):** Sistema completo de Login, Logout e Recuperação de Senha. Proteção de rotas interna e rate limiting para prevenção de ataques de força bruta. Senhas criptografadas e sessões seguras.
-- **RBAC (Role-Based Access Control):** Gestão de usuários com perfis diferenciados:
-    - **Admin:** Controle total do sistema, gestão de usuários e configurações.
-    - **Manager:** Acesso completo a agendamentos, clientes e financeiro.
-    - **Operator:** Focado no operacional (agendamentos e clientes), com restrições em deleção e financeiro.
-- **Onboarding Guiado:** Fluxo inicial inteligente que detecta se o sistema está configurado e guia o administrador pelos passos essenciais (Serviços, Profissionais e Horários).
+- **Backend**: [Laravel 11](https://laravel.com/) (PHP 8.2+) - Arquitetura MVC sólida e segura.
+- **Frontend**: [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) - Interface tipada e resiliente.
+- **Comunicação**: [Inertia.js](https://inertiajs.com/) - Experiência de SPA sem a complexidade de APIs REST tradicionais.
+- **Estilização**: [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn/UI](https://ui.shadcn.com/) - Design System premium e responsivo.
+- **Dados & Gráficos**: [Recharts](https://recharts.org/) para visualização analítica.
+- **Build**: [Vite](https://vitejs.dev/) para carregamento instantâneo em desenvolvimento.
 
 ---
 
-## ⚙️ Como Executar o Projeto Localmente
+## 💎 Funcionalidades e Módulos
 
-Antes de começar, garanta que você tenha o **PHP**, **Composer**, **Node.js** e um banco de dados (ex: MySQL/SQLite/PostgreSQL) configurados.
+### 📊 Dashboard Analítico
+- **KPIs em Tempo Real**: Visualize agendamentos, faturamento e taxas de conversão com indicadores de variação percentual.
+- **Gráficos de Desempenho**: Acompanhe o cruzamento de Agendamentos vs. Receita Diária.
+- **Alertas de Inadimplência**: Identificação rápida de cobranças vencidas e pendentes diretamente na home.
+- **Top Rankings**: Descubra seus serviços mais rentáveis e seus clientes mais fiéis.
 
-1. **Clone do repositório / Baixe os arquivos:**
-   ```bash
-   git clone <url-do-repositorio>
-   cd agenda-pro
-   ```
+### 📅 Agenda Inteligente
+- **Múltiplas Visões**: Alterne entre visão Diária, Semanal (estilo Google Calendar) e Mensal.
+- **Sincronização Total**: Navegação entre datas com carregamento dinâmico via servidor.
+- **Filtros por Profissional**: Visualize a agenda de toda a equipe ou de um colaborador específico.
+- **Gestão Rápida**: Crie, edite, cancele ou altere o status de agendamentos em poucos cliques através de modais contextuais.
 
-2. **Instale as dependências do Backend (Laravel):**
+### 👥 Gestão de Clientes & Insights
+- **Perfil 360°**: Histórico completo de agendamentos, pagamentos e logs de atividade de cada cliente.
+- **Métricas de Crescimento**: Cálculo automático de taxa de retenção e crescimento de base de clientes nos últimos 30 dias.
+- **Ações Rápidas**: Atalhos para editar perfil ou iniciar um novo agendamento com cliente pré-selecionado.
+
+### 💰 Módulo Financeiro
+- **Gestão de Cobranças**: Controle granular de faturas (Pago, Pendente, Vencido).
+- **Fluxo de Caixa**: Visão clara de receitas previstas vs. realizadas.
+- **Exportação de Dados**: Gere relatórios em CSV para integração com contabilidade ou Excel.
+
+### ⚙️ Configurações Estruturais
+- **Serviços**: Cadastro com duração, preço e configuração de disponibilidade.
+- **Profissionais**: Gestão de membros da equipe e vínculos com serviços.
+- **Horários de Trabalho**: Configuração flexível de expediente, incluindo intervalos de almoço por profissional.
+- **Feriados e Bloqueios**: Impeça agendamentos em datas específicas ou feriados nacionais/locais.
+
+### 🔐 Segurança e Acessos
+- **Controle de Acesso (RBAC)**: Perfis de Admin, Manager e Operator com permissões distintas.
+- **Onboarding Guiado**: Setup assistido para novos usuários, garantindo que o sistema esteja pronto para uso em minutos.
+
+---
+
+## 🛠️ Instalação e Setup
+
+1. **Requisitos**: PHP 8.2+, Composer, Node.js 20+, MySQL/PostgreSQL/SQLite.
+
+2. **Backend**:
    ```bash
    composer install
+   cp .env.example .env
+   php artisan key:generate
+   php artisan migrate --seed
    ```
 
-3. **Instale as dependências do Frontend (NPM):**
+3. **Frontend**:
    ```bash
    npm install
    ```
 
-4. **Configure seu ambiente (`.env`):**
-   ```bash
-   cp .env.example .env
-   # Gere a key do Laravel:
-   php artisan key:generate
-   ```
-   *Certifique-se de preencher as variáveis do banco de dados (DB_CONNECTION, DB_DATABASE...) corretamente.*
+4. **Execução**:
+   - Terminal 1: `php artisan serve`
+   - Terminal 2: `npm run dev`
 
-5. **Migre o banco de dados (Criação das Tabelas):**
-   ```bash
-   php artisan migrate
-   # Se houver seeders com dados falsos para teste:
-   # php artisan migrate --seed
-   ```
-
-6. **Inicie os Servidores (Você precisará de 2 abas no terminal):**
-   
-   Aba 1 (Backend PHP):
-   ```bash
-   php artisan serve
-   ```
-   
-   Aba 2 (Frontend Vite):
-   ```bash
-   npm run dev
-   ```
-
-7. **Acesse a Aplicação:**
-   Acesse [http://localhost:8000](http://localhost:8000) (ou especificamente na rota `/dashboard`) pelo seu navegador!
+5. **Acesso**: [http://localhost:8000](http://localhost:8000)
 
 ---
 
-## 🧱 Abordagem de Design e Componentização
+## 🎨 Filosofia de Design
 
-Toda a inferência visual do sistema é pautada nos arquivos-base do **Shadcn/UI**, que ficam alojados em `resources/js/components/ui`. As adaptações de layout principal (Sidebar de menu cruzando com o conteúdo dinâmico) acontecem em `AppLayout.tsx`. 
-
-O uso ostensivo da arquitetura MVC moderna, mesclando Controladores que empacotam e pré-formatam os dados do BD diretamente para a `view` em Typescript, dispensa o intermédio burocrático de APIs Redux ou requests paralelos desnecessários.
+O Agenda Pro segue princípios de **Micro-frontend Architecture** dentro do ecossistema Monolito, utilizando componentes reutilizáveis alojados em `resources/js/components/ui`. O foco é uma interface limpa, com modo escuro nativo e animações sutis que melhoram a percepção de performance.
