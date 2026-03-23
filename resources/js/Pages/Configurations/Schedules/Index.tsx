@@ -28,6 +28,7 @@ interface Props {
 
 export default function Index({ professionals, selectedProfessionalId, schedules }: Props) {
     const handleProfessionalChange = (value: string) => {
+        // @ts-expect-error
         router.get(route('configuracoes.schedules.index'), { professional_id: value }, {
             preserveState: true,
             replace: true
@@ -55,7 +56,7 @@ export default function Index({ professionals, selectedProfessionalId, schedules
                     <div className="w-full md:w-64">
                         <Select 
                             value={selectedProfessionalId.toString()} 
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleProfessionalChange(e.target.value)}
+                            onChange={(e: any) => handleProfessionalChange(e.target.value)}
                         >
                             {professionals.map((pro) => (
                                 <SelectItem key={pro.id} value={pro.id.toString()}>
@@ -83,16 +84,3 @@ export default function Index({ professionals, selectedProfessionalId, schedules
     );
 }
 
-// Helper to use route() in this component
-function route(name: string, params?: any) {
-    const routes: any = {
-        'configuracoes.schedules.index': '/configuracoes/horarios',
-    };
-    let url = routes[name] || name;
-    if (params) {
-        Object.keys(params).forEach(key => {
-            url += (url.includes('?') ? '&' : '?') + `${key}=${params[key]}`;
-        });
-    }
-    return url;
-}

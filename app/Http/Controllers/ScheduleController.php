@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Professional;
+use App\Models\Service;
 use App\Models\ProfessionalSchedule;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -63,6 +64,14 @@ class ScheduleController extends Controller
                     'is_active' => $sched['is_active'],
                 ]
             );
+        }
+
+        if (Service::exists() && Professional::exists() && ProfessionalSchedule::exists()) {
+            return redirect()->route('dashboard')->with('success', 'Sistema configurado com sucesso! Bem-vindo ao Agenda Pro.');
+        }
+
+        if (!Service::exists() || !Professional::exists() || !ProfessionalSchedule::exists()) {
+            return redirect()->route('onboarding.index')->with('success', 'Horários atualizados com sucesso.');
         }
 
         return redirect()->back()->with('success', 'Horários atualizados com sucesso.');

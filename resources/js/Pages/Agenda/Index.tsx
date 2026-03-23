@@ -12,19 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { route } from '@/lib/route';
 
-// Simple route helper for Ziggy-less environments
-const route = (name: string, params?: any) => {
-  const routes: any = {
-    'agenda': '/agenda',
-    'agenda.store': '/agenda',
-    'agenda.update': `/agenda/${params}`,
-    'agenda.destroy': `/agenda/${params}`,
-    'agenda.status': `/agenda/${params}/status`,
-    'dashboard': '/dashboard',
-  };
-  return routes[name] || '#';
-};
+// Using global route from '@/lib/route'
 
 interface Props {
   events: any[];
@@ -47,9 +37,16 @@ export default function AgendaIndex({ events, professionals, services, customers
   // - **Redesign**: Overhauled the Weekly view to match the **Google Calendar style**, featuring a refined header, red circular highlights for the current day, and a 'dia inteiro' row.
   // - **Monthly View**: Added a 7-column grid for a full month overview with compact event listing.
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(filters.from ? parseISO(filters.from) : new Date());
   const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+
+  useEffect(() => {
+    // If filters change from server, update the local currentDate state
+    if (filters.from) {
+      setCurrentDate(parseISO(filters.from));
+    }
+  }, [filters.from]);
 
   const { data, setData, post, put, processing, errors, reset } = useForm({
     customer_id: '',
@@ -60,6 +57,13 @@ export default function AgendaIndex({ events, professionals, services, customers
     notes: '',
     status: 'scheduled',
   });
+
+  useEffect(() => {
+    if (filters.customer_id) {
+      setData('customer_id', String(filters.customer_id));
+      setShowModal(true);
+    }
+  }, [filters.customer_id]);
 
   const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 to 20:00
 
@@ -73,16 +77,25 @@ export default function AgendaIndex({ events, professionals, services, customers
     : [currentDate];
 
   const navigate = (direction: 'next' | 'prev' | 'today') => {
-    if (direction === 'today') {
-      setCurrentDate(new Date());
-    } else {
+    let nextDate = new Date();
+    if (direction !== 'today') {
       if (view === 'month') {
-        setCurrentDate(prev => direction === 'next' ? addMonths(prev, 1) : subMonths(prev, 1));
+        nextDate = direction === 'next' ? addMonths(currentDate, 1) : subMonths(currentDate, 1);
       } else {
         const amount = view === 'week' ? 7 : 1;
-        setCurrentDate(prev => direction === 'next' ? addDays(prev, amount) : subDays(prev, amount));
+        nextDate = direction === 'next' ? addDays(currentDate, amount) : subDays(currentDate, amount);
       }
     }
+
+    const fromDate = view === 'month' ? startOfMonth(nextDate) : startOfWeek(nextDate, { weekStartsOn: 0 });
+    const toDate = view === 'month' ? endOfMonth(nextDate) : endOfWeek(nextDate, { weekStartsOn: 0 });
+
+    router.get(route('agenda'), { 
+      ...filters, 
+      from: format(fromDate, 'yyyy-MM-dd'),
+      to: format(toDate, 'yyyy-MM-dd'),
+      customer_id: '', // Clear customer_id on navigation to avoid re-opening modal
+    }, { preserveState: false });
   };
 
   const openNewModal = (date?: Date, hour?: number) => {
@@ -172,19 +185,32 @@ export default function AgendaIndex({ events, professionals, services, customers
               <Button 
                 variant={view === 'day' ? 'secondary' : 'ghost'} 
                 size="sm" 
-                onClick={() => setView('day')}
+                onClick={() => {
+                   setView('day');
+                   router.get(route('agenda'), { ...filters, from: format(currentDate, 'yyyy-MM-dd'), to: format(currentDate, 'yyyy-MM-dd') }, { preserveState: true });
+                }}
                 className="h-8 px-4"
               >Dia</Button>
               <Button 
                 variant={view === 'week' ? 'secondary' : 'ghost'} 
                 size="sm" 
-                onClick={() => setView('week')}
+                onClick={() => {
+                   setView('week');
+                   const from = startOfWeek(currentDate, { weekStartsOn: 0 });
+                   const to = endOfWeek(currentDate, { weekStartsOn: 0 });
+                   router.get(route('agenda'), { ...filters, from: format(from, 'yyyy-MM-dd'), to: format(to, 'yyyy-MM-dd') }, { preserveState: true });
+                }}
                 className="h-8 px-4"
               >Semana</Button>
               <Button 
                 variant={view === 'month' ? 'secondary' : 'ghost'} 
                 size="sm" 
-                onClick={() => setView('month')}
+                onClick={() => {
+                   setView('month');
+                   const from = startOfMonth(currentDate);
+                   const to = endOfMonth(currentDate);
+                   router.get(route('agenda'), { ...filters, from: format(from, 'yyyy-MM-dd'), to: format(to, 'yyyy-MM-dd') }, { preserveState: true });
+                }}
                 className="h-8 px-4"
               >Mês</Button>
             </div>

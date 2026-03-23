@@ -28,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Charge::class, \App\Policies\ChargePolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Appointment::class, \App\Policies\AppointmentPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\Customer::class, \App\Policies\CustomerPolicy::class);
+
 
         \App\Models\Appointment::observe(\App\Observers\AppointmentObserver::class);
         \App\Models\Charge::observe(\App\Observers\ChargeObserver::class);

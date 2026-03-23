@@ -6,6 +6,9 @@ import { Phone, Mail, MapPin, Calendar, FileText, UserCheck, UserMinus, DollarSi
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+import { Link } from '@inertiajs/react';
+import { route } from '@/lib/route';
+
 interface Props {
   customer: any;
   summary: {
@@ -49,8 +52,12 @@ export default function CustomerProfileHeader({ customer, summary }: Props) {
                 <p className="text-muted-foreground font-medium mt-1">Cliente desde {format(parseISO(customer.created_at), 'MMMM yyyy', { locale: ptBR })}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="rounded-xl border-zinc-200 h-11 px-6 font-bold hover:bg-zinc-50 transition-all">Editar Perfil</Button>
-                <Button className="rounded-xl h-11 px-6 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">Novo Agendamento</Button>
+                <Link href={route('customers.edit', customer.id)}>
+                  <Button variant="outline" className="rounded-xl border-zinc-200 h-11 px-6 font-bold hover:bg-zinc-50 transition-all">Editar Perfil</Button>
+                </Link>
+                <Link href={route('agenda', { customer_id: customer.id })}>
+                  <Button className="rounded-xl h-11 px-6 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">Novo Agendamento</Button>
+                </Link>
               </div>
             </div>
 

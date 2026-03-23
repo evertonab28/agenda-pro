@@ -34,6 +34,11 @@ class ServiceController extends Controller
     public function store(StoreServiceRequest $request): RedirectResponse
     {
         Service::create($request->validated());
+
+        if (!Service::exists() || !\App\Models\Professional::exists() || !\App\Models\ProfessionalSchedule::exists()) {
+            return redirect()->route('onboarding.index');
+        }
+
         return redirect()->route('configuracoes.services.index');
     }
 

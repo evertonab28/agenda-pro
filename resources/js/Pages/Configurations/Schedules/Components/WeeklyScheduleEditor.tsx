@@ -72,8 +72,8 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Use a dynamic route helper or hardcoded mapping since route() might be complex
-        post('/configuracoes/horarios');
+        // @ts-expect-error
+        post(route('configuracoes.schedules.store'));
     };
 
     return (

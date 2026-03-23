@@ -41,6 +41,10 @@ class ProfessionalController extends Controller
             $professional->services()->sync($request->services);
         }
         
+        if (!Service::exists() || !Professional::exists() || !\App\Models\ProfessionalSchedule::exists()) {
+            return redirect()->route('onboarding.index');
+        }
+
         return redirect()->route('configuracoes.professionals.index');
     }
 

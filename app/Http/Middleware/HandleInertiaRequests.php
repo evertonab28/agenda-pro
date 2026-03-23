@@ -4,6 +4,10 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Service;
+use App\Models\Professional;
+use App\Models\ProfessionalSchedule;
+use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -42,7 +46,25 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn() => $request->session()->get('error'),
             ],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'role' => $request->user()->role,
+                ] : null,
+                'can' => $request->user() ? [
+                    'manage_users' => $request->user()->role === 'admin',
+                    'view_finance' => in_array($request->user()->role, ['admin', 'manager']),
+                    'manage_settings' => in_array($request->user()->role, ['admin', 'manager']),
+                ] : [],
+                'hide_nav' => $request->user() && 
+                             (in_array($request->user()->role, ['admin', 'manager'])) && 
+                             (!Service::exists() || !Professional::exists() || !ProfessionalSchedule::exists()) &&
+                             ($request->routeIs('onboarding.*') || $request->routeIs('configuracoes.*')),
+            ],
+            'ziggy' => fn () => [
+                ...(new Ziggy)->toArray(),
+                'location' => $request->url(),
             ],
         ];
     }

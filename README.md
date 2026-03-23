@@ -33,6 +33,12 @@ Este projeto adota uma stack moderna e de alta performance:
 - **Filtro de Período Inteligente:** Navegação retroativa ou futura por datas usando busca dinâmica e veloz provida pelo ecossistema Inertia.
 - **Dashboard Filters & Export (V2):** Filtros avançados combinados (Data, Status, ID Profissional, ID Serviço). Exibição de variação percentual (Deltas) em relação ao período anterior nos indicadores chave. Exportação do relatório completo e consolidado diretamente para formato CSV mantendo os filtros ativos.
 - **Rankings & Drill-down (V3):** Ranking Top 10 Serviços (por agendamentos e receita) e Top 10 Clientes (por gastos). Tabela de pendências com paginação server-side com suporte a busca de nomes. Série Dinâmica com clique interativo ativando painel lateral (Drill-down) com informações granulares daquele dia específico.
+- **Autenticação & Segurança (V4):** Sistema completo de Login, Logout e Recuperação de Senha. Proteção de rotas interna e rate limiting para prevenção de ataques de força bruta. Senhas criptografadas e sessões seguras.
+- **RBAC (Role-Based Access Control):** Gestão de usuários com perfis diferenciados:
+    - **Admin:** Controle total do sistema, gestão de usuários e configurações.
+    - **Manager:** Acesso completo a agendamentos, clientes e financeiro.
+    - **Operator:** Focado no operacional (agendamentos e clientes), com restrições em deleção e financeiro.
+- **Onboarding Guiado:** Fluxo inicial inteligente que detecta se o sistema está configurado e guia o administrador pelos passos essenciais (Serviços, Profissionais e Horários).
 
 ---
 

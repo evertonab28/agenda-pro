@@ -34,9 +34,17 @@ export function route(name: string, params?: any): string {
 
     if (params) {
         if (typeof params === 'object') {
+            const queryParams: string[] = [];
             Object.keys(params).forEach(key => {
-                url = url.replace(`:${key}`, params[key]);
+                if (url.includes(`:${key}`)) {
+                    url = url.replace(`:${key}`, params[key]);
+                } else {
+                    queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+                }
             });
+            if (queryParams.length > 0) {
+                url += (url.includes('?') ? '&' : '?') + queryParams.join('&');
+            }
         } else {
             // Assume it's a single ID if not an object
             url = url.replace(/:id|:charge/, params);

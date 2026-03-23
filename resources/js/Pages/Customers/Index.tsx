@@ -12,11 +12,12 @@ interface Props {
   customers: {
     data: any[];
     links: any[];
+    total: number;
   };
   filters: any;
 }
 
-export default function Index({ customers, filters }: Props) {
+export default function Index({ customers, filters, stats }: Props & { stats: any }) {
   return (
     <AppLayout>
       <Head title="Gerenciamento de Clientes" />
@@ -33,7 +34,7 @@ export default function Index({ customers, filters }: Props) {
                <p className="text-muted-foreground font-medium flex items-center gap-2">
                  Gerencie sua base de clientes e histórico operacional.
                  <span className="w-1 h-1 bg-zinc-300 rounded-full" />
-                 <span className="text-primary font-bold">{customers.data.length} encontrados</span>
+                 <span className="text-primary font-bold">{customers.total} encontrados</span>
                </p>
              </div>
           </div>
@@ -59,15 +60,19 @@ export default function Index({ customers, filters }: Props) {
           </div>
         </div>
 
-        {/* Quick Stats/Insights (Optional Premium Touch) */}
+        {/* Quick Stats/Insights (Dynamic) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
            <div className="bg-gradient-to-br from-primary/5 to-transparent p-6 rounded-3xl border border-primary/10 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
                <Users className="w-24 h-24" />
              </div>
              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-1">Satisfação</p>
-             <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-100">Crescimento constante</h3>
-             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Sua base de clientes cresceu 12% este mês.</p>
+             <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
+                {stats.growth >= 0 ? 'Crescimento constante' : 'Ritmo de atenção'}
+             </h3>
+             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+                Sua base de clientes cresceu {stats.growth}% nos últimos 30 dias.
+             </p>
            </div>
            
            <div className="bg-gradient-to-br from-emerald-500/5 to-transparent p-6 rounded-3xl border border-emerald-500/10 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
@@ -75,8 +80,10 @@ export default function Index({ customers, filters }: Props) {
                <UserPlus className="w-24 h-24 text-emerald-500" />
              </div>
              <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Retenção</p>
-             <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-100">Fidelidade alta</h3>
-             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">85% dos clientes retornam em menos de 30 dias.</p>
+             <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
+                {stats.retention > 50 ? 'Fidelidade alta' : 'Fidelidade em construção'}
+             </h3>
+             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">{stats.retention}% dos seus clientes são recorrentes.</p>
            </div>
 
            <div className="bg-gradient-to-br from-orange-500/5 to-transparent p-6 rounded-3xl border border-orange-500/10 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
@@ -85,7 +92,7 @@ export default function Index({ customers, filters }: Props) {
              </div>
              <p className="text-xs font-bold uppercase tracking-widest text-orange-600 mb-1">Status Ativo</p>
              <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-100">Operação ativa</h3>
-             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Você possui {customers.data.filter(c => c.is_active).length} clientes ativos atualmente.</p>
+             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Você possui {stats.total_active} clientes ativos atualmente.</p>
            </div>
         </div>
       </div>

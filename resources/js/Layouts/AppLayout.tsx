@@ -47,94 +47,132 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col md:flex-row dark:bg-zinc-950">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 border-r bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-zinc-800 font-bold text-xl text-primary">
-          Agenda Pro
-        </div>
-        <nav className="p-4 space-y-1">
-          <Link 
-            href={route('dashboard')} 
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              isCurrent('/dashboard') 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            Dashboard
-          </Link>
-          <Link 
-            href={route('agenda')} 
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              isCurrent('/agenda') 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Calendar className="w-5 h-5" />
-            Agenda
-          </Link>
-          <Link 
-            href={route('customers.index')} 
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              isCurrent('/customers') 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Users className="w-5 h-5" />
-            Clientes
-          </Link>
-          <Link 
-            href={route('finance.dashboard')} 
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              url === '/financeiro' 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Banknote className="w-5 h-5" />
-            Financeiro
-          </Link>
-          <Link 
-            href={route('finance.charges.index')} 
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              isCurrent('/financeiro/cobrancas') 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Banknote className="w-5 h-5 opacity-50" />
-            Gestão de Cobranças
-          </Link>
-          <Link 
-            href={route('configuracoes.services.index')} 
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-              isCurrent('/configuracoes') 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Settings className="w-5 h-5" />
-            Configurações
-          </Link>
-        </nav>
-      </aside>
+      {!props.auth.hide_nav && (
+        <aside className="w-full md:w-64 border-r bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+          <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-zinc-800 font-bold text-xl text-primary">
+            Agenda Pro
+          </div>
+          <nav className="p-4 space-y-1">
+            <Link 
+              href={route('dashboard')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/dashboard') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              Dashboard
+            </Link>
+            <Link 
+              href={route('agenda')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/agenda') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Calendar className="w-5 h-5" />
+              Agenda
+            </Link>
+            <Link 
+              href={route('customers.index')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/customers') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              Clientes
+            </Link>
+            <Link 
+              href={route('finance.dashboard')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                url === '/financeiro' 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Banknote className="w-5 h-5" />
+              Financeiro
+            </Link>
+            <Link 
+              href={route('finance.charges.index')} 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                isCurrent('/financeiro/cobrancas') 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Banknote className="w-5 h-5 opacity-50" />
+              Gestão de Cobranças
+            </Link>
+            {props.auth.can.manage_users && (
+              <Link 
+                href={route('users.index')} 
+                className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                  isCurrent('/usuarios') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                Usuários
+              </Link>
+            )}
+            {props.auth.can.manage_settings && (
+              <Link 
+                href={route('configuracoes.services.index')} 
+                className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
+                  isCurrent('/configuracoes') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                }`}
+              >
+                <Settings className="w-5 h-5" />
+                Configurações
+              </Link>
+            )}
+          </nav>
+        </aside>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
-        <header className="h-16 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between px-6">
-          <div className="font-medium text-gray-800 dark:text-gray-200">Visão Geral</div>
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-              U
+        {!props.auth.hide_nav && (
+          <header className="h-16 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between px-6">
+            <div className="font-medium text-gray-800 dark:text-gray-200">Visão Geral</div>
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                U
+              </div>
+              <Link 
+                href={route('logout')} 
+                method="post" 
+                as="button" 
+                className="p-1.5 rounded-lg text-gray-500 cursor-pointer hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+              </Link>
             </div>
-            <LogOut className="w-5 h-5 text-gray-500 cursor-pointer hover:text-red-500" />
-          </div>
-        </header>
+          </header>
+        )}
 
-        <main className="flex-1 overflow-auto p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden relative">
-          {children}
+        <main className={`flex-1 overflow-auto p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden relative page-fade-in ${props.auth.hide_nav ? 'flex items-center justify-center bg-gray-50/50 dark:bg-zinc-950' : ''}`}>
+          {props.auth.hide_nav ? (
+            <div className="w-full max-w-4xl bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-800/50">
+                    <span className="font-bold text-primary italic">Passo do Onboarding</span>
+                    <Link href={route('onboarding.index')} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+                        <X className="w-4 h-4" /> Cancelar e Voltar
+                    </Link>
+                </div>
+                <div className="max-h-[80vh] overflow-auto p-6">
+                    {children}
+                </div>
+            </div>
+          ) : children}
         </main>
       </div>
 

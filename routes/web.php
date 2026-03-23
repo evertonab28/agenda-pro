@@ -3,13 +3,34 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\DashboardPageController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
+
+Route::middleware('guest')->group(function () {
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+});
+
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
 
 Route::get('/', function () {
     return redirect('/dashboard');
 });
 
-// Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardPageController::class, 'index'])->name('dashboard'); // ->middleware('can:view-dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::resource('usuarios', \App\Http\Controllers\UserController::class)->names('users');
+    Route::patch('usuarios/{user}/status', [\App\Http\Controllers\UserController::class, 'toggleStatus'])->name('users.status');
+
+    Route::get('/dashboard', [DashboardPageController::class, 'index'])->name('dashboard');
+    Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->name('onboarding.index');
+
+ // ->middleware('can:view-dashboard');
     Route::get('/dashboard/day/{date}', [DashboardPageController::class, 'dayDetails'])->name('dashboard.day'); // ->middleware('can:view-dashboard');
     Route::get('/dashboard/export', [DashboardPageController::class, 'export'])->name('dashboard.export'); // ->middleware('can:export-dashboard');
 
@@ -54,4 +75,5 @@ Route::get('/', function () {
         Route::get('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'index'])->name('general.index');
         Route::post('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'store'])->name('general.store');
     });
-// });
+});
+

@@ -22,13 +22,14 @@ class AgendaController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['from', 'to', 'professional_id', 'service_id', 'status']);
+        $filters = $request->only(['from', 'to', 'professional_id', 'service_id', 'status', 'customer_id']);
         
-        // Default range to current week if not provided
+        // Default range to current week if not provided (Sunday to Saturday)
         if (empty($filters['from']) || empty($filters['to'])) {
-            $filters['from'] = now()->startOfWeek()->toDateString();
-            $filters['to'] = now()->endOfWeek()->toDateString();
+            $filters['from'] = now()->startOfWeek(\Carbon\Carbon::SUNDAY)->toDateString();
+            $filters['to'] = now()->endOfWeek(\Carbon\Carbon::SATURDAY)->toDateString();
         }
+    
 
         return Inertia::render('Agenda/Index', [
             'events' => $this->agendaService->getAgendaEvents($filters),

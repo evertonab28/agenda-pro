@@ -8,42 +8,26 @@ use Illuminate\Auth\Access\Response;
 
 class ChargePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        \Illuminate\Support\Facades\Log::info('ChargePolicy@viewAny called for user: ' . $user->id . ' with role: ' . $user->role);
-        return true;
+        return in_array($user->role, ['admin', 'manager', 'operator']);
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Charge $charge): bool
     {
-        return true;
+        return in_array($user->role, ['admin', 'manager', 'operator']);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
         return in_array($user->role, ['admin', 'manager']);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Charge $charge): bool
     {
         return in_array($user->role, ['admin', 'manager']);
     }
 
-    /**
-     * Determine whether the user can delete the model (cancel charge).
-     */
     public function delete(User $user, Charge $charge): bool
     {
         return in_array($user->role, ['admin', 'manager']);
@@ -54,6 +38,6 @@ class ChargePolicy
      */
     public function receive(User $user, Charge $charge): bool
     {
-        return true; // operator can receive payment, but cannot cancel
+        return in_array($user->role, ['admin', 'manager', 'operator']);
     }
 }

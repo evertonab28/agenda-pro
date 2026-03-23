@@ -11,7 +11,7 @@ class StoreServiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Adjust based on policy
+        return $this->user()->can('create', \App\Models\Service::class);
     }
 
     /**
