@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Clinic;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,6 +22,7 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
+            'clinic_id' => Clinic::factory(),
             'customer_id' => Customer::factory(),
             'service_id' => Service::factory(),
             'professional_id' => User::factory(),

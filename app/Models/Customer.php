@@ -15,6 +15,7 @@ class Customer extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'clinic_id',
         'name',
         'phone',
         'email',
@@ -23,6 +24,14 @@ class Customer extends Model
         'notes',
         'is_active',
     ];
+
+    /**
+     * Apply Tenant Scope
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

@@ -19,12 +19,21 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'clinic_id',
         'name',
         'email',
         'password',
         'role',
         'status',
     ];
+
+    /**
+     * Apply Tenant Scope
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { DailyActions } from './Components/DailyActions';
 import { TrendingUp, Users, AlertTriangle, DollarSign, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface Props {
@@ -19,9 +20,10 @@ interface Props {
         returning: number;
         rate: number;
     };
+    dailyActions: any[];
 }
 
-export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, retention }: Props) {
+export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, retention, dailyActions }: Props) {
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
     };
@@ -105,9 +107,13 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                     </Card>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-12">
+                        <DailyActions actions={dailyActions} />
+                    </div>
+
                     {/* Heatmap Section */}
-                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900">
+                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 lg:col-span-6">
                         <CardHeader>
                             <CardTitle className="text-lg">Densidade de Atendimentos</CardTitle>
                             <CardDescription>Horários com maior volume nos últimos 30 dias.</CardDescription>

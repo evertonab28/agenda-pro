@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Charge;
 use App\Models\Customer;
+use App\Models\Clinic;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ChargeFactory extends Factory
@@ -13,6 +14,7 @@ class ChargeFactory extends Factory
     public function definition()
     {
         return [
+            'clinic_id' => Clinic::factory(),
             'description' => $this->faker->sentence(3),
             'customer_id' => Customer::factory(),
             'amount' => $this->faker->randomFloat(2, 50, 500),

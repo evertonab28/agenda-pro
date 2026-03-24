@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Customer;
+use App\Models\Clinic;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +19,7 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
+            'clinic_id' => Clinic::factory(),
             'name' => $this->faker->name,
             'phone' => $this->faker->numerify('###########'), // 11 digits
             'email' => $this->faker->unique()->safeEmail,

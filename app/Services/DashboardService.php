@@ -604,4 +604,75 @@ class DashboardService
             'rate' => $totalCustomersCount > 0 ? round(($returningCustomersCount / $totalCustomersCount) * 100, 2) : 0,
         ];
     }
+
+    /**
+     * getDailyActions (Next Best Action)
+     */
+    /**
+     * getDailyActions (Next Best Action)
+     */
+    public function getDailyActions(): array
+    {
+        $today = now()->startOfDay();
+        
+        // Prioridade 1: Vencidos há mais de 3 dias
+        $highPriority = Charge::with('customer')
+            ->where('status', 'overdue')
+            ->where('due_date', '<=', $today->clone()->subDays(3))
+            ->orderBy('due_date', 'asc')
+            ->limit(3)
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'customer_name' => $c->customer?->name ?? 'Desconhecido',
+                'amount' => (float) $c->amount,
+                'due_date' => $c->due_date ? $c->due_date->format('d/m') : '?',
+                'priority' => 'high',
+                'suggestion' => 'Cobrança Crítica: Enviar link via WhatsApp',
+                'action_label' => 'Enviar Link',
+                'action_type' => 'payment_link'
+            ]);
+
+        // Prioridade 2: Vencidos recentemente (1-3 dias)
+        $mediumPriority = Charge::with('customer')
+            ->where('status', 'overdue')
+            ->where('due_date', '>', $today->clone()->subDays(3))
+            ->orderBy('due_date', 'asc')
+            ->limit(3)
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'customer_name' => $c->customer?->name ?? 'Desconhecido',
+                'amount' => (float) $c->amount,
+                'due_date' => $c->due_date ? $c->due_date->format('d/m') : '?',
+                'priority' => 'medium',
+                'suggestion' => 'Lembrete de Atraso: Notificar cliente',
+                'action_label' => 'Notificar',
+                'action_type' => 'whatsapp_reminder'
+            ]);
+
+        // Prioridade 3: Vencendo hoje
+        $lowPriority = Charge::with('customer')
+            ->where('status', 'pending')
+            ->where('due_date', $today)
+            ->orderBy('due_date', 'asc')
+            ->limit(3)
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'customer_name' => $c->customer?->name ?? 'Desconhecido',
+                'amount' => (float) $c->amount,
+                'due_date' => 'Hoje',
+                'priority' => 'low',
+                'suggestion' => 'Vencendo hoje: Confirmar recebimento',
+                'action_label' => 'Confirmar',
+                'action_type' => 'confirm_payment'
+            ]);
+
+        return collect($highPriority)
+            ->merge($mediumPriority)
+            ->merge($lowPriority)
+            ->values()
+            ->toArray();
+    }
 }

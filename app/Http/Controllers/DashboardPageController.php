@@ -25,6 +25,7 @@ class DashboardPageController extends Controller
         }
 
         $dashboardData = $this->dashboardService->getDashboardData($filters);
+        $dashboardData['daily_actions'] = $this->dashboardService->getDailyActions();
 
         return Inertia::render('Dashboard/index', array_merge([
             'filters' => $filters,

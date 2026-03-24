@@ -14,6 +14,7 @@ class ExecutiveDashboardController extends Controller
             'revenue' => $dashboardService->getRevenueComparison(),
             'noShowRanking' => $dashboardService->getNoShowRanking(),
             'retention' => $dashboardService->getRetentionMetrics(),
+            'dailyActions' => $dashboardService->getDailyActions(),
         ]);
     }
 }

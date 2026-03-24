@@ -6,6 +6,10 @@ use App\Http\Controllers\DashboardPageController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\PaymentLinkController; // Added
+
+// Pagamento Direto (Público)
+Route::get('/p/{hash}', [PaymentLinkController::class, 'show'])->name('payment.direct');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');

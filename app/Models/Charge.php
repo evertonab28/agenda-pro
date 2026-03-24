@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Logged;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,27 +10,39 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Charge extends Model
 {
-    use HasFactory;
+    use HasFactory, Logged;
 
     protected $fillable = [
-        'description',
-        'customer_id',
+        'clinic_id',
         'appointment_id',
+        'customer_id',
         'amount',
         'status',
         'due_date',
         'paid_at',
         'payment_method',
-        'external_reference',
         'notes',
-        'reference_type',
-        'reference_id',
+        'reference_month',
+        'reference_year',
+        'payment_link_hash',
+        'payment_link_clicks',
+        'payment_link_expires_at',
+        'payment_provider_id',
     ];
+
+    /**
+     * Apply Tenant Scope
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
+    }
 
 protected $casts = [
 'amount' => 'decimal:2',
 'due_date' => 'date',
 'paid_at' => 'datetime',
+'payment_link_expires_at' => 'datetime',
 ];
 
 public function appointment(): BelongsTo

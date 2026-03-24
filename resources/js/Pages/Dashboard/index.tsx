@@ -7,11 +7,12 @@ import { DailySeriesChart } from './Components/DailySeriesChart';
 import { RankingsPanel } from './Components/RankingsPanel';
 import { PendingChargesTable } from './Components/PendingChargesTable';
 import { DayDetailsDrawer } from './Components/DayDetailsDrawer';
+import { DailyActions } from './Components/DailyActions';
 
 export default function DashboardIndex({ 
   filters, range, current, deltas, timeseries, 
-  ranking_services, ranking_customers, pending_charges, can_export, errors
-}: DashboardProps) {
+  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors
+}: DashboardProps & { daily_actions: any[] }) {
 
   const [filterState, setFilterState] = useState<FiltersState>({
     from: filters.from || range.from.split(' ')[0],
@@ -49,6 +50,8 @@ export default function DashboardIndex({
           exportUrl={exportUrl} 
           canExport={can_export !== false}
         />
+
+        <DailyActions actions={daily_actions} />
 
         <KpiCards cards={current.cards} deltas={deltas} />
 
