@@ -10,16 +10,23 @@ class MessagingWebhookController extends Controller
 {
 public function inbound(Request $request)
 {
-    $token = $request->header('X-Webhook-Token') ?? $request->input('token');
+    $webhookToken = $request->header('X-Webhook-Token');
     $secret = config('services.messaging.webhook_secret');
 
-    if (!$token || ($secret && $token !== $secret)) {
-        return response()->json(['ok' => false, 'message' => 'Token inválido ou ausente'], 401);
+    // Autenticação do webhook (segredo compartilhado do provider)
+    if ($secret && $webhookToken !== $secret) {
+        return response()->json(['ok' => false, 'message' => 'Token de autenticação inválido'], 401);
     }
 
-    $phone = $request->string('from')->toString();
+    $phone = $request->string('from')->toString(); // formato provider
+    $text = mb_strtoupper(trim($request->string('text')->toString()));
+    $appointmentToken = $request->input('appointment_token') ?? $request->input('token');
 
-$appointment = Appointment::where('public_token', $token)->first();
+    if (!$appointmentToken) {
+        return response()->json(['ok' => false, 'message' => 'Token do agendamento ausente'], 422);
+    }
+
+    $appointment = Appointment::where('public_token', $appointmentToken)->first();
 if (!$appointment) {
 return response()->json(['ok' => false, 'message' => 'Agendamento não encontrado'], 404);
 }
