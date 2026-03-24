@@ -36,13 +36,13 @@ public function store(StoreAppointmentRequest $request)
 $data = $request->validated();
 $service = Service::findOrFail($data['service_id']);
 
-        $startsAt = Carbon::parse($data['starts_at'])->toDateTimeString();
-        $endsAt = Carbon::parse($data['starts_at'])->addMinutes($service->duration_minutes)->toDateTimeString();
+        $startsAt = Carbon::parse($data['starts_at']);
+        $endsAt = (clone $startsAt)->addMinutes($service->duration_minutes);
 
         $availability = $this->agendaService->isAvailable(
             $data['professional_id'],
-            $startsAt,
-            $endsAt,
+            $startsAt->toDateTimeString(),
+            $endsAt->toDateTimeString(),
             null,
             $service->id
         );
@@ -53,8 +53,8 @@ $service = Service::findOrFail($data['service_id']);
 
         $appointment = Appointment::create([
             ...$data,
-            'starts_at' => $startsAt,
-            'ends_at' => $endsAt,
+            'starts_at' => $startsAt->toDateTimeString(),
+            'ends_at' => $endsAt->toDateTimeString(),
             'status' => 'scheduled',
             'confirmation_token' => Str::random(40),
             'public_token' => Str::random(32),

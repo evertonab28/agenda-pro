@@ -10,13 +10,14 @@ class MessagingWebhookController extends Controller
 {
 public function inbound(Request $request)
 {
-$phone = $request->string('from')->toString(); // formato provider
-$text = mb_strtoupper(trim($request->string('text')->toString()));
-$token = $request->string('token')->toString(); // ideal: vem no payload/meta
+    $token = $request->header('X-Webhook-Token') ?? $request->input('token');
+    $secret = config('services.messaging.webhook_secret');
 
-if (!$token) {
-return response()->json(['ok' => false, 'message' => 'Token ausente'], 422);
-}
+    if (!$token || ($secret && $token !== $secret)) {
+        return response()->json(['ok' => false, 'message' => 'Token inválido ou ausente'], 401);
+    }
+
+    $phone = $request->string('from')->toString();
 
 $appointment = Appointment::where('public_token', $token)->first();
 if (!$appointment) {

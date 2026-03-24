@@ -17,7 +17,9 @@ class AppServiceProvider extends ServiceProvider
             $driver = config('services.messaging.driver', 'fake');
             
             return match ($driver) {
-                'whatsapp' => new \App\Services\Messaging\WhatsAppMessagingService(), // Assuming this exists or will be added
+                'whatsapp' => class_exists(\App\Services\Messaging\WhatsAppMessagingService::class) 
+                    ? new \App\Services\Messaging\WhatsAppMessagingService() 
+                    : new FakeMessagingService(),
                 default => new FakeMessagingService(),
             };
         });

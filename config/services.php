@@ -37,6 +37,7 @@ return [
 
     'messaging' => [
         'driver' => env('MESSAGING_DRIVER', 'fake'),
+        'webhook_secret' => env('MESSAGING_WEBHOOK_SECRET'),
     ],
 
 ];
