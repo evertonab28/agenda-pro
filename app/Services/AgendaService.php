@@ -64,16 +64,23 @@ class AgendaService
         $start = Carbon::parse($startsAt);
         $end = Carbon::parse($endsAt)->addMinutes($newServiceBuffer);
 
+        $dbDriver = DB::getDriverName();
+        if ($dbDriver === 'sqlite') {
+            $bufferSql = "datetime(appointments.ends_at, '+' || services.buffer_minutes || ' minutes')";
+        } else {
+            $bufferSql = "DATE_ADD(appointments.ends_at, INTERVAL services.buffer_minutes MINUTE)";
+        }
+
         return Appointment::query()
             ->join('services', 'appointments.service_id', '=', 'services.id')
             ->where('appointments.professional_id', $professionalId)
-            ->where(function ($query) use ($start, $end) {
+            ->where(function ($query) use ($start, $end, $bufferSql) {
                 // An existing appointment A conflicts with new B if:
                 // start_B < end_A + buffer_A  AND  end_B + buffer_B > start_A
                 
-                $query->where(function ($q) use ($start, $end) {
+                $query->where(function ($q) use ($start, $end, $bufferSql) {
                     $q->where('appointments.starts_at', '<', $end)
-                      ->where(DB::raw('DATE_ADD(appointments.ends_at, INTERVAL services.buffer_minutes MINUTE)'), '>', $start);
+                      ->where(DB::raw($bufferSql), '>', $start);
                 });
             })
             ->when($excludeId, fn ($q) => $q->where('appointments.id', '!=', $excludeId))

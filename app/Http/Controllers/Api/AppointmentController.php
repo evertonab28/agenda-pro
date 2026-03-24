@@ -12,32 +12,54 @@ use App\Models\Service;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
+use App\Services\AgendaService;
+
 class AppointmentController extends Controller
 {
-public function index()
-{
-return Appointment::with(['customer', 'service', 'charge'])
-->orderBy('starts_at')
-->paginate(20);
-}
+    private $agendaService;
+
+    public function __construct(AgendaService $agendaService)
+    {
+        $this->agendaService = $agendaService;
+        $this->authorizeResource(Appointment::class, 'appointment');
+    }
+
+    public function index()
+    {
+        return Appointment::with(['customer', 'service', 'charge'])
+            ->orderBy('starts_at')
+            ->paginate(20);
+    }
 
 public function store(StoreAppointmentRequest $request)
 {
 $data = $request->validated();
 $service = Service::findOrFail($data['service_id']);
 
-$startsAt = Carbon::parse($data['starts_at']);
-$endsAt = (clone $startsAt)->addMinutes($service->duration_minutes);
+        $startsAt = Carbon::parse($data['starts_at'])->toDateTimeString();
+        $endsAt = Carbon::parse($data['starts_at'])->addMinutes($service->duration_minutes)->toDateTimeString();
 
-$appointment = Appointment::create([
-...$data,
-'starts_at' => $startsAt,
-'ends_at' => $endsAt,
-'status' => 'scheduled',
-'confirmation_token' => Str::random(40),
-'public_token' => Str::random(32),
-'source' => $data['source'] ?? 'admin',
-]);
+        $availability = $this->agendaService->isAvailable(
+            $data['professional_id'],
+            $startsAt,
+            $endsAt,
+            null,
+            $service->id
+        );
+
+        if (!$availability['available']) {
+            return response()->json(['message' => $availability['message']], 422);
+        }
+
+        $appointment = Appointment::create([
+            ...$data,
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'status' => 'scheduled',
+            'confirmation_token' => Str::random(40),
+            'public_token' => Str::random(32),
+            'source' => $data['source'] ?? 'admin',
+        ]);
 
 Charge::create([
 'appointment_id' => $appointment->id,
@@ -57,9 +79,10 @@ public function show(Appointment $appointment)
 return $appointment->load(['customer', 'service', 'charge', 'reminders']);
 }
 
-public function updateStatus(UpdateAppointmentStatusRequest $request, Appointment $appointment)
-{
-$status = $request->validated()['status'];
+    public function updateStatus(UpdateAppointmentStatusRequest $request, Appointment $appointment)
+    {
+        $this->authorize('update', $appointment);
+        $status = $request->validated()['status'];
 
 $payload = ['status' => $status];
 if ($status === 'confirmed') {
@@ -85,21 +108,34 @@ $appointment->update([
 return response()->json(['message' => 'Agendamento confirmado com sucesso']);
 }
 
-public function reschedule(RescheduleAppointmentRequest $request, Appointment $appointment)
-{
-$startsAt = Carbon::parse($request->validated()['starts_at']);
-$duration = $appointment->service->duration_minutes;
-$endsAt = (clone $startsAt)->addMinutes($duration);
+    public function reschedule(RescheduleAppointmentRequest $request, Appointment $appointment)
+    {
+        $this->authorize('update', $appointment);
+                $startsAt = Carbon::parse($request->validated()['starts_at']);
+        $duration = $appointment->service->duration_minutes;
+        $endsAt = (clone $startsAt)->addMinutes($duration);
 
-$notes = $request->validated()['notes'] ?? null;
-$mergedNotes = trim(($appointment->notes ? $appointment->notes . PHP_EOL : '') . '[REAGENDADO] ' . ($notes ?? ''));
+        $availability = $this->agendaService->isAvailable(
+            $appointment->professional_id,
+            $startsAt->toDateTimeString(),
+            $endsAt->toDateTimeString(),
+            $appointment->id,
+            $appointment->service_id
+        );
 
-$appointment->update([
-'starts_at' => $startsAt,
-'ends_at' => $endsAt,
-'status' => 'rescheduled',
-'notes' => $mergedNotes,
-]);
+        if (!$availability['available']) {
+            return response()->json(['message' => $availability['message']], 422);
+        }
+
+        $notes = $request->validated()['notes'] ?? null;
+        $mergedNotes = trim(($appointment->notes ? $appointment->notes . PHP_EOL : '') . '[REAGENDADO] ' . ($notes ?? ''));
+
+        $appointment->update([
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'status' => 'rescheduled',
+            'notes' => $mergedNotes,
+        ]);
 
 $appointment->charge?->update([
 'due_date' => $startsAt->toDateString(),

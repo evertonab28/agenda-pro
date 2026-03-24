@@ -495,4 +495,113 @@ class DashboardService
         
         return $csv;
     }
+
+    /**
+     * getOccupancyHeatmap
+     */
+    public function getOccupancyHeatmap(): array
+    {
+        $last30Days = now()->subDays(30);
+        
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $hourExpr = $isSqlite ? "strftime('%H', starts_at)" : "HOUR(starts_at)";
+
+        $data = Appointment::where('starts_at', '>=', $last30Days)
+            ->where('status', '!=', 'canceled')
+            ->selectRaw("$hourExpr as hour, count(*) as count")
+            ->groupBy('hour')
+            ->orderBy('hour')
+            ->get();
+
+        $heatmap = [];
+        for ($i = 8; $i <= 20; $i++) {
+            $hourStr = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
+            $match = $data->firstWhere('hour', (string) $i) ?: $data->firstWhere('hour', (int) $i) ?: $data->firstWhere('hour', str_pad($i, 2, '0', STR_PAD_LEFT));
+            $heatmap[] = [
+                'hour' => $hourStr,
+                'count' => $match ? $match->count : 0
+            ];
+        }
+
+        return $heatmap;
+    }
+
+    /**
+     * getRevenueComparison
+     */
+    public function getRevenueComparison(): array
+    {
+        $last30Days = now()->subDays(30);
+        
+        $forecasted = Charge::where('due_date', '>=', $last30Days)
+            ->where('status', '!=', 'canceled')
+            ->sum('amount');
+
+        $realized = Charge::where('due_date', '>=', $last30Days)
+            ->where('status', 'paid')
+            ->sum('amount');
+            
+        // Gap based on no-shows revenue
+        $gap = Charge::whereHas('appointment', function($q) use ($last30Days) {
+                $q->where('starts_at', '>=', $last30Days)
+                  ->where('status', 'no_show');
+            })
+            ->sum('amount');
+
+        return [
+            'forecasted' => (float) $forecasted,
+            'realized' => (float) $realized,
+            'gap' => (float) $gap,
+        ];
+    }
+
+    /**
+     * getNoShowRanking
+     */
+    public function getNoShowRanking(): array
+    {
+        $last30Days = now()->subDays(30);
+        
+        return Appointment::join('services', 'appointments.service_id', '=', 'services.id')
+            ->where('appointments.starts_at', '>=', $last30Days)
+            ->where('appointments.status', 'no_show')
+            ->selectRaw('services.name, count(*) as total')
+            ->groupBy('services.name')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * getRetentionMetrics
+     */
+    public function getRetentionMetrics(): array
+    {
+        $last30Days = now()->subDays(30);
+        
+        $totalCustomersCount = Appointment::where('starts_at', '>=', $last30Days)
+            ->where('status', 'completed')
+            ->distinct('customer_id')
+            ->count('customer_id');
+
+        $returningCustomersCount = Appointment::where('status', 'completed')
+            ->whereIn('customer_id', function($query) use ($last30Days) {
+                $query->select('customer_id')
+                    ->from('appointments')
+                    ->where('starts_at', '>=', $last30Days)
+                    ->where('status', 'completed');
+            })
+            ->selectRaw('customer_id')
+            ->groupBy('customer_id')
+            ->havingRaw('count(*) > 1')
+            ->get()
+            ->count();
+
+        return [
+            'total' => $totalCustomersCount,
+            'returning' => $returningCustomersCount,
+            'rate' => $totalCustomersCount > 0 ? round(($returningCustomersCount / $totalCustomersCount) * 100, 2) : 0,
+        ];
+    }
 }

@@ -10,8 +10,17 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use App\Services\CRMService;
+
 class CustomerController extends Controller
 {
+    private $crmService;
+
+    public function __construct(CRMService $crmService)
+    {
+        $this->crmService = $crmService;
+    }
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Customer::class);
@@ -52,35 +61,12 @@ class CustomerController extends Controller
             }
         });
 
-        // Stats for Insights
-        $now = now();
-        $thirtyDaysAgo = (clone $now)->subDays(30);
-        $sixtyDaysAgo = (clone $now)->subDays(60);
-
-        $newThisMonth = Customer::where('created_at', '>=', $thirtyDaysAgo)->count();
-        $newLastMonth = Customer::where('created_at', '>=', $sixtyDaysAgo)
-            ->where('created_at', '<', $thirtyDaysAgo)
-            ->count();
-        
-        $growth = 0;
-        if ($newLastMonth > 0) {
-            $growth = round((($newThisMonth - $newLastMonth) / $newLastMonth) * 100);
-        } elseif ($newThisMonth > 0) {
-            $growth = 100;
-        }
-
-        $totalWithApps = Customer::has('appointments')->count();
-        $recurring = Customer::has('appointments', '>', 1)->count();
-        $retention = $totalWithApps > 0 ? round(($recurring / $totalWithApps) * 100) : 0;
+        $stats = $this->crmService->getCustomerStats();
 
         return Inertia::render('Customers/Index', [
             'customers' => $query->latest()->paginate(10)->withQueryString(),
             'filters' => $request->only(['search', 'status', 'pending_finance']),
-            'stats' => [
-                'growth' => $growth,
-                'retention' => $retention,
-                'total_active' => Customer::where('is_active', true)->count(),
-            ]
+            'stats' => $stats
         ]);
     }
 
@@ -103,12 +89,7 @@ class CustomerController extends Controller
         $this->authorize('view', $customer);
         $customer->loadCount('appointments');
         
-        // Detailed summary data
-        $summary = [
-            'total_paid' => $customer->charges()->whereNotNull('paid_at')->sum('amount'),
-            'total_pending' => $customer->charges()->whereNull('paid_at')->where('due_date', '>=', now()->toDateString())->sum('amount'),
-            'total_overdue' => $customer->charges()->whereNull('paid_at')->where('due_date', '<', now()->toDateString())->sum('amount'),
-        ];
+        $summary = $this->crmService->getCustomerSummary($customer);
 
         $appointments = $customer->appointments()
             ->with(['service', 'professional'])

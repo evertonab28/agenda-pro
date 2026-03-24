@@ -7,6 +7,7 @@ use App\Models\Charge;
 use App\Models\Receipt;
 use App\Enums\AppointmentStatus;
 use App\Enums\ChargeStatus;
+use App\Models\CustomerPackage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 

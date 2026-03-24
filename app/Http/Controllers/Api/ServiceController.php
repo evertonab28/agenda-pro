@@ -8,7 +8,12 @@ use App\Models\Service;
 
 class ServiceController extends Controller
 {
-public function index()
+    public function __construct()
+    {
+        $this->authorizeResource(Service::class, 'service');
+    }
+
+    public function index()
 {
 return Service::latest()->paginate(20);
 }

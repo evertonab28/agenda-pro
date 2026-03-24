@@ -11,9 +11,10 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-public function overview(Request $request)
-{
-[$from, $to] = $this->resolveRange($request);
+    public function overview(Request $request)
+    {
+        $this->authorize('view-dashboard');
+        [$from, $to] = $this->resolveRange($request);
 
 $appointmentsBase = Appointment::query()
 ->whereBetween('starts_at', [$from, $to]);
@@ -52,9 +53,10 @@ return response()->json([
 ]);
 }
 
-public function timeseries(Request $request)
-{
-[$from, $to] = $this->resolveRange($request);
+    public function timeseries(Request $request)
+    {
+        $this->authorize('view-dashboard');
+        [$from, $to] = $this->resolveRange($request);
 
 $rows = Appointment::query()
 ->selectRaw("DATE(starts_at) as day")
@@ -76,9 +78,10 @@ return response()->json([
 ]);
 }
 
-public function pendingCharges(Request $request)
-{
-[$from, $to] = $this->resolveRange($request);
+    public function pendingCharges(Request $request)
+    {
+        $this->authorize('view-dashboard');
+        [$from, $to] = $this->resolveRange($request);
 
 $charges = Charge::with(['appointment.customer'])
 ->whereIn('status', ['pending', 'overdue'])

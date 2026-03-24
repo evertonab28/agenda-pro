@@ -13,7 +13,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(MessagingServiceInterface::class, FakeMessagingService::class);
+        $this->app->bind(MessagingServiceInterface::class, function ($app) {
+            $driver = config('services.messaging.driver', 'fake');
+            
+            return match ($driver) {
+                'whatsapp' => new \App\Services\Messaging\WhatsAppMessagingService(), // Assuming this exists or will be added
+                default => new FakeMessagingService(),
+            };
+        });
     }
 
     /**

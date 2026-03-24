@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Receipt;
-use Illuminate\Support\Facades\Cache;
+use App\Services\CacheService;
 
 class ReceiptObserver
 {
@@ -12,7 +12,8 @@ class ReceiptObserver
      */
     public function saved(Receipt $receipt): void
     {
-        Cache::flush();
+        CacheService::invalidateFinance();
+        CacheService::invalidateDashboard();
     }
 
     /**
@@ -20,6 +21,7 @@ class ReceiptObserver
      */
     public function deleted(Receipt $receipt): void
     {
-        Cache::flush();
+        CacheService::invalidateFinance();
+        CacheService::invalidateDashboard();
     }
 }

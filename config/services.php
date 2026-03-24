@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'messaging' => [
+        'driver' => env('MESSAGING_DRIVER', 'fake'),
+    ],
+
 ];

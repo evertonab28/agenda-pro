@@ -76,4 +76,48 @@ class CRMService
             return $this->getSegment($customer) === $segment;
         });
     }
+
+    /**
+     * Get customer statistics for the dashboard/listing.
+     */
+    public function getCustomerStats(): array
+    {
+        $now = now();
+        $thirtyDaysAgo = (clone $now)->subDays(30);
+        $sixtyDaysAgo = (clone $now)->subDays(60);
+
+        $newThisMonth = Customer::where('created_at', '>=', $thirtyDaysAgo)->count();
+        $newLastMonth = Customer::where('created_at', '>=', $sixtyDaysAgo)
+            ->where('created_at', '<', $thirtyDaysAgo)
+            ->count();
+        
+        $growth = 0;
+        if ($newLastMonth > 0) {
+            $growth = round((($newThisMonth - $newLastMonth) / $newLastMonth) * 100);
+        } elseif ($newThisMonth > 0) {
+            $growth = 100;
+        }
+
+        $totalWithApps = Customer::has('appointments')->count();
+        $recurring = Customer::has('appointments', '>', 1)->count();
+        $retention = $totalWithApps > 0 ? round(($recurring / $totalWithApps) * 100) : 0;
+
+        return [
+            'growth' => $growth,
+            'retention' => $retention,
+            'total_active' => Customer::where('is_active', true)->count(),
+        ];
+    }
+
+    /**
+     * Get financial summary for a customer.
+     */
+    public function getCustomerSummary(Customer $customer): array
+    {
+        return [
+            'total_paid' => $customer->charges()->whereNotNull('paid_at')->sum('amount'),
+            'total_pending' => $customer->charges()->whereNull('paid_at')->where('due_date', '>=', now()->toDateString())->sum('amount'),
+            'total_overdue' => $customer->charges()->whereNull('paid_at')->where('due_date', '<', now()->toDateString())->sum('amount'),
+        ];
+    }
 }

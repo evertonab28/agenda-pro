@@ -44,12 +44,12 @@ class CacheService
      */
     public static function dashboardTtl(): int
     {
-        return (int) env('DASHBOARD_CACHE_TTL', 120);
+        return (int) config('cache.dashboard_ttl', 120);
     }
 
     public static function financeTtl(): int
     {
-        return (int) env('FINANCE_CACHE_TTL', 120);
+        return (int) config('cache.finance_ttl', 120);
     }
 
     /**

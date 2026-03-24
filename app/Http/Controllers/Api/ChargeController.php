@@ -8,9 +8,10 @@ use App\Models\Charge;
 
 class ChargeController extends Controller
 {
-public function markPaid(MarkChargePaidRequest $request, Charge $charge)
-{
-$data = $request->validated();
+    public function markPaid(MarkChargePaidRequest $request, Charge $charge)
+    {
+        $this->authorize('update', $charge);
+        $data = $request->validated();
 
 $charge->update([
 'status' => 'paid',

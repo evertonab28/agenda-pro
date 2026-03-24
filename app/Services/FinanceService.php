@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Models\Charge;
+use App\Models\Receipt;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Services\AuditService;
 
 class FinanceService
 {
@@ -101,5 +104,50 @@ class FinanceService
                 'count'  => (int) $row->count,
             ])
             ->toArray();
+    }
+
+    /**
+     * Register a payment for a charge and update its status.
+     */
+    public function receivePayment(Charge $charge, array $data, $user = null): Receipt
+    {
+        return DB::transaction(function () use ($charge, $data, $user) {
+            $charge->loadSum('receipts', 'amount_received');
+            $amountReceivedSoFar = $charge->receipts_sum_amount_received ?? 0;
+            
+            $feeAmount = $data['fee_amount'] ?? 0;
+            $netAmount = $data['amount_received'] - $feeAmount;
+
+            $receipt = Receipt::create([
+                'charge_id' => $charge->id,
+                'amount_received' => $data['amount_received'],
+                'fee_amount' => $feeAmount,
+                'net_amount' => $netAmount,
+                'method' => $data['method'],
+                'received_at' => Carbon::parse($data['received_at']),
+                'notes' => $data['notes'] ?? null,
+            ]);
+
+            // Re-calculate
+            $newReceivedSum = $amountReceivedSoFar + $data['amount_received'];
+            
+            if ($newReceivedSum >= $charge->amount) {
+                $charge->update([
+                    'status' => 'paid',
+                    'paid_at' => Carbon::parse($data['received_at']),
+                ]);
+            } else {
+                $charge->update(['status' => 'partial']);
+            }
+
+            if ($user) {
+                AuditService::log($user, 'charge.receipt_registered', $charge, [
+                    'amount' => $data['amount_received'],
+                    'method' => $data['method'],
+                ]);
+            }
+
+            return $receipt;
+        });
     }
 }

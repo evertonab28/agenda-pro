@@ -11,8 +11,17 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
+use App\Services\FinanceService;
+
 class ChargeController extends Controller
 {
+    private $financeService;
+
+    public function __construct(FinanceService $financeService)
+    {
+        $this->financeService = $financeService;
+    }
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Charge::class);
@@ -152,8 +161,7 @@ class ChargeController extends Controller
         $this->authorize('receive', $charge);
 
         $charge->loadSum('receipts', 'amount_received');
-        $amountReceivedSoFar = $charge->receipts_sum_amount_received ?? 0;
-        $openBalance = max(0, $charge->amount - $amountReceivedSoFar);
+        $openBalance = max(0, $charge->amount - ($charge->receipts_sum_amount_received ?? 0));
 
         if ($openBalance <= 0) {
             return back()->with('error', 'Esta cobrança já está totalmente quitada.');
@@ -167,42 +175,10 @@ class ChargeController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
         try {
-            $feeAmount = $validated['fee_amount'] ?? 0;
-            $netAmount = $validated['amount_received'] - $feeAmount;
-
-            Receipt::create([
-                'charge_id' => $charge->id,
-                'amount_received' => $validated['amount_received'],
-                'fee_amount' => $feeAmount,
-                'net_amount' => $netAmount,
-                'method' => $validated['method'],
-                'received_at' => Carbon::parse($validated['received_at']),
-                'notes' => $validated['notes'] ?? null,
-            ]);
-
-            // Re-calculate
-            $newReceivedSum = $amountReceivedSoFar + $validated['amount_received'];
-            
-            if ($newReceivedSum >= $charge->amount) {
-                $charge->update([
-                    'status' => 'paid',
-                    'paid_at' => Carbon::parse($validated['received_at']),
-                ]);
-            } else {
-                $charge->update(['status' => 'partial']);
-            }
-
-            DB::commit();
-            AuditService::log(auth()->user(), 'charge.receipt_registered', $charge, [
-                'amount' => $validated['amount_received'],
-                'method' => $validated['method'],
-            ]);
-
+            $this->financeService->receivePayment($charge, $validated, auth()->user());
             return back()->with('success', 'Recebimento registrado com sucesso.');
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', 'Erro ao registrar recebimento.');
         }
     }

@@ -9,16 +9,26 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
+    public function __construct()
+    {
+        // $this->authorizeResource(Customer::class, 'customer');
+    }
+
     public function index(Request $request)
     {
-        $query = Customer::where('is_active', true);
+        $this->authorize('viewAny', Customer::class);
+
+        $query = Customer::query();
 
         if ($request->filled('q')) {
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->when(is_numeric($search), function($sub) use ($search) {
+                        $sub->orWhere('id', $search);
+                    });
             });
         }
 

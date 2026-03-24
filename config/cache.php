@@ -34,6 +34,9 @@ return [
 
     'stores' => [
 
+        'dashboard_ttl' => env('DASHBOARD_CACHE_TTL', 120),
+        'finance_ttl' => env('FINANCE_CACHE_TTL', 120),
+
         'array' => [
             'driver' => 'array',
             'serialize' => false,

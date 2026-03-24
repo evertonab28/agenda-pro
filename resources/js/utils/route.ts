@@ -35,6 +35,9 @@ const routes: Record<string, string> = {
     'packages.store': '/pacotes',
     'crm.index': '/crm',
     'crm.segment': '/crm/segmento/:segment',
+    'users.index': '/usuarios',
+    'users.create': '/usuarios/create',
+    'users.store': '/usuarios',
 };
 
 export function route(name: string, params?: any): string {
@@ -102,6 +105,12 @@ export function route(name: string, params?: any): string {
     if (name === 'configuracoes.holidays.edit') return `/configuracoes/feriados/${params?.id || params}/edit`;
     if (name === 'configuracoes.holidays.update') return `/configuracoes/feriados/${params?.id || params}`;
     if (name === 'configuracoes.holidays.destroy') return `/configuracoes/feriados/${params?.id || params}`;
+
+    if (name === 'users.show') return `/usuarios/${params?.id || params}`;
+    if (name === 'users.edit') return `/usuarios/${params?.id || params}/edit`;
+    if (name === 'users.update') return `/usuarios/${params?.id || params}`;
+    if (name === 'users.destroy') return `/usuarios/${params?.id || params}`;
+    if (name === 'users.status') return `/usuarios/${params?.id || params}/status`;
 
     return url;
 }
