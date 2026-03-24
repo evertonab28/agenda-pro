@@ -98,12 +98,14 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 
 ---
 
-## ⚙️ Variáveis de Ambiente (Cache)
-
-```env
-DASHBOARD_CACHE_TTL=120   # TTL do cache do Dashboard em segundos
-FINANCE_CACHE_TTL=120     # TTL do cache Financeiro em segundos
-```
+## ⚙️ Variáveis de Ambiente (Configuração)
+ 
+ ```env
+ DASHBOARD_CACHE_TTL=120   # TTL do cache do Dashboard em segundos
+ FINANCE_CACHE_TTL=120     # TTL do cache Financeiro em segundos
+ MESSAGING_DRIVER=fake     # Driver de mensagens (fake, whatsapp) - whatsapp é stub/futuro
+ MESSAGING_WEBHOOK_SECRET= # Segredo obrigatório para validação de webhooks em produção
+ ```
 
 ---
 

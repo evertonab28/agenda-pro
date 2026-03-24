@@ -26,4 +26,4 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('appointments/{appointment}/confirm/{token}', [AppointmentController::class, 'confirm']);
-Route::post('webhooks/messaging/inbound', [MessagingWebhookController::class, 'inbound']);
+Route::post('webhooks/messaging/inbound', [MessagingWebhookController::class, 'inbound'])->middleware('throttle:6,1');

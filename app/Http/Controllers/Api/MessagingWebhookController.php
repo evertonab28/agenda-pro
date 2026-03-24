@@ -14,8 +14,14 @@ public function inbound(Request $request)
     $secret = config('services.messaging.webhook_secret');
 
     // Autenticação do webhook (segredo compartilhado do provider)
-    if ($secret && $webhookToken !== $secret) {
-        return response()->json(['ok' => false, 'message' => 'Token de autenticação inválido'], 401);
+    // Se o segredo não estiver definido, bloqueia por padrão por segurança
+    if (empty($secret) || $webhookToken !== $secret) {
+        logger()->warning('Tentativa de webhook não autorizada ou segredo não configurado', [
+            'ip' => $request->ip(),
+            'token_sent' => (bool)$webhookToken,
+            'secret_configured' => (bool)$secret
+        ]);
+        return response()->json(['ok' => false, 'message' => 'Não autorizado'], 401);
     }
 
     $phone = $request->string('from')->toString(); // formato provider
