@@ -1,0 +1,229 @@
+﻿
+   WARN  Metadata found in doc-comment for method Tests\Unit\Security\PiiMaskingTest::it_masks_sensitive_data_in_log_context(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_missing(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_invalid(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_timestamp_is_too_old(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_blocks_duplicate_event_id_idempotency(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_throttles_excessive_requests(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_prioritizes_d_plus_3_over_d_plus_1(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_filters_out_paid_and_canceled_charges_from_nba(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_respects_timezone_for_daily_actions(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_persists_payment_link_hash_when_generated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_generates_different_hash_on_regeneration(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_blocks_link_generation_for_already_paid_charges(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_logs_clicks_on_payment_link(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_processes_full_payment_flow_via_webhook(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_handles_partial_payments_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_generates_unique_hashes_in_high_volume(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_marks_links_as_expired_based_on_timestamp(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_records_audit_log_when_charge_is_updated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_captures_client_ip_in_audit_log(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_automatically_scopes_queries_by_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_prevents_unauthorized_access_to_other_tenant_resource(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Unit\AgendaServiceTest
+  Ô£ô can detect conflicts                   0.62s  
+  Ô£ô can calculate end date                 0.03s  
+
+   PASS  Tests\Unit\CacheServiceTest
+  Ô£ô dashboard key is deterministic for saÔÇª 0.03s  
+  Ô£ô dashboard key differs for different fÔÇª 0.03s  
+  Ô£ô dashboard key is order independent     0.03s  
+  Ô£ô finance key is deterministic for sameÔÇª 0.03s  
+  Ô£ô finance key differs from dashboard keÔÇª 0.03s  
+  Ô£ô dashboard key has correct prefix       0.03s  
+  Ô£ô finance key has correct prefix         0.03s  
+  Ô£ô dashboard ttl returns integer          0.03s  
+  Ô£ô finance ttl returns integer            0.03s  
+
+   PASS  Tests\Unit\CheckoutServiceTest
+  Ô£ô it ensures charge only once for appoiÔÇª 0.06s  
+  Ô£ô it registers total payment and marksÔÇª  0.04s  
+  Ô£ô it registers partial payment and markÔÇª 0.04s  
+  Ô£ô it prepares checkout data correctly    0.04s  
+
+   PASS  Tests\Unit\DashboardServiceTest
+  Ô£ô it calculates deltas correctly         0.03s  
+  Ô£ô it handles previous zeros in deltas    0.03s  
+  Ô£ô csv generation                         0.03s  
+
+   PASS  Tests\Unit\ExampleTest
+  Ô£ô that true is true
+
+   PASS  Tests\Unit\Security\PiiMaskingTest
+  Ô£ô it masks sensitive data in log context
+
+   PASS  Tests\Unit\StatusEnumsTest
+  Ô£ô appointment status has correct values
+  Ô£ô appointment status labels are in portuguese
+  Ô£ô appointment status values returns all strings
+  Ô£ô appointment status can be created from value
+  Ô£ô appointment status throws on invalid value
+  Ô£ô charge status has correct values
+  Ô£ô charge status labels are in portuguese
+  Ô£ô charge status values returns all strings
+  Ô£ô charge status can be created from value
+
+   PASS  Tests\Feature\AgendaFlowTest
+  Ô£ô can create appointment                 0.09s  
+  Ô£ô cannot create appointment with confliÔÇª 0.04s  
+
+   PASS  Tests\Feature\Api\WebhookHardeningTest
+  Ô£ô it returns 401 when signature is missÔÇª 0.04s  
+  Ô£ô it returns 401 when signature is invaÔÇª 0.04s  
+  Ô£ô it returns 401 when timestamp is tooÔÇª  0.03s  
+  Ô£ô it blocks duplicate event id idempoteÔÇª 0.04s  
+  Ô£ô it throttles excessive requests        0.05s  
+
+   PASS  Tests\Feature\CRMAutomationTest
+  Ô£ô canceling appointment triggers waitliÔÇª 0.05s  
+  Ô£ô reengage command identifies inactiveÔÇª  0.05s  
+
+   PASS  Tests\Feature\ChargeAuditTest
+  Ô£ô creating charge generates audit log    0.04s  
+  Ô£ô updating charge logs changes           0.04s  
+  Ô£ô receiving payment generates receipt aÔÇª 0.04s  
+
+   PASS  Tests\Feature\CheckoutFlowTest
+  Ô£ô admin can finalize appointment and reÔÇª 0.05s  
+  Ô£ô checkout screen shows correct data     0.09s  
+  Ô£ô cannot checkout canceled appointment   0.04s  
+  Ô£ô total payment marks charge as paid anÔÇª 0.05s  
+
+   PASS  Tests\Feature\CustomerControllerTest
+  Ô£ô can list customers                     0.07s  
+  Ô£ô can filter customers by search         0.05s  
+  Ô£ô can create customer                    0.04s  
+  Ô£ô can update customer                    0.04s  
+  Ô£ô can toggle customer status             0.04s  
+  Ô£ô cannot delete customer with appointmeÔÇª 0.04s  
+
+   PASS  Tests\Feature\DashboardTest
+  Ô£ô dashboard renders with 200             0.07s  
+  Ô£ô dashboard rejects invalid filters      0.04s  
+  Ô£ô dashboard accepts valid filters        0.07s  
+  Ô£ô dashboard export csv headers           0.05s  
+  Ô£ô dashboard day details valid            0.04s  
+  Ô£ô dashboard day details invalid          0.04s  
+  Ô£ô dashboard pending pagination params aÔÇª 0.06s  
+  Ô£ô dashboard rejects range greater thanÔÇª  0.04s  
+  Ô£ô dashboard export denied for operator   0.04s  
+  Ô£ô dashboard export allowed for manager   0.05s  
+
+   PASS  Tests\Feature\Dashboard\NBATest
+  Ô£ô it prioritizes d plus 3 over d plus 1  0.05s  
+  Ô£ô it filters out paid and canceled charÔÇª 0.03s  
+  Ô£ô it respects timezone for daily actionÔÇª 0.03s  
+
+   PASS  Tests\Feature\ExampleTest
+  Ô£ô the application returns a successfulÔÇª  0.04s  
+
+   PASS  Tests\Feature\FinanceChargeTest
+  Ô£ô can view finance dashboard             0.05s  
+  Ô£ô can list charges                       0.07s  
+  Ô£ô admin can create charge                0.04s  
+  Ô£ô operator cannot create charge          0.04s  
+  Ô£ô admin can cancel charge                0.04s  
+
+   PASS  Tests\Feature\FinanceReceiptTest
+  Ô£ô can register full receipt              0.05s  
+  Ô£ô can register partial receipt and updaÔÇª 0.06s  
+  Ô£ô cannot receive more than open balance  0.04s  
+  Ô£ô fee calculation is correct             0.04s  
+
+   PASS  Tests\Feature\Finance\ChargePaymentLinkTest
+  Ô£ô it persists payment link hash when geÔÇª 0.05s  
+  Ô£ô it generates different hash on regeneÔÇª 0.04s  
+  Ô£ô it blocks link generation for alreadyÔÇª 0.03s  
+  Ô£ô it logs clicks on payment link         0.04s  
+
+   PASS  Tests\Feature\Finance\FinancialRegressionTest
+  Ô£ô it processes full payment flow via weÔÇª 0.04s  
+  Ô£ô it handles partial payments correctly  0.03s  
+
+   PASS  Tests\Feature\Finance\PaymentLinkServiceTest
+  Ô£ô it generates unique hashes in high voÔÇª 0.10s  
+  Ô£ô it marks links as expired based on tiÔÇª 0.04s  
+
+   PASS  Tests\Feature\FinancialExpansionTest
+  Ô£ô customer wallet can be credited and dÔÇª 0.04s  
+  Ô£ô package sale creates sessions and chaÔÇª 0.04s  
+  Ô£ô wallet debit fails on insufficient fuÔÇª 0.04s  
+
+   PASS  Tests\Feature\FinancialIsolationTest
+  Ô£ô user cannot view charge of another clÔÇª 0.05s  
+  Ô£ô user cannot see charges of another clÔÇª 0.06s  
+  Ô£ô user cannot update charge of anotherÔÇª  0.04s  
+  Ô£ô user cannot register payment for charÔÇª 0.04s  
+  Ô£ô receipts are strictly isolated by tenÔÇª 0.04s  
+
+   PASS  Tests\Feature\FinancialRBACTest
+  Ô£ô admin has full financial access        0.08s  
+  Ô£ô operator can view and receive but notÔÇª 0.08s  
+  Ô£ô manager has broad access               0.06s  
+
+   PASS  Tests\Feature\OnboardingMiddlewareTest
+  Ô£ô new user without services is redirectÔÇª 0.04s  
+  Ô£ô unauthenticated user cannot reach onbÔÇª 0.03s  
+  Ô£ô onboarding page renders for incompletÔÇª 0.04s  
+  Ô£ô operator redirected to dashboard evenÔÇª 0.05s  
+
+   PASS  Tests\Feature\Portal\PortalAppointmentTest
+  Ô£ô customer can cancel own appointment    0.04s  
+  Ô£ô customer cannot cancel others appointÔÇª 0.05s  
+  Ô£ô customer can reschedule own appointmeÔÇª 0.04s  
+  Ô£ô customer cannot reschedule to overlapÔÇª 0.04s  
+
+   PASS  Tests\Feature\Portal\SchedulingTest
+  Ô£ô guest can view scheduling page         0.05s  
+  Ô£ô can fetch availability                 0.04s  
+  Ô£ô guest can book appointment             0.04s  
+  Ô£ô authenticated customer data is prefilÔÇª 0.05s  
+  Ô£ô booking updates phone if email exists  0.04s  
+  Ô£ô send token requires name for new user  0.04s  
+  Ô£ô send token creates user if name proviÔÇª 0.04s  
+
+   FAIL  Tests\Feature\RbacAuthorizationTest
+  Ô£ô operator can view agenda               0.05s  
+  Ô£ô operator can create appointment        0.04s  
+  Ô¿» operator cannot delete appointment     0.05s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RbacAuthorizationTestÔÇª   
+  Expected response status code [403] but received 404.
+Failed asserting that 404 is identical to 403.
+
+  at tests\Feature\RbacAuthorizationTest.php:59
+     55Ôûò         $appointment = Appointment::factory()->create(['status' => 'scheduled']);
+     56Ôûò 
+     57Ôûò         $this->actingAs($user)
+     58Ôûò             ->delete("/agenda/{$appointment->id}")
+  Ô×£  59Ôûò             ->assertStatus(403);
+     60Ôûò     }
+     61Ôûò 
+     62Ôûò     public function test_manager_can_delete_appointment()
+     63Ôûò     {
+
+
+  Tests:    1 failed, 110 passed, [2m19 pending[22m (323 assertions)
+  Duration: 5.50s
+

@@ -1,0 +1,7 @@
+--- RECENT CHARGES & RECEIPTS ---
+Charge ID: 3 | Appt ID: 2 | Amount: 65.00 | Status: pending | Receipts Count: 1 | Receipts Sum: 65
+  -> Receipt ID: 3 | Amount: 65.00 | Date: 2026-03-25 18:14:00
+Charge ID: 2 | Appt ID: 8 | Amount: 65.00 | Status: pending | Receipts Count: 1 | Receipts Sum: 65
+  -> Receipt ID: 2 | Amount: 65.00 | Date: 2026-03-25 18:14:00
+Charge ID: 1 | Appt ID: 7 | Amount: 65.00 | Status: pending | Receipts Count: 1 | Receipts Sum: 65
+  -> Receipt ID: 1 | Amount: 65.00 | Date: 2026-03-25 18:14:00

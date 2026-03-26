@@ -9,7 +9,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\PaymentLinkController; // Added
 
 // Pagamento Direto (Público)
-Route::get('/p/{hash}', [PaymentLinkController::class, 'show'])->name('payment.direct');
+Route::get('/pay/{hash}', [PaymentLinkController::class, 'show'])->name('payment.direct');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -65,6 +65,9 @@ Route::middleware(['auth'])->group(function () {
     // Módulo Financeiro
     Route::prefix('financeiro')->name('finance.')->group(function () {
         Route::get('/', [\App\Http\Controllers\FinanceController::class, 'dashboard'])->name('dashboard');
+        Route::resource('servicos', \App\Http\Controllers\ServiceController::class)->names([
+            'index' => 'services.index',
+        ])->parameters(['servicos' => 'service']);
         Route::resource('cobrancas', \App\Http\Controllers\ChargeController::class)->names([
             'index' => 'charges.index',
             'create' => 'charges.create',
@@ -73,11 +76,14 @@ Route::middleware(['auth'])->group(function () {
             'edit' => 'charges.edit',
             'update' => 'charges.update',
             'destroy' => 'charges.destroy',
-        ]);
+        ])->parameters(['cobrancas' => 'charge']);
         Route::get('cobrancas/exportar', [\App\Http\Controllers\ChargeController::class, 'export'])->name('charges.export');
         Route::post('cobrancas/{charge}/receber', [\App\Http\Controllers\ChargeController::class, 'receive'])->name('charges.receive');
+        Route::get('relatorios', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+        Route::get('relatorios/exportar', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('reports.export');
     });
 
+    Route::get('customers/search', [\App\Http\Controllers\CustomerController::class, 'autocomplete'])->name('customers.search');
     Route::resource('customers', \App\Http\Controllers\CustomerController::class);
     Route::patch('customers/{customer}/status', [\App\Http\Controllers\CustomerController::class, 'toggleStatus'])->name('customers.status');
 
@@ -98,4 +104,59 @@ Route::middleware(['auth'])->group(function () {
         Route::post('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'store'])->name('general.store');
     });
 });
+// --- PORTAL DO CLIENTE (Sprint 2) ---
+Route::prefix('p/{clinic}')->name('portal.')->group(function () {
+    Route::get('/login', function (\App\Models\Clinic $clinic) {
+        return Inertia::render('Portal/Login', [
+            'clinic' => $clinic,
+            'initialIdentifier' => request('identifier')
+        ]);
+    })->name('login');
 
+    Route::get('/agendar', function (\App\Models\Clinic $clinic) {
+        return Inertia::render('Portal/Schedule', [
+            'clinic' => $clinic,
+            'customer' => Auth::guard('customer')->user()
+        ]);
+    })->name('schedule');
+
+    Route::middleware(['auth:customer', 'customer.clinic'])->group(function () {
+        Route::get('/dashboard', function (\App\Models\Clinic $clinic) {
+            return Inertia::render('Portal/Dashboard', [
+                'clinic' => $clinic,
+                'customer' => Auth::guard('customer')->user()
+            ]);
+        })->name('dashboard');
+
+        Route::get('/agendamentos', function (\App\Models\Clinic $clinic) {
+            return Inertia::render('Portal/Appointments', [
+                'clinic' => $clinic,
+                'appointments' => Auth::guard('customer')->user()->appointments()->with(['service', 'professional'])->get()
+            ]);
+        })->name('appointments');
+
+        Route::get('/faturas', function (\App\Models\Clinic $clinic) {
+            return Inertia::render('Portal/Charges', ['clinic' => $clinic]);
+        })->name('charges');
+
+        Route::get('/perfil', [\App\Http\Controllers\PortalProfileController::class, 'show'])->name('profile');
+        Route::put('/perfil', [\App\Http\Controllers\PortalProfileController::class, 'update'])->name('profile.update');
+
+        // Appointment Management
+        Route::post('/agendamentos/{appointment}/cancel', [\App\Http\Controllers\Portal\PortalAppointmentController::class, 'cancel'])->name('appointments.cancel');
+        Route::put('/agendamentos/{appointment}/reschedule', [\App\Http\Controllers\Portal\PortalAppointmentController::class, 'reschedule'])->name('appointments.reschedule');
+
+        Route::post('/logout', [\App\Http\Controllers\Api\CustomerAuthController::class, 'logout'])->name('logout');
+    });
+
+    // Auth & Scheduling (Moved from API for session support)
+    Route::post('/auth/send-token', [\App\Http\Controllers\Api\CustomerAuthController::class, 'sendToken'])->name('auth.send-token')->middleware('throttle:3,1');
+    Route::post('/auth/verify-token', [\App\Http\Controllers\Api\CustomerAuthController::class, 'verifyToken'])->name('auth.verify-token')->middleware('throttle:10,1');
+    
+    Route::prefix('scheduling')->name('scheduling.')->group(function () {
+        Route::get('/services', [\App\Http\Controllers\Api\PublicSchedulingController::class, 'getServices'])->name('services');
+        Route::get('/services/{service}/professionals', [\App\Http\Controllers\Api\PublicSchedulingController::class, 'getProfessionals'])->name('professionals');
+        Route::get('/availability', [\App\Http\Controllers\Api\PublicSchedulingController::class, 'getAvailability'])->name('availability');
+        Route::post('/book', [\App\Http\Controllers\Api\PublicSchedulingController::class, 'store'])->name('book')->middleware('throttle:5,1');
+    });
+});

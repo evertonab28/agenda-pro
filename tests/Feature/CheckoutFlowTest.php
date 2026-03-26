@@ -15,17 +15,20 @@ class CheckoutFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin = User::factory()->create(['role' => 'admin']);
+        $this->clinic = \App\Models\Clinic::factory()->create();
+        $this->admin = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
+        $this->fulfillOnboarding($this->clinic->id);
     }
 
     public function test_admin_can_finalize_appointment_and_redirect_to_checkout_and_creates_charge()
     {
-        $appointment = Appointment::factory()->create(['status' => AppointmentStatus::Scheduled->value]);
+        $appointment = Appointment::factory()->create([
+            'clinic_id' => $this->clinic->id,
+            'status' => AppointmentStatus::Scheduled->value
+        ]);
         $this->assertNull($appointment->charge);
 
         $response = $this->actingAs($this->admin)
@@ -39,8 +42,9 @@ class CheckoutFlowTest extends TestCase
 
     public function test_checkout_screen_shows_correct_data()
     {
-        $service = Service::factory()->create(['price' => 120.50]);
+        $service = Service::factory()->create(['clinic_id' => $this->clinic->id, 'price' => 120.50]);
         $appointment = Appointment::factory()->create([
+            'clinic_id' => $this->clinic->id,
             'service_id' => $service->id,
             'status' => AppointmentStatus::Completed->value
         ]);
@@ -52,13 +56,16 @@ class CheckoutFlowTest extends TestCase
         $response->assertInertia(fn ($page) => $page
             ->component('Agenda/Checkout')
             ->has('summary')
-            ->where('summary.total_amount', 120.50)
+            ->where('summary.total_amount', '120.50')
         );
     }
 
     public function test_cannot_checkout_canceled_appointment()
     {
-        $appointment = Appointment::factory()->create(['status' => AppointmentStatus::Canceled->value]);
+        $appointment = Appointment::factory()->create([
+            'clinic_id' => $this->clinic->id,
+            'status' => AppointmentStatus::Canceled->value
+        ]);
 
         $response = $this->actingAs($this->admin)
             ->get(route('agenda.checkout.show', $appointment->id));
@@ -69,8 +76,11 @@ class CheckoutFlowTest extends TestCase
 
     public function test_total_payment_marks_charge_as_paid_and_redirects_to_agenda()
     {
-        $service = Service::factory()->create(['price' => 100]);
-        $appointment = Appointment::factory()->create(['service_id' => $service->id]);
+        $service = Service::factory()->create(['clinic_id' => $this->clinic->id, 'price' => 100]);
+        $appointment = Appointment::factory()->create([
+            'clinic_id' => $this->clinic->id,
+            'service_id' => $service->id
+        ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('agenda.checkout.store', $appointment->id), [

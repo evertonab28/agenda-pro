@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Holiday extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
+        'clinic_id',
         'name',
         'date',
         'professional_id',
         'repeats_yearly',
     ];
+
 
     protected $casts = [
         'repeats_yearly' => 'boolean',

@@ -1,0 +1,204 @@
+﻿
+   WARN  Metadata found in doc-comment for method Tests\Unit\Security\PiiMaskingTest::it_masks_sensitive_data_in_log_context(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_missing(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_invalid(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_timestamp_is_too_old(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_blocks_duplicate_event_id_idempotency(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_throttles_excessive_requests(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_prioritizes_d_plus_3_over_d_plus_1(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_filters_out_paid_and_canceled_charges_from_nba(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_respects_timezone_for_daily_actions(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_persists_payment_link_hash_when_generated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_generates_different_hash_on_regeneration(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_blocks_link_generation_for_already_paid_charges(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_logs_clicks_on_payment_link(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_processes_full_payment_flow_via_webhook(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_handles_partial_payments_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_generates_unique_hashes_in_high_volume(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_marks_links_as_expired_based_on_timestamp(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_records_audit_log_when_charge_is_updated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_captures_client_ip_in_audit_log(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_automatically_scopes_queries_by_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_prevents_unauthorized_access_to_other_tenant_resource(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Unit\AgendaServiceTest
+  Ô£ô can detect conflicts                   0.62s  
+  Ô£ô can calculate end date                 0.03s  
+
+   PASS  Tests\Unit\CacheServiceTest
+  Ô£ô dashboard key is deterministic for saÔÇª 0.03s  
+  Ô£ô dashboard key differs for different fÔÇª 0.03s  
+  Ô£ô dashboard key is order independent     0.03s  
+  Ô£ô finance key is deterministic for sameÔÇª 0.03s  
+  Ô£ô finance key differs from dashboard keÔÇª 0.03s  
+  Ô£ô dashboard key has correct prefix       0.03s  
+  Ô£ô finance key has correct prefix         0.03s  
+  Ô£ô dashboard ttl returns integer          0.03s  
+  Ô£ô finance ttl returns integer            0.03s  
+
+   PASS  Tests\Unit\CheckoutServiceTest
+  Ô£ô it ensures charge only once for appoiÔÇª 0.06s  
+  Ô£ô it registers total payment and marksÔÇª  0.04s  
+  Ô£ô it registers partial payment and markÔÇª 0.03s  
+  Ô£ô it prepares checkout data correctly    0.04s  
+
+   PASS  Tests\Unit\DashboardServiceTest
+  Ô£ô it calculates deltas correctly         0.04s  
+  Ô£ô it handles previous zeros in deltas    0.03s  
+  Ô£ô csv generation                         0.03s  
+
+   PASS  Tests\Unit\ExampleTest
+  Ô£ô that true is true
+
+   PASS  Tests\Unit\Security\PiiMaskingTest
+  Ô£ô it masks sensitive data in log context
+
+   PASS  Tests\Unit\StatusEnumsTest
+  Ô£ô appointment status has correct values
+  Ô£ô appointment status labels are in portuguese
+  Ô£ô appointment status values returns all strings
+  Ô£ô appointment status can be created from value
+  Ô£ô appointment status throws on invalid value
+  Ô£ô charge status has correct values
+  Ô£ô charge status labels are in portuguese
+  Ô£ô charge status values returns all strings
+  Ô£ô charge status can be created from value
+
+   PASS  Tests\Feature\AgendaFlowTest
+  Ô£ô can create appointment                 0.09s  
+  Ô£ô cannot create appointment with confliÔÇª 0.05s  
+
+   PASS  Tests\Feature\Api\WebhookHardeningTest
+  Ô£ô it returns 401 when signature is missÔÇª 0.04s  
+  Ô£ô it returns 401 when signature is invaÔÇª 0.04s  
+  Ô£ô it returns 401 when timestamp is tooÔÇª  0.04s  
+  Ô£ô it blocks duplicate event id idempoteÔÇª 0.04s  
+  Ô£ô it throttles excessive requests        0.05s  
+
+   PASS  Tests\Feature\CRMAutomationTest
+  Ô£ô canceling appointment triggers waitliÔÇª 0.05s  
+  Ô£ô reengage command identifies inactiveÔÇª  0.06s  
+
+   PASS  Tests\Feature\ChargeAuditTest
+  Ô£ô creating charge generates audit log    0.04s  
+  Ô£ô updating charge logs changes           0.05s  
+  Ô£ô receiving payment generates receipt aÔÇª 0.05s  
+
+   FAIL  Tests\Feature\CheckoutFlowTest
+  Ô£ô admin can finalize appointment and reÔÇª 0.05s  
+  Ô¿» checkout screen shows correct data     1.25s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\CheckoutFlowTest > chÔÇª   
+  Expected response status code [200] but received 500.
+Failed asserting that 500 is identical to 200.
+
+The following exception occurred during the last request:
+
+ErrorException: Attempt to read property "wallet" on null in D:\saas\agenda-pro\app\Http\Controllers\AgendaCheckoutController.php:38
+Stack trace:
+#0 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Bootstrap\HandleExceptions.php(258): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'Attempt to read...', 'D:\\saas\\agenda-...', 38)
+#1 D:\saas\agenda-pro\app\Http\Controllers\AgendaCheckoutController.php(38): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(2, 'Attempt to read...', 'D:\\saas\\agenda-...', 38)
+#2 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\ControllerDispatcher.php(47): App\Http\Controllers\AgendaCheckoutController->show(Object(App\Models\Appointment))
+#3 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Route.php(266): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(App\Http\Controllers\AgendaCheckoutController), 'show')
+#4 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Route.php(212): Illuminate\Routing\Route->runController()
+#5 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Router.php(808): Illuminate\Routing\Route->run()
+#6 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(170): Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 D:\saas\agenda-pro\app\Http\Middleware\CheckOnboarding.php(38): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#8 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): App\Http\Middleware\CheckOnboarding->handle(Object(Illuminate\Http\Request), Object(Closure))
+#9 D:\saas\agenda-pro\vendor\inertiajs\inertia-laravel\src\Middleware.php(122): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#10 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Inertia\Middleware->handle(Object(Illuminate\Http\Request), Object(Closure))
+#11 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php(51): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#12 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Routing\Middleware\SubstituteBindings->handle(Object(Illuminate\Http\Request), Object(Closure))
+#13 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php(64): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#14 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Auth\Middleware\Authenticate->handle(Object(Illuminate\Http\Request), Object(Closure))
+#15 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken.php(88): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#16 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Foundation\Http\Middleware\VerifyCsrfToken->handle(Object(Illuminate\Http\Request), Object(Closure))
+#17 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php(49): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#18 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\View\Middleware\ShareErrorsFromSession->handle(Object(Illuminate\Http\Request), Object(Closure))
+#19 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php(121): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#20 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php(64): Illuminate\Session\Middleware\StartSession->handleStatefulRequest(Object(Illuminate\Http\Request), Object(Illuminate\Session\Store), Object(Closure))
+#21 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Session\Middleware\StartSession->handle(Object(Illuminate\Http\Request), Object(Closure))
+#22 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php(37): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#23 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse->handle(Object(Illuminate\Http\Request), Object(Closure))
+#24 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php(75): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#25 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Cookie\Middleware\EncryptCookies->handle(Object(Illuminate\Http\Request), Object(Closure))
+#26 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(127): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#27 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Router.php(807): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#28 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Router.php(786): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#29 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Router.php(750): Illuminate\Routing\Router->runRoute(Object(Illuminate\Http\Request), Object(Illuminate\Routing\Route))
+#30 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Routing\Router.php(739): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#31 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php(201): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#32 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(170): Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#33 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#34 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php(31): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle(Object(Illuminate\Http\Request), Object(Closure))
+#35 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull->handle(Object(Illuminate\Http\Request), Object(Closure))
+#36 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#37 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php(51): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle(Object(Illuminate\Http\Request), Object(Closure))
+#38 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Foundation\Http\Middleware\TrimStrings->handle(Object(Illuminate\Http\Request), Object(Closure))
+#39 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php(27): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#40 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Http\Middleware\ValidatePostSize->handle(Object(Illuminate\Http\Request), Object(Closure))
+#41 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php(110): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#42 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance->handle(Object(Illuminate\Http\Request), Object(Closure))
+#43 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php(49): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#44 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Http\Middleware\HandleCors->handle(Object(Illuminate\Http\Request), Object(Closure))
+#45 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php(58): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#46 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Http\Middleware\TrustProxies->handle(Object(Illuminate\Http\Request), Object(Closure))
+#47 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php(22): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#48 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(209): Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks->handle(Object(Illuminate\Http\Request), Object(Closure))
+#49 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(127): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#50 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php(176): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#51 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php(145): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#52 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php(607): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#53 D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php(368): Illuminate\Foundation\Testing\TestCase->call('GET', 'http://localhos...', Array, Array, Array, Array)
+#54 D:\saas\agenda-pro\tests\Feature\CheckoutFlowTest.php(53): Illuminate\Foundation\Testing\TestCase->get('http://localhos...')
+#55 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestCase.php(1667): Tests\Feature\CheckoutFlowTest->test_checkout_screen_shows_correct_data()
+#56 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestCase.php(519): PHPUnit\Framework\TestCase->runTest()
+#57 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestRunner\TestRunner.php(87): PHPUnit\Framework\TestCase->runBare()
+#58 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestCase.php(365): PHPUnit\Framework\TestRunner->run(Object(Tests\Feature\CheckoutFlowTest))
+#59 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestSuite.php(369): PHPUnit\Framework\TestCase->run()
+#60 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#61 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\Framework\TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#62 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\TextUI\TestRunner.php(64): PHPUnit\Framework\TestSuite->run()
+#63 D:\saas\agenda-pro\vendor\phpunit\phpunit\src\TextUI\Application.php(211): PHPUnit\TextUI\TestRunner->run(Object(PHPUnit\TextUI\Configuration\Configuration), Object(PHPUnit\Runner\ResultCache\DefaultResultCache), Object(PHPUnit\Framework\TestSuite))
+#64 D:\saas\agenda-pro\vendor\phpunit\phpunit\phpunit(104): PHPUnit\TextUI\Application->run(Array)
+#65 {main}
+
+----------------------------------------------------------------------------------
+
+Attempt to read property "wallet" on null
+
+  at tests\Feature\CheckoutFlowTest.php:55
+     51Ôûò 
+     52Ôûò         $response = $this->actingAs($this->admin)
+     53Ôûò             ->get(route('agenda.checkout.show', $appointment->id));
+     54Ôûò 
+  Ô×£  55Ôûò         $response->assertStatus(200);
+     56Ôûò         $response->assertInertia(fn ($page) => $page
+     57Ôûò             ->component('Agenda/Checkout')
+     58Ôûò             ->has('summary')
+     59Ôûò             ->where('summary.total_amount', 120.50)
+
+
+  Tests:    1 failed, 42 passed, [2m87 pending[22m (112 assertions)
+  Duration: 3.38s
+

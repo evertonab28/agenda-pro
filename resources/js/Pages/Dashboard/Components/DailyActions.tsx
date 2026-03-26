@@ -3,16 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, CreditCard, MessageSquare, ArrowRight } from 'lucide-react';
+import { router } from '@inertiajs/react';
 
 interface Action {
   id: number;
   customer_name: string;
+  customer_phone?: string;
   amount: number;
   due_date: string;
   priority: 'high' | 'medium' | 'low';
   suggestion: string;
   action_label: string;
-  action_type: 'payment_link' | 'whatsapp_reminder' | 'confirm_payment';
+  action_type: 'payment_link' | 'whatsapp_reminder' | 'confirm_payment' | 'crm_action';
+  url?: string;
 }
 
 interface DailyActionsProps {
@@ -21,6 +24,26 @@ interface DailyActionsProps {
 
 export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
   if (!actions || actions.length === 0) return null;
+
+  const handleAction = (action: Action) => {
+    if (action.action_type === 'whatsapp_reminder' && action.customer_phone) {
+      const cleanPhone = action.customer_phone.replace(/\D/g, '');
+      const message = encodeURIComponent(`Olá ${action.customer_name}, notamos um atraso na sua cobrança de R$ ${action.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. Poderia nos confirmar o pagamento?`);
+      window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+      return;
+    }
+
+    if (action.action_type === 'crm_action' && action.customer_phone) {
+      const cleanPhone = action.customer_phone.replace(/\D/g, '');
+      const message = encodeURIComponent(`Olá ${action.customer_name}! Como você está? Notamos que faz um tempo que não nos visita. Temos novidades para você!`);
+      window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+      return;
+    }
+
+    if (action.url) {
+      router.visit(action.url);
+    }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -34,6 +57,7 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
     switch (type) {
       case 'payment_link': return <CreditCard className="w-4 h-4" />;
       case 'whatsapp_reminder': return <MessageSquare className="w-4 h-4" />;
+      case 'crm_action': return <ArrowRight className="w-4 h-4" />;
       default: return <Bell className="w-4 h-4" />;
     }
   };
@@ -67,7 +91,7 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
                 <Badge className={getPriorityColor(action.priority)}>
                   {action.priority === 'high' ? 'Crítico' : action.priority === 'medium' ? 'Importante' : 'Sugestão'}
                 </Badge>
-                <span className="text-xs font-medium text-slate-500">Vence: {action.due_date}</span>
+                <span className="text-xs font-medium text-slate-500">Iniciado: {action.due_date}</span>
               </div>
               
               <div className="mb-4">
@@ -75,20 +99,27 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
                   {action.suggestion}
                 </p>
-                <div className="mt-2 text-lg font-black text-indigo-600 dark:text-indigo-400">
-                  R$ {action.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
+                {action.amount > 0 && (
+                  <div className="mt-2 text-lg font-black text-indigo-600 dark:text-indigo-400">
+                    R$ {action.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </div>
+                )}
               </div>
               
               <Button 
                 variant="default" 
                 size="sm" 
-                className="mt-auto w-full bg-slate-900 hover:bg-indigo-600 dark:bg-slate-800 dark:hover:bg-indigo-700 text-white flex items-center justify-center gap-2 transition-colors"
+                onClick={() => handleAction(action)}
+                disabled={(action.action_type === 'whatsapp_reminder' || action.action_type === 'crm_action') && !action.customer_phone}
+                className="mt-auto w-full bg-slate-900 hover:bg-indigo-600 dark:bg-slate-800 dark:hover:bg-indigo-700 text-white flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {getIcon(action.action_type)}
                 {action.action_label}
                 <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
               </Button>
+              {((action.action_type === 'whatsapp_reminder' || action.action_type === 'crm_action') && !action.customer_phone) && (
+                <p className="text-[10px] text-red-500 mt-1 text-center font-medium">Telefone não cadastrado</p>
+              )}
             </div>
           ))}
         </div>

@@ -13,6 +13,7 @@ class ReceiptFactory extends Factory
     public function definition()
     {
         return [
+            'clinic_id' => \App\Models\Clinic::factory(),
             'charge_id' => Charge::factory(),
             'amount_received' => $this->faker->randomFloat(2, 10, 100),
             'fee_amount' => $this->faker->randomFloat(2, 0, 5),

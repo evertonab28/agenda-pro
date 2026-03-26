@@ -25,7 +25,7 @@ class FakePaymentLinkService implements PaymentLinkServiceInterface
             'payment_link_clicks' => 0, // Reset clicks on new link
         ]);
 
-        return config('app.url') . "/p/{$hash}";
+        return config('app.url') . "/pay/{$hash}";
     }
 
     public function processCallback(array $payload): bool

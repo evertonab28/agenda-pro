@@ -23,9 +23,15 @@ class AppointmentFactory extends Factory
     {
         return [
             'clinic_id' => Clinic::factory(),
-            'customer_id' => Customer::factory(),
-            'service_id' => Service::factory(),
-            'professional_id' => User::factory(),
+            'customer_id' => function (array $attributes) {
+                return Customer::factory()->create(['clinic_id' => $attributes['clinic_id']])->id;
+            },
+            'service_id' => function (array $attributes) {
+                return Service::factory()->create(['clinic_id' => $attributes['clinic_id']])->id;
+            },
+            'professional_id' => function (array $attributes) {
+                return \App\Models\Professional::factory()->create(['clinic_id' => $attributes['clinic_id']])->id;
+            },
             'starts_at' => now()->addHour(),
             'ends_at' => now()->addHours(2),
             'status' => 'scheduled',

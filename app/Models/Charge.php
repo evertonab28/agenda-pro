@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Charge extends Model
 {
-    use HasFactory, Logged;
+    use HasFactory, Logged, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
         'clinic_id',
+        'description',
         'appointment_id',
         'customer_id',
         'amount',
@@ -28,15 +29,9 @@ class Charge extends Model
         'payment_link_clicks',
         'payment_link_expires_at',
         'payment_provider_id',
+        'reference_type',
+        'reference_id',
     ];
-
-    /**
-     * Apply Tenant Scope
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
-    }
 
 protected $casts = [
 'amount' => 'decimal:2',

@@ -1,0 +1,29 @@
+﻿
+   FAIL  Tests\Feature\ReportingTest
+  Ô£ô financial trend calculates correÔÇª 0.81s  
+  Ô£ô service performance ranking       0.05s  
+  Ô¿» customer ltv insights             0.05s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\FeatureÔÇª  QueryException   
+  SQLSTATE[HY000]: General error: 1 table receipts has no column named payment_date (Connection: sqlite, SQL: insert into "receipts" ("clinic_id", "charge_id", "amount_received", "fee_amount", "net_amount", "method", "received_at", "notes", "payment_date", "updated_at", "created_at") values (1, 1, 1000, 2.87, 997.13, cartao, 2026-02-26 15:55:37, Est eos animi tempore corporis deserunt., 2026-03-25 19:22:41, 2026-03-25 19:22:41, 2026-03-25 19:22:41))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò 
+  Ô×£ 825Ôûò             throw new QueryException(
+    826Ôûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827Ôûò             );
+    828Ôûò         }
+    829Ôûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:565
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table receipts has no column named payment_date")
+
+
+  Tests:    1 failed, 2 passed (9 assertions)
+  Duration: 1.13s
+

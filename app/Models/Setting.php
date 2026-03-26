@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
+    use \App\Traits\BelongsToTenant;
+
     protected $fillable = [
+        'clinic_id',
         'key',
         'value',
     ];
@@ -26,7 +29,10 @@ class Setting extends Model
     public static function set(string $key, $value)
     {
         return self::updateOrCreate(
-            ['key' => $key],
+            [
+                'clinic_id' => auth()->user()->clinic_id,
+                'key' => $key
+            ],
             ['value' => $value]
         );
     }

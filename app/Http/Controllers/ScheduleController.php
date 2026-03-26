@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HasOnboarding;
 use App\Models\Professional;
 use App\Models\Service;
 use App\Models\ProfessionalSchedule;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class ScheduleController extends Controller
 {
+    use HasOnboarding;
+
     /**
      * Display the schedule management page.
      */
@@ -57,6 +60,7 @@ class ScheduleController extends Controller
         foreach ($request->schedules as $sched) {
             ProfessionalSchedule::updateOrCreate(
                 [
+                    'clinic_id' => auth()->user()->clinic_id,
                     'professional_id' => $request->professional_id,
                     'weekday' => $sched['weekday'],
                 ],
@@ -72,14 +76,10 @@ class ScheduleController extends Controller
 
         AuditService::log(auth()->user(), 'professional_schedules.bulk_updated', null, ['professional_id' => $request->professional_id]);
 
-        if (Service::exists() && Professional::exists() && ProfessionalSchedule::exists()) {
+        if (Service::exists() && Professional::exists() && ProfessionalSchedule::exists() && \App\Models\Setting::where('key', 'company_name')->exists()) {
             return redirect()->route('dashboard')->with('success', 'Sistema configurado com sucesso! Bem-vindo ao Agenda Pro.');
         }
 
-        if (!Service::exists() || !Professional::exists() || !ProfessionalSchedule::exists()) {
-            return redirect()->route('onboarding.index')->with('success', 'Horários atualizados com sucesso.');
-        }
-
-        return redirect()->back()->with('success', 'Horários atualizados com sucesso.');
+        return $this->redirectOnboarding('configuracoes.schedules.index', 'Horários atualizados com sucesso.');
     }
 }

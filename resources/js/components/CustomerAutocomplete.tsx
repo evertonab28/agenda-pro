@@ -33,7 +33,7 @@ export default function CustomerAutocomplete({ value, onChange, label, placehold
     // Carregar cliente inicial se houver um ID no 'value' mas não tivermos o objeto selecionado
     useEffect(() => {
         if (value && String(value) !== '0' && (!selectedCustomer || String(selectedCustomer.id) !== String(value))) {
-            axios.get(`/api/customers/${value}`)
+            axios.get(`/customers/search?id=${value}`)
                 .then(res => {
                     setSelectedCustomer(res.data);
                     setSearchTerm(res.data.name);
@@ -62,7 +62,7 @@ export default function CustomerAutocomplete({ value, onChange, label, placehold
         const fetchCustomers = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`/api/customers?q=${debouncedSearch}`);
+                const response = await axios.get(`/customers/search?q=${debouncedSearch}`);
                 // A API usa paginação (data.data)
                 setResults(response.data.data || []);
                 setIsOpen(true);

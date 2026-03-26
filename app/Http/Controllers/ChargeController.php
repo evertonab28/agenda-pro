@@ -97,6 +97,7 @@ class ChargeController extends Controller
 
         $validated['status'] = ChargeStatus::Pending->value;
         $validated['due_date'] = Carbon::createFromFormat('Y-m-d', $validated['due_date']);
+        $validated['clinic_id'] = auth()->user()->clinic_id;
 
         $charge = Charge::create($validated);
         AuditService::log(auth()->user(), 'charge.created', $charge);
@@ -140,6 +141,8 @@ class ChargeController extends Controller
         ]);
 
         $validated['due_date'] = Carbon::createFromFormat('Y-m-d', $validated['due_date']);
+        $validated['clinic_id'] = auth()->user()->clinic_id;
+        
         $charge->update($validated);
         AuditService::log(auth()->user(), 'charge.updated', $charge);
 

@@ -1,0 +1,48 @@
+﻿
+   PASS  Tests\Feature\FinancialIsolationTest
+  Ô£ô user cannot view charge of anothÔÇª 0.67s  
+  Ô£ô user cannot see charges of anothÔÇª 0.11s  
+  Ô£ô user cannot update charge of anoÔÇª 0.04s  
+  Ô£ô user cannot register payment forÔÇª 0.04s  
+  Ô£ô receipts are strictly isolated bÔÇª 0.05s  
+
+   PASS  Tests\Feature\FinancialRBACTest
+  Ô£ô admin has full financial access   0.09s  
+  Ô£ô operator can view and receive buÔÇª 0.08s  
+  Ô£ô manager has broad access          0.06s  
+
+   FAIL  Tests\Feature\ChargeAuditTest
+  Ô£ô creating charge generates auditÔÇª  0.04s  
+  Ô¿» updating charge logs changes      0.06s  
+  Ô£ô receiving payment generates receÔÇª 0.05s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ChargeAuditTestÔÇª    
+  Failed asserting that a row in the table [audit_logs] matches the attributes {
+    "action": "charge.updated",
+    "entity": "Charge",
+    "entity_id": 1
+}.
+
+Found: [
+    {
+        "action": "charge.created",
+        "entity": "Charge",
+        "entity_id": 1
+    }
+].
+
+  at tests\Feature\ChargeAuditTest.php:67
+     63Ôûò             'description' => 'New Description',
+     64Ôûò             'amount' => 150
+     65Ôûò         ]);
+     66Ôûò 
+  Ô×£  67Ôûò         $this->assertDatabaseHas('audit_logs', [
+     68Ôûò             'action' => 'charge.updated',
+     69Ôûò             'entity' => 'Charge',
+     70Ôûò             'entity_id' => $charge->id
+     71Ôûò         ]);
+
+
+  Tests:    1 failed, 10 passed (33 assertions)
+  Duration: 1.46s
+

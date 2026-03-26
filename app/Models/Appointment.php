@@ -10,30 +10,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Appointment extends Model
 {
-    use HasFactory;
-protected $fillable = [
-    'clinic_id',
-    'customer_id',
-    'service_id',
-    'professional_id',
-    'starts_at',
-    'ends_at',
-    'status',
-    'confirmation_token',
-    'public_token',
-    'confirmed_at',
-    'source',
-    'notes',
-    'cancel_reason',
-];
-
-    /**
-     * Apply Tenant Scope
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
-    }
+    use HasFactory, \App\Traits\BelongsToTenant;
+    
+    protected $fillable = [
+        'clinic_id',
+        'customer_id',
+        'service_id',
+        'professional_id',
+        'starts_at',
+        'ends_at',
+        'status',
+        'confirmation_token',
+        'public_token',
+        'confirmed_at',
+        'source',
+        'notes',
+        'cancel_reason',
+    ];
 
 public function professional(): BelongsTo
 {

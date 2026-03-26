@@ -214,9 +214,24 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           {props.auth.hide_nav ? (
             <div className="w-full max-w-4xl bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
                 <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-800/50">
-                    <span className="font-bold text-primary italic">Passo do Onboarding</span>
+                    <div className="flex items-center gap-4">
+                        <span className="font-bold text-primary italic">Onboarding</span>
+                        {url.includes('/configuracoes/') && !url.includes('/geral') && (
+                            <Link 
+                                href={
+                                    url.includes('/servicos') ? route('configuracoes.general.index') :
+                                    url.includes('/profissionais') ? route('configuracoes.services.index') :
+                                    url.includes('/horarios') ? route('configuracoes.professionals.index') :
+                                    route('onboarding.index')
+                                }
+                                className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+                            >
+                                <ChevronRight className="w-3 h-3 rotate-180" /> Voltar ao passo anterior
+                            </Link>
+                        )}
+                    </div>
                     <Link href={route('onboarding.index')} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
-                        <X className="w-4 h-4" /> Cancelar e Voltar
+                        <X className="w-4 h-4" /> Sair e Voltar ao Painel
                     </Link>
                 </div>
                 <div className="max-h-[80vh] overflow-auto p-6">

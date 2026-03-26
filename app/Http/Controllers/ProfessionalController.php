@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HasOnboarding;
 use App\Http\Requests\StoreProfessionalRequest;
 use App\Http\Requests\UpdateProfessionalRequest;
 use App\Models\Professional;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class ProfessionalController extends Controller
 {
+    use HasOnboarding;
+
     public function index(): Response
     {
         $this->authorize('viewAny', Professional::class);
@@ -38,11 +41,7 @@ class ProfessionalController extends Controller
 
         AuditService::log(auth()->user(), 'professional.created', $professional);
 
-        if (!Service::exists() || !Professional::exists() || !\App\Models\ProfessionalSchedule::exists()) {
-            return redirect()->route('onboarding.index');
-        }
-
-        return redirect()->route('configuracoes.professionals.index');
+        return $this->redirectOnboarding('configuracoes.professionals.index', 'Profissional criado com sucesso.');
     }
 
     public function edit(Professional $professional): Response

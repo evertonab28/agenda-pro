@@ -23,47 +23,49 @@ class AgendaServiceTest extends TestCase
 
     public function test_can_detect_conflicts()
     {
-        $professional = User::factory()->create();
+        $professional = \App\Models\Professional::factory()->create();
+        $this->fulfillOnboarding($professional->clinic_id);
         
         Appointment::factory()->create([
+            'clinic_id' => $professional->clinic_id,
             'professional_id' => $professional->id,
-            'starts_at' => '2026-03-22 10:00:00',
-            'ends_at' => '2026-03-22 11:00:00',
+            'starts_at' => '2026-12-25 10:00:00',
+            'ends_at' => '2026-12-25 11:00:00',
         ]);
 
         // Exact same time
         $this->assertTrue($this->service->hasConflict(
             $professional->id,
-            '2026-03-22 10:00:00',
-            '2026-03-22 11:00:00'
+            '2026-12-25 10:00:00',
+            '2026-12-25 11:00:00'
         ));
 
         // Overlap start
         $this->assertTrue($this->service->hasConflict(
             $professional->id,
-            '2026-03-22 09:30:00',
-            '2026-03-22 10:30:00'
+            '2026-12-25 09:30:00',
+            '2026-12-25 10:30:00'
         ));
 
         // Overlap end
         $this->assertTrue($this->service->hasConflict(
             $professional->id,
-            '2026-03-22 10:30:00',
-            '2026-03-22 11:30:00'
+            '2026-12-25 10:30:00',
+            '2026-12-25 11:30:00'
         ));
 
         // No conflict (after)
         $this->assertFalse($this->service->hasConflict(
             $professional->id,
-            '2026-03-22 11:00:00',
-            '2026-03-22 12:00:00'
+            '2026-12-25 11:00:00',
+            '2026-12-25 12:00:00'
         ));
 
         // No conflict (before)
         $this->assertFalse($this->service->hasConflict(
             $professional->id,
-            '2026-03-22 09:00:00',
-            '2026-03-22 10:00:00'
+            '2026-12-25 09:00:00',
+            '2026-12-25 10:00:00'
         ));
     }
 

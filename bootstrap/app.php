@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \App\Http\Middleware\CheckOnboarding::class,
         ]);
+
+        $middleware->alias([
+            'customer.clinic' => \App\Http\Middleware\CheckCustomerClinic::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

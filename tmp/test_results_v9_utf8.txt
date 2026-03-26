@@ -1,0 +1,28 @@
+﻿
+   FAIL  Tests\Feature\CRMAutomationTest
+  Ô£ô canceling appointment triggers wÔÇª 0.63s  
+  Ô¿» reengage command identifies inacÔÇª 0.06s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\FeatureÔÇª  QueryException   
+  SQLSTATE[HY000]: General error: 1 no such table: c_r_m_actions (Connection: sqlite, SQL: select exists(select * from "c_r_m_actions" where "clinic_id" = 1 and "customer_id" = 1 and "type" = reengagement and "status" = pending) as "exists")
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò 
+  Ô×£ 825Ôûò             throw new QueryException(
+    826Ôûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827Ôûò             );
+    828Ôûò         }
+    829Ôûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:407
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 no such table: c_r_m_actions")
+
+
+  Tests:    1 failed, 1 passed (1 assertions)
+  Duration: 0.85s
+

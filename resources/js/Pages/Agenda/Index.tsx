@@ -412,21 +412,32 @@ export default function AgendaIndex({ events, professionals, services, customers
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[550px] w-[95vw] max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{selectedEvent ? 'Editar Agendamento' : 'Novo Agendamento'}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="customer" className="text-right">Cliente</Label>
+                <Label className="text-right">Cliente</Label>
                 <div className="col-span-3">
-                  <CustomerAutocomplete 
-                    value={data.customer_id}
-                    onChange={(id) => setData('customer_id', id)}
-                    error={errors.customer_id}
-                    placeholder="Busque por nome ou telefone..."
-                  />
+                  {selectedEvent ? (
+                    <div className="flex flex-col gap-1">
+                      <Input 
+                        value={selectedEvent.customer.name} 
+                        disabled 
+                        className="bg-zinc-50 dark:bg-zinc-900/50 cursor-not-allowed border-zinc-200 dark:border-zinc-800"
+                      />
+                      <input type="hidden" name="customer_id" value={data.customer_id} />
+                    </div>
+                  ) : (
+                    <CustomerAutocomplete 
+                      value={data.customer_id}
+                      onChange={(id) => setData('customer_id', id)}
+                      error={errors.customer_id}
+                      placeholder="Busque por nome ou telefone..."
+                    />
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -482,16 +493,17 @@ export default function AgendaIndex({ events, professionals, services, customers
                   onChange={e => setData('ends_at', e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Notas</Label>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right mt-2.5">Notas</Label>
                 <Textarea 
-                  className="col-span-3" 
+                  className="col-span-3 min-h-[100px]" 
                   value={data.notes} 
                   onChange={e => setData('notes', e.target.value)}
                 />
               </div>
               {selectedEvent && (
                 <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Status</Label>
                   <div className="col-span-3">
                     <Select 
                       value={data.status} 

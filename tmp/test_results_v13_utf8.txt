@@ -1,0 +1,9 @@
+﻿
+   PASS  Tests\Feature\ReportingTest
+  Ô£ô financial trend calculates correÔÇª 0.65s  
+  Ô£ô service performance ranking       0.05s  
+  Ô£ô customer ltv insights             0.04s  
+
+  Tests:    3 passed (11 assertions)
+  Duration: 1.28s
+

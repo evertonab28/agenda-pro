@@ -35,13 +35,13 @@ class AgendaCheckoutController extends Controller
 
         // Fetch wallet and packages for the customer
         $customer = $appointment->customer;
-        $data['wallet_balance'] = $customer->wallet ? $customer->wallet->balance : 0;
-        $data['available_packages'] = $customer->customerPackages()
+        $data['wallet_balance'] = $customer?->wallet ? $customer->wallet->balance : 0;
+        $data['available_packages'] = $customer ? $customer->customerPackages()
             ->with('package')
             ->where('status', 'active')
             ->get()
             ->filter(fn($cp) => $cp->isActive() && $cp->package->service_id === $appointment->service_id)
-            ->values();
+            ->values() : [];
 
         return Inertia::render('Agenda/Checkout', $data);
     }

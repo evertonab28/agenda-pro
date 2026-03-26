@@ -1,0 +1,148 @@
+﻿
+   FAIL  Tests\Feature\FinancialIsolationTest
+  Ô¿» user cannot view charge of another clinic directly
+  Ô¿» user cannot see charges of another clinic in list
+  Ô¿» user cannot update charge of another clinic
+  Ô¿» user cannot register payment for charge of another clinic
+  Ô¿» receipts are strictly isolated by tenant
+
+   PASS  Tests\Feature\FinancialRBACTest
+  Ô£ô admin has full financial access   0.20s  
+  Ô£ô operator can view and receive buÔÇª 0.08s  
+  Ô£ô manager has broad access          0.06s  
+
+   FAIL  Tests\Feature\ChargeAuditTest
+  Ô£ô creating charge generates auditÔÇª  0.04s  
+  Ô¿» updating charge logs changes      0.04s  
+  Ô£ô receiving payment generates receÔÇª 0.08s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAÔÇª  UniqueConstraintViolationException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key (Connection: sqlite, SQL: insert into "settings" ("key", "value", "updated_at", "created_at") values (company_name, Test Clinic, 2026-03-25 18:50:33, 2026-03-25 18:50:33))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+    816Ôûò         // message to include the bindings with SQL, which will make this exception a
+    817Ôûò         // lot more helpful to the developer instead of just the database's errors.
+    818Ôûò         catch (Exception $e) {
+    819Ôûò             if ($this->isUniqueConstraintError($e)) {
+  Ô×£ 820Ôûò                 throw new UniqueConstraintViolationException(
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAÔÇª  UniqueConstraintViolationException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key (Connection: sqlite, SQL: insert into "settings" ("key", "value", "updated_at", "created_at") values (company_name, Test Clinic, 2026-03-25 18:50:33, 2026-03-25 18:50:33))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+    816Ôûò         // message to include the bindings with SQL, which will make this exception a
+    817Ôûò         // lot more helpful to the developer instead of just the database's errors.
+    818Ôûò         catch (Exception $e) {
+    819Ôûò             if ($this->isUniqueConstraintError($e)) {
+  Ô×£ 820Ôûò                 throw new UniqueConstraintViolationException(
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAÔÇª  UniqueConstraintViolationException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key (Connection: sqlite, SQL: insert into "settings" ("key", "value", "updated_at", "created_at") values (company_name, Test Clinic, 2026-03-25 18:50:34, 2026-03-25 18:50:34))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+    816Ôûò         // message to include the bindings with SQL, which will make this exception a
+    817Ôûò         // lot more helpful to the developer instead of just the database's errors.
+    818Ôûò         catch (Exception $e) {
+    819Ôûò             if ($this->isUniqueConstraintError($e)) {
+  Ô×£ 820Ôûò                 throw new UniqueConstraintViolationException(
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAÔÇª  UniqueConstraintViolationException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key (Connection: sqlite, SQL: insert into "settings" ("key", "value", "updated_at", "created_at") values (company_name, Test Clinic, 2026-03-25 18:50:34, 2026-03-25 18:50:34))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+    816Ôûò         // message to include the bindings with SQL, which will make this exception a
+    817Ôûò         // lot more helpful to the developer instead of just the database's errors.
+    818Ôûò         catch (Exception $e) {
+    819Ôûò             if ($this->isUniqueConstraintError($e)) {
+  Ô×£ 820Ôûò                 throw new UniqueConstraintViolationException(
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAÔÇª  UniqueConstraintViolationException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key (Connection: sqlite, SQL: insert into "settings" ("key", "value", "updated_at", "created_at") values (company_name, Test Clinic, 2026-03-25 18:50:34, 2026-03-25 18:50:34))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+    816Ôûò         // message to include the bindings with SQL, which will make this exception a
+    817Ôûò         // lot more helpful to the developer instead of just the database's errors.
+    818Ôûò         catch (Exception $e) {
+    819Ôûò             if ($this->isUniqueConstraintError($e)) {
+  Ô×£ 820Ôûò                 throw new UniqueConstraintViolationException(
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:820
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: settings.key")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ChargeAuditTestÔÇª    
+  Failed asserting that a row in the table [audit_logs] matches the attributes {
+    "action": "charge.updated",
+    "entity": "Charge",
+    "entity_id": 1
+}.
+
+Found: [
+    {
+        "action": "charge.created",
+        "entity": "Charge",
+        "entity_id": 1
+    }
+].
+
+  at tests\Feature\ChargeAuditTest.php:67
+     63Ôûò             'description' => 'New Description',
+     64Ôûò             'amount' => 150
+     65Ôûò         ]);
+     66Ôûò 
+  Ô×£  67Ôûò         $this->assertDatabaseHas('audit_logs', [
+     68Ôûò             'action' => 'charge.updated',
+     69Ôûò             'entity' => 'Charge',
+     70Ôûò             'entity_id' => $charge->id
+     71Ôûò         ]);
+
+
+  Tests:    6 failed, 5 passed (16 assertions)
+  Duration: 1.75s
+

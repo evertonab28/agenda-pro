@@ -1,0 +1,113 @@
+﻿
+   WARN  Metadata found in doc-comment for method Tests\Unit\Security\PiiMaskingTest::it_masks_sensitive_data_in_log_context(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_missing(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_invalid(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_timestamp_is_too_old(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_blocks_duplicate_event_id_idempotency(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_throttles_excessive_requests(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_prioritizes_d_plus_3_over_d_plus_1(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_filters_out_paid_and_canceled_charges_from_nba(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_respects_timezone_for_daily_actions(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_persists_payment_link_hash_when_generated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_generates_different_hash_on_regeneration(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_blocks_link_generation_for_already_paid_charges(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_logs_clicks_on_payment_link(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_processes_full_payment_flow_via_webhook(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_handles_partial_payments_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_generates_unique_hashes_in_high_volume(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_marks_links_as_expired_based_on_timestamp(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_records_audit_log_when_charge_is_updated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_captures_client_ip_in_audit_log(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_automatically_scopes_queries_by_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_prevents_unauthorized_access_to_other_tenant_resource(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Unit\AgendaServiceTest
+  Ô£ô can detect conflicts              0.62s  
+  Ô£ô can calculate end date            0.03s  
+
+   PASS  Tests\Unit\CacheServiceTest
+  Ô£ô dashboard key is deterministic fÔÇª 0.03s  
+  Ô£ô dashboard key differs for differÔÇª 0.03s  
+  Ô£ô dashboard key is order independeÔÇª 0.03s  
+  Ô£ô finance key is deterministic forÔÇª 0.03s  
+  Ô£ô finance key differs from dashboaÔÇª 0.03s  
+  Ô£ô dashboard key has correct prefix  0.03s  
+  Ô£ô finance key has correct prefix    0.03s  
+  Ô£ô dashboard ttl returns integer     0.03s  
+  Ô£ô finance ttl returns integer       0.03s  
+
+   PASS  Tests\Unit\CheckoutServiceTest
+  Ô£ô it ensures charge only once forÔÇª  0.06s  
+  Ô£ô it registers total payment and mÔÇª 0.04s  
+  Ô£ô it registers partial payment andÔÇª 0.03s  
+  Ô£ô it prepares checkout data correcÔÇª 0.04s  
+
+   PASS  Tests\Unit\DashboardServiceTest
+  Ô£ô it calculates deltas correctly    0.03s  
+  Ô£ô it handles previous zeros in delÔÇª 0.03s  
+  Ô£ô csv generation                    0.03s  
+
+   PASS  Tests\Unit\ExampleTest
+  Ô£ô that true is true
+
+   PASS  Tests\Unit\Security\PiiMaskingTest
+  Ô£ô it masks sensitive data in log context
+
+   PASS  Tests\Unit\StatusEnumsTest
+  Ô£ô appointment status has correct values
+  Ô£ô appointment status labels are in portuguese
+  Ô£ô appointment status values returns all strings
+  Ô£ô appointment status can be created from value
+  Ô£ô appointment status throws on invalid value
+  Ô£ô charge status has correct values
+  Ô£ô charge status labels are in portuguese
+  Ô£ô charge status values returns all strings
+  Ô£ô charge status can be created from value
+
+   FAIL  Tests\Feature\AgendaFlowTest
+  Ô¿» can create appointment            0.10s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\AgendaFlowTest >ÔÇª   
+  Failed asserting that a row in the table [appointments] matches the attributes {
+    "customer_id": 1,
+    "professional_id": 2,
+    "starts_at": "2026-03-22 14:00:00"
+}.
+
+The table is empty.
+
+  at tests\Feature\AgendaFlowTest.php:47
+     43Ôûò             'notes' => 'Test note',
+     44Ôûò         ]);
+     45Ôûò 
+     46Ôûò         $response->assertRedirect();
+  Ô×£  47Ôûò         $this->assertDatabaseHas('appointments', [
+     48Ôûò             'customer_id' => $customer->id,
+     49Ôûò             'professional_id' => $professional->id,
+     50Ôûò             'starts_at' => '2026-03-22 14:00:00',
+     51Ôûò         ]);
+
+
+  Tests:    1 failed, 29 passed, [2m100 pending[22m (81 assertions)
+  Duration: 1.54s
+

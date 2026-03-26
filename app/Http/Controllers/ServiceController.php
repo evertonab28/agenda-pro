@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HasOnboarding;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Service;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class ServiceController extends Controller
 {
+    use HasOnboarding;
+
     public function index(): Response
     {
         $this->authorize('viewAny', Service::class);
@@ -32,11 +35,7 @@ class ServiceController extends Controller
 
         AuditService::log(auth()->user(), 'service.created', $service);
 
-        if (!Service::exists() || !\App\Models\Professional::exists() || !\App\Models\ProfessionalSchedule::exists()) {
-            return redirect()->route('onboarding.index');
-        }
-
-        return redirect()->route('configuracoes.services.index');
+        return $this->redirectOnboarding('configuracoes.services.index', 'Serviço criado com sucesso.');
     }
 
     public function show(Service $service): Response

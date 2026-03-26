@@ -1,0 +1,2 @@
+--- CHARGES DETAIL ---
+ID: 1 | Appointment: 7 | Clinic: NULL | Customer: 2 | Amount: 65.00

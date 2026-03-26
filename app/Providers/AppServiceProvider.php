@@ -16,6 +16,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Services\Finance\PaymentLinkServiceInterface::class, function ($app) {
             return new \App\Services\Finance\FakePaymentLinkService();
         });
+
+        $this->app->bind(\App\Services\Messaging\MessagingServiceInterface::class, function ($app) {
+            return new \App\Services\Messaging\FakeMessagingService();
+        });
     }
 
     /**

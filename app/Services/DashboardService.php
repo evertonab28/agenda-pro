@@ -499,27 +499,44 @@ class DashboardService
     /**
      * getOccupancyHeatmap
      */
-    public function getOccupancyHeatmap(): array
+    public function getOccupancyHeatmap(array $filters = []): array
     {
-        $last30Days = now()->subDays(30);
+        $fromStr = $filters['from'] ?? null;
+        $toStr = $filters['to'] ?? null;
+        $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->subDays(30)->startOfDay();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
         
         $isSqlite = DB::connection()->getDriverName() === 'sqlite';
         $hourExpr = $isSqlite ? "strftime('%H', starts_at)" : "HOUR(starts_at)";
 
-        $data = Appointment::where('starts_at', '>=', $last30Days)
-            ->where('status', '!=', 'canceled')
-            ->selectRaw("$hourExpr as hour, count(*) as count")
+        $query = Appointment::whereBetween('starts_at', [$from, $to])
+            ->where('status', '!=', 'canceled');
+        
+        $query = $this->applyFilters($query, $filters);
+
+        $data = $query->selectRaw("$hourExpr as hour, count(*) as count")
             ->groupBy('hour')
             ->orderBy('hour')
             ->get();
 
+        if ($data->isEmpty()) {
+            return [];
+        }
+
+        $minHour = (int) $data->min('hour');
+        $maxHour = (int) $data->max('hour');
+
+        // Garantir um range mínimo para visualização (ex: 8h às 18h se os dados forem muito concentrados)
+        $start = min($minHour, 8);
+        $end = max($maxHour, 20);
+
         $heatmap = [];
-        for ($i = 8; $i <= 20; $i++) {
+        for ($i = $start; $i <= $end; $i++) {
             $hourStr = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
             $match = $data->firstWhere('hour', (string) $i) ?: $data->firstWhere('hour', (int) $i) ?: $data->firstWhere('hour', str_pad($i, 2, '0', STR_PAD_LEFT));
             $heatmap[] = [
                 'hour' => $hourStr,
-                'count' => $match ? $match->count : 0
+                'count' => $match ? (int) $match->count : 0
             ];
         }
 
@@ -529,24 +546,30 @@ class DashboardService
     /**
      * getRevenueComparison
      */
-    public function getRevenueComparison(): array
+    public function getRevenueComparison(array $filters = []): array
     {
-        $last30Days = now()->subDays(30);
+        $fromStr = $filters['from'] ?? null;
+        $toStr = $filters['to'] ?? null;
+        $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->subDays(30)->startOfDay();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
         
-        $forecasted = Charge::where('due_date', '>=', $last30Days)
-            ->where('status', '!=', 'canceled')
-            ->sum('amount');
+        $forecastedQuery = Charge::whereBetween('due_date', [$from, $to])
+            ->where('status', '!=', 'canceled');
+        $forecastedQuery = $this->applyFilters($forecastedQuery, $filters);
+        $forecasted = $forecastedQuery->sum('amount');
 
-        $realized = Charge::where('due_date', '>=', $last30Days)
-            ->where('status', 'paid')
-            ->sum('amount');
+        $realizedQuery = Charge::whereBetween('due_date', [$from, $to])
+            ->where('status', 'paid');
+        $realizedQuery = $this->applyFilters($realizedQuery, $filters);
+        $realized = $realizedQuery->sum('amount');
             
         // Gap based on no-shows revenue
-        $gap = Charge::whereHas('appointment', function($q) use ($last30Days) {
-                $q->where('starts_at', '>=', $last30Days)
+        $gapQuery = Charge::whereHas('appointment', function($q) use ($from, $to, $filters) {
+                $q->whereBetween('starts_at', [$from, $to])
                   ->where('status', 'no_show');
-            })
-            ->sum('amount');
+                $this->applyFilters($q, $filters);
+            });
+        $gap = $gapQuery->sum('amount');
 
         return [
             'forecasted' => (float) $forecasted,
@@ -558,14 +581,22 @@ class DashboardService
     /**
      * getNoShowRanking
      */
-    public function getNoShowRanking(): array
+    public function getNoShowRanking(array $filters = []): array
     {
-        $last30Days = now()->subDays(30);
+        $fromStr = $filters['from'] ?? null;
+        $toStr = $filters['to'] ?? null;
+        $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->subDays(30)->startOfDay();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
         
-        return Appointment::join('services', 'appointments.service_id', '=', 'services.id')
-            ->where('appointments.starts_at', '>=', $last30Days)
-            ->where('appointments.status', 'no_show')
-            ->selectRaw('services.name, count(*) as total')
+        $query = Appointment::join('services', 'appointments.service_id', '=', 'services.id')
+            ->whereBetween('appointments.starts_at', [$from, $to])
+            ->where('appointments.status', 'no_show');
+
+        if (!empty($filters['professional_id'])) {
+            $query->where('appointments.professional_id', $filters['professional_id']);
+        }
+
+        return $query->selectRaw('services.name, count(*) as total')
             ->groupBy('services.name')
             ->orderByDesc('total')
             ->limit(5)
@@ -576,21 +607,30 @@ class DashboardService
     /**
      * getRetentionMetrics
      */
-    public function getRetentionMetrics(): array
+    public function getRetentionMetrics(array $filters = []): array
     {
-        $last30Days = now()->subDays(30);
+        $fromStr = $filters['from'] ?? null;
+        $toStr = $filters['to'] ?? null;
+        $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->subDays(30)->startOfDay();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
         
-        $totalCustomersCount = Appointment::where('starts_at', '>=', $last30Days)
-            ->where('status', 'completed')
-            ->distinct('customer_id')
+        $totalCustomersQuery = Appointment::whereBetween('starts_at', [$from, $to])
+            ->where('status', 'completed');
+        $totalCustomersQuery = $this->applyFilters($totalCustomersQuery, $filters);
+        $totalCustomersCount = $totalCustomersQuery->distinct('customer_id')
             ->count('customer_id');
 
         $returningCustomersCount = Appointment::where('status', 'completed')
-            ->whereIn('customer_id', function($query) use ($last30Days) {
+            ->whereIn('customer_id', function($query) use ($from, $to, $filters) {
                 $query->select('customer_id')
                     ->from('appointments')
-                    ->where('starts_at', '>=', $last30Days)
+                    ->whereBetween('starts_at', [$from, $to])
                     ->where('status', 'completed');
+                // Note: applyFilters might not work perfectly inside closure if it expects specific model, 
+                // but standard columns like professional_id should be fine.
+                if (!empty($filters['professional_id'])) {
+                    $query->where('professional_id', $filters['professional_id']);
+                }
             })
             ->selectRaw('customer_id')
             ->groupBy('customer_id')
@@ -625,12 +665,14 @@ class DashboardService
             ->map(fn($c) => [
                 'id' => $c->id,
                 'customer_name' => $c->customer?->name ?? 'Desconhecido',
+                'customer_phone' => $c->customer?->phone,
                 'amount' => (float) $c->amount,
                 'due_date' => $c->due_date ? $c->due_date->format('d/m') : '?',
                 'priority' => 'high',
                 'suggestion' => 'Cobrança Crítica: Enviar link via WhatsApp',
                 'action_label' => 'Enviar Link',
-                'action_type' => 'payment_link'
+                'action_type' => 'payment_link',
+                'url' => route('finance.charges.show', $c->id)
             ]);
 
         // Prioridade 2: Vencidos recentemente (1-3 dias)
@@ -643,12 +685,14 @@ class DashboardService
             ->map(fn($c) => [
                 'id' => $c->id,
                 'customer_name' => $c->customer?->name ?? 'Desconhecido',
+                'customer_phone' => $c->customer?->phone,
                 'amount' => (float) $c->amount,
                 'due_date' => $c->due_date ? $c->due_date->format('d/m') : '?',
                 'priority' => 'medium',
                 'suggestion' => 'Lembrete de Atraso: Notificar cliente',
                 'action_label' => 'Notificar',
-                'action_type' => 'whatsapp_reminder'
+                'action_type' => 'whatsapp_reminder',
+                'url' => route('finance.charges.show', $c->id)
             ]);
 
         // Prioridade 3: Vencendo hoje
@@ -661,17 +705,40 @@ class DashboardService
             ->map(fn($c) => [
                 'id' => $c->id,
                 'customer_name' => $c->customer?->name ?? 'Desconhecido',
+                'customer_phone' => $c->customer?->phone,
                 'amount' => (float) $c->amount,
                 'due_date' => 'Hoje',
                 'priority' => 'low',
                 'suggestion' => 'Vencendo hoje: Confirmar recebimento',
                 'action_label' => 'Confirmar',
-                'action_type' => 'confirm_payment'
+                'action_type' => 'confirm_payment',
+                'url' => route('finance.charges.show', $c->id)
+            ]);
+
+        // Prioridade 4: Ações de CRM (Re-engajamento, etc)
+        $crmActions = \App\Models\CRMAction::with('customer')
+            ->where('status', 'pending')
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(fn($a) => [
+                'id' => $a->id,
+                'customer_name' => $a->customer?->name ?? 'Desconhecido',
+                'customer_phone' => $a->customer?->phone,
+                'amount' => 0,
+                'due_date' => $a->created_at->format('d/m'),
+                'priority' => $a->priority,
+                'suggestion' => $a->title . ': ' . $a->description,
+                'action_label' => 'Ver Cliente',
+                'action_type' => 'crm_action',
+                'url' => route('customers.show', $a->customer_id)
             ]);
 
         return collect($highPriority)
             ->merge($mediumPriority)
             ->merge($lowPriority)
+            ->merge($crmActions)
             ->values()
             ->toArray();
     }

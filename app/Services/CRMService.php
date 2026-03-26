@@ -110,14 +110,67 @@ class CRMService
     }
 
     /**
+     * Trigger logic when an appointment is canceled.
+     * Notifies the first available customer on the waitlist.
+     */
+    public function triggerAppointmentCanceled(\App\Models\Appointment $appointment): void
+    {
+        $waitlistEntry = \App\Models\WaitlistEntry::where('clinic_id', $appointment->clinic_id)
+            ->where('service_id', $appointment->service_id)
+            ->where('status', \App\Enums\WaitlistStatus::Waiting)
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($waitlistEntry) {
+            // Notify customer (via stub messaging service for now)
+            $messaging = app(\App\Services\Messaging\MessagingServiceInterface::class);
+            $messaging->send(
+                $waitlistEntry->customer->phone,
+                "Olá {$waitlistEntry->customer->name}! Um horário acaba de vagar para o serviço {$appointment->service->name}. Tem interesse? Responda SIM."
+            );
+
+            $waitlistEntry->update(['status' => \App\Enums\WaitlistStatus::Called]);
+        }
+    }
+
+    /**
+     * Identify inactive customers and suggest re-engagement.
+     */
+    public function reengageInactiveCustomers(int $clinicId): array
+    {
+        $cutoff = now()->subDays(60);
+        
+        // Find customers whose last FINISHED appointment was more than 60 days ago
+        // OR who have NO finished appointments but were created > 60 days ago.
+        return Customer::where('clinic_id', $clinicId)
+            ->where('is_active', true)
+            ->get()
+            ->filter(function ($customer) use ($cutoff) {
+                $lastApp = $customer->appointments()
+                    ->where('status', 'finished')
+                    ->latest('starts_at')
+                    ->first();
+                
+                if (!$lastApp) {
+                    return $customer->created_at->lt($cutoff);
+                }
+                
+                return Carbon::parse($lastApp->starts_at)->lt($cutoff);
+            })
+            ->values()
+            ->toArray();
+    }
+
+    /**
      * Get financial summary for a customer.
      */
     public function getCustomerSummary(Customer $customer): array
     {
         return [
-            'total_paid' => $customer->charges()->whereNotNull('paid_at')->sum('amount'),
-            'total_pending' => $customer->charges()->whereNull('paid_at')->where('due_date', '>=', now()->toDateString())->sum('amount'),
-            'total_overdue' => $customer->charges()->whereNull('paid_at')->where('due_date', '<', now()->toDateString())->sum('amount'),
+            'total_paid' => $customer->receipts()->sum('amount_received'),
+            'total_pending' => $customer->charges()->where('status', 'pending')->sum('amount'),
+            'total_overdue' => $customer->charges()->where('status', 'overdue')->sum('amount'),
         ];
     }
 }

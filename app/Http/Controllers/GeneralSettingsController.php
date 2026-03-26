@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HasOnboarding;
 use App\Models\Setting;
 use App\Services\AuditService;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class GeneralSettingsController extends Controller
 {
+    use HasOnboarding;
+
     public function index(): Response
     {
         $this->authorize('manage-settings');
@@ -49,6 +52,10 @@ class GeneralSettingsController extends Controller
         }
 
         AuditService::log(auth()->user(), 'settings.updated', null, $validated);
+
+        if ($this->onboardingInProgress()) {
+            return redirect()->route('onboarding.index')->with('success', 'Configurações salvas. Próximo passo!');
+        }
 
         return redirect()->back()->with('success', 'Configurações salvas.');
     }

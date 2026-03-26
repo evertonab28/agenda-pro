@@ -14,9 +14,23 @@ class TenantScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        // dump("Applying scope to " . $model->getTable());
-        if (Auth::check() && Auth::user()->clinic_id) {
-            $builder->where($model->getTable() . '.clinic_id', Auth::user()->clinic_id);
+        if (app()->runningInConsole() && !app()->runningUnitTests()) {
+            return;
+        }
+
+        $clinicId = null;
+
+        // Check web guard first (Staff)
+        if (Auth::guard('web')->hasUser()) {
+            $clinicId = Auth::guard('web')->user()->clinic_id;
+        } 
+        // Then check customer guard
+        elseif (Auth::guard('customer')->hasUser()) {
+            $clinicId = Auth::guard('customer')->user()->clinic_id;
+        }
+
+        if ($clinicId) {
+            $builder->where($model->getTable() . '.clinic_id', $clinicId);
         }
     }
 }

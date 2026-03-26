@@ -1,0 +1,10 @@
+﻿array:2 [
+  "old" => array:2 [
+    "amount" => "100.00"
+    "due_date" => "2026-03-01T03:00:00.000000Z"
+  ]
+  "new" => array:2 [
+    "amount" => 150
+    "due_date" => "2026-03-25 18:58:12"
+  ]
+] // tests\Feature\ChargeAuditTest.php:75

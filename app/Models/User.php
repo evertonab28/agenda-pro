@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, \App\Traits\BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -26,14 +26,6 @@ class User extends Authenticatable
         'role',
         'status',
     ];
-
-    /**
-     * Apply Tenant Scope
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
-    }
 
     /**
      * The attributes that should be hidden for serialization.

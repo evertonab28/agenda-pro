@@ -1,0 +1,44 @@
+﻿
+   FAIL  Tests\Feature\ReportingTest
+  Ô¿» financial trend calculates correÔÇª 0.61s  
+  Ô£ô service performance ranking       0.07s  
+  Ô¿» customer ltv insights             0.04s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\FeatureÔÇª  ErrorException   
+  Undefined property: Tests\Feature\ReportingTest::$admin
+
+  at tests\Feature\ReportingTest.php:32
+     28Ôûò     }
+     29Ôûò 
+     30Ôûò     public function test_financial_trend_calculates_correctly()
+     31Ôûò     {
+  Ô×£  32Ôûò         $this->actingAs($this->admin);
+     33Ôûò 
+     34Ôûò         // This month
+     35Ôûò         Charge::factory()->create([
+     36Ôûò             'clinic_id' => $this->clinic->id,
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\FeatureÔÇª  QueryException   
+  SQLSTATE[HY000]: General error: 1 table receipts has no column named payment_date (Connection: sqlite, SQL: insert into "receipts" ("clinic_id", "charge_id", "amount_received", "fee_amount", "net_amount", "method", "received_at", "notes", "payment_date", "updated_at", "created_at") values (1, 1, 1000, 1.02, 998.98, cartao, 2026-03-04 09:53:35, ?, 2026-03-25 19:21:32, 2026-03-25 19:21:32, 2026-03-25 19:21:32))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò 
+  Ô×£ 825Ôûò             throw new QueryException(
+    826Ôûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827Ôûò             );
+    828Ôûò         }
+    829Ôûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:565
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table receipts has no column named payment_date")
+
+
+  Tests:    2 failed, 1 passed (4 assertions)
+  Duration: 0.87s
+

@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Professional extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
+        'clinic_id',
         'name',
         'email',
         'phone',
@@ -29,6 +30,11 @@ class Professional extends Model
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class);
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(ProfessionalSchedule::class);
     }
 
     /**

@@ -10,9 +10,10 @@ use App\Enums\PreferredPeriod;
 
 class WaitlistEntry extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
+        'clinic_id',
         'customer_id',
         'service_id',
         'professional_id',

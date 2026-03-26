@@ -31,6 +31,7 @@ class PackageService
 
             // Automatically create a charge for the package purchase
             Charge::create([
+                'clinic_id' => $customer->clinic_id,
                 'customer_id' => $customer->id,
                 'amount' => $package->price,
                 'description' => "Compra de Pacote: " . $package->name,

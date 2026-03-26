@@ -46,19 +46,26 @@ class CheckoutService
     public function ensureChargeForAppointment(Appointment $appointment, array $payload = []): Charge
     {
         return DB::transaction(function () use ($appointment, $payload) {
-            $charge = Charge::where('appointment_id', $appointment->id)->first();
+            // Search bypasses scope just in case of orphaned records, but filtered by the specific appointment
+            $charge = Charge::withoutGlobalScopes()
+                ->where('appointment_id', $appointment->id)
+                ->first();
 
             if (!$charge) {
                 $charge = Charge::create([
+                    'clinic_id' => $appointment->clinic_id,
                     'appointment_id' => $appointment->id,
                     'customer_id' => $appointment->customer_id,
                     'amount' => $payload['amount'] ?? $appointment->service->price ?? 0,
-                    'description' => "Atendimento: " . ($appointment->service->name ?? 'Serviço'),
+                    'description' => $payload['description'] ?? ("Atendimento: " . ($appointment->service->name ?? 'Serviço')),
                     'due_date' => now()->toDateString(),
                     'status' => ChargeStatus::Pending->value,
                 ]);
                 
                 AuditService::log(auth()->user(), 'charge.auto_created', $charge, ['appointment_id' => $appointment->id]);
+            } elseif ($charge->clinic_id === null) {
+                // Heal orphaned record
+                $charge->update(['clinic_id' => $appointment->clinic_id]);
             }
 
             return $charge;
@@ -75,6 +82,7 @@ class CheckoutService
             $netAmount = $data['amount_received'] - $feeAmount;
 
             $receipt = Receipt::create([
+                'clinic_id' => $charge->clinic_id,
                 'charge_id' => $charge->id,
                 'amount_received' => $data['amount_received'],
                 'fee_amount' => $feeAmount,
@@ -87,12 +95,12 @@ class CheckoutService
             // Update charge status and balance
             $totalReceived = $charge->receipts()->sum('amount_received');
             
-            if ($totalReceived >= $charge->amount) {
+            if (round((float)$totalReceived, 2) >= round((float)$charge->amount, 2)) {
                 $charge->update([
                     'status' => ChargeStatus::Paid->value,
                     'paid_at' => Carbon::parse($data['received_at']),
                 ]);
-            } elseif ($totalReceived > 0) {
+            } elseif (round((float)$totalReceived, 2) > 0) {
                 $charge->update(['status' => ChargeStatus::Partial->value]);
             }
 

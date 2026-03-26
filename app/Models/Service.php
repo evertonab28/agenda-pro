@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
+        'clinic_id',
         'name',
         'duration_minutes',
         'buffer_minutes',
@@ -24,6 +25,11 @@ class Service extends Model
         'is_active' => 'boolean',
         'price' => 'decimal:2',
     ];
+
+    public function professionals(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Professional::class);
+    }
 
     public function appointments(): HasMany
     {

@@ -1,0 +1,173 @@
+﻿
+   WARN  Metadata found in doc-comment for method Tests\Unit\Security\PiiMaskingTest::it_masks_sensitive_data_in_log_context(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_missing(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_invalid(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_timestamp_is_too_old(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_blocks_duplicate_event_id_idempotency(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_throttles_excessive_requests(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_prioritizes_d_plus_3_over_d_plus_1(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_filters_out_paid_and_canceled_charges_from_nba(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_respects_timezone_for_daily_actions(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_persists_payment_link_hash_when_generated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_generates_different_hash_on_regeneration(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_blocks_link_generation_for_already_paid_charges(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_logs_clicks_on_payment_link(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_processes_full_payment_flow_via_webhook(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_handles_partial_payments_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_generates_unique_hashes_in_high_volume(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_marks_links_as_expired_based_on_timestamp(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_records_audit_log_when_charge_is_updated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_captures_client_ip_in_audit_log(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_automatically_scopes_queries_by_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_prevents_unauthorized_access_to_other_tenant_resource(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   FAIL  Tests\Unit\AgendaServiceTest
+  Ô¿» can detect conflicts              0.62s  
+  Ô£ô can calculate end date            0.04s  
+
+   FAIL  Tests\Unit\CacheServiceTest
+  Ô£ô dashboard key is deterministic fÔÇª 0.01s  
+  Ô£ô dashboard key differs for different filters
+  Ô£ô dashboard key is order independent
+  Ô£ô finance key is deterministic for same filters
+  Ô£ô finance key differs from dashboard key
+  Ô£ô dashboard key has correct prefix
+  Ô£ô finance key has correct prefix
+  Ô¿» dashboard ttl returns integer
+  Ô¿» finance ttl returns integer
+
+   PASS  Tests\Unit\CheckoutServiceTest
+  Ô£ô it ensures charge only once forÔÇª  0.06s  
+  Ô£ô it registers total payment and mÔÇª 0.04s  
+  Ô£ô it registers partial payment andÔÇª 0.04s  
+  Ô£ô it prepares checkout data correcÔÇª 0.04s  
+
+   PASS  Tests\Unit\DashboardServiceTest
+  Ô£ô it calculates deltas correctly    0.03s  
+  Ô£ô it handles previous zeros in delÔÇª 0.03s  
+  Ô£ô csv generation                    0.03s  
+
+   PASS  Tests\Unit\ExampleTest
+  Ô£ô that true is true
+
+   PASS  Tests\Unit\Security\PiiMaskingTest
+  Ô£ô it masks sensitive data in log context
+
+   PASS  Tests\Unit\StatusEnumsTest
+  Ô£ô appointment status has correct values
+  Ô£ô appointment status labels are in portuguese
+  Ô£ô appointment status values returns all strings
+  Ô£ô appointment status can be created from value
+  Ô£ô appointment status throws on invalid value
+  Ô£ô charge status has correct values
+  Ô£ô charge status labels are in portuguese
+  Ô£ô charge status values returns all strings
+  Ô£ô charge status can be created from value
+
+   FAIL  Tests\Feature\AgendaFlowTest
+  Ô¿» can create appointment            0.09s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Unit\AgeÔÇª  QueryException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed (Connection: sqlite, SQL: insert into "appointments" ("clinic_id", "customer_id", "service_id", "professional_id", "starts_at", "ends_at", "status", "updated_at", "created_at") values (2, 1, 1, 1, 2026-03-22 10:00:00, 2026-03-22 11:00:00, scheduled, 2026-03-25 19:29:30, 2026-03-25 19:29:30))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò 
+  Ô×£ 825Ôûò             throw new QueryException(
+    826Ôûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827Ôûò             );
+    828Ôûò         }
+    829Ôûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  TeÔÇª  BindingResolutionException   
+  Target class [config] does not exist.
+
+  at vendor\laravel\framework\src\Illuminate\Container\Container.php:961
+    957Ôûò 
+    958Ôûò         try {
+    959Ôûò             $reflector = new ReflectionClass($concrete);
+    960Ôûò         } catch (ReflectionException $e) {
+  Ô×£ 961Ôûò             throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
+    962Ôûò         }
+    963Ôûò 
+    964Ôûò         // If the type is not instantiable, the developer is attempting to resolve
+    965Ôûò         // an abstract type such as an Interface or Abstract Class and there is
+
+  1   vendor\laravel\framework\src\Illuminate\Container\Container.php:961
+
+  2   vendor\laravel\framework\src\Illuminate\Container\Container.php:959
+      NunoMaduro\Collision\Exceptions\TestException::("Class "config" does not exist")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  TeÔÇª  BindingResolutionException   
+  Target class [config] does not exist.
+
+  at vendor\laravel\framework\src\Illuminate\Container\Container.php:961
+    957Ôûò 
+    958Ôûò         try {
+    959Ôûò             $reflector = new ReflectionClass($concrete);
+    960Ôûò         } catch (ReflectionException $e) {
+  Ô×£ 961Ôûò             throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
+    962Ôûò         }
+    963Ôûò 
+    964Ôûò         // If the type is not instantiable, the developer is attempting to resolve
+    965Ôûò         // an abstract type such as an Interface or Abstract Class and there is
+
+  1   vendor\laravel\framework\src\Illuminate\Container\Container.php:961
+
+  2   vendor\laravel\framework\src\Illuminate\Container\Container.php:959
+      NunoMaduro\Collision\Exceptions\TestException::("Class "config" does not exist")
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\AgendaFlowTest >ÔÇª   
+  Failed asserting that a row in the table [appointments] matches the attributes {
+    "customer_id": 1,
+    "professional_id": 1,
+    "starts_at": "2026-03-22 14:00:00"
+}.
+
+The table is empty.
+
+  at tests\Feature\AgendaFlowTest.php:36
+     32Ôûò             'notes' => 'Test note',
+     33Ôûò         ]);
+     34Ôûò 
+     35Ôûò         $response->assertRedirect();
+  Ô×£  36Ôûò         $this->assertDatabaseHas('appointments', [
+     37Ôûò             'customer_id' => $customer->id,
+     38Ôûò             'professional_id' => $professional->id,
+     39Ôûò             'starts_at' => '2026-03-22 14:00:00',
+     40Ôûò         ]);
+
+
+  Tests:    4 failed, 26 passed, [2m100 pending[22m (72 assertions)
+  Duration: 1.27s
+

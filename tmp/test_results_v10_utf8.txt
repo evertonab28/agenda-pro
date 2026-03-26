@@ -1,0 +1,8 @@
+﻿
+   PASS  Tests\Feature\CRMAutomationTest
+  Ô£ô canceling appointment triggers wÔÇª 0.64s  
+  Ô£ô reengage command identifies inacÔÇª 0.05s  
+
+  Tests:    2 passed (3 assertions)
+  Duration: 0.85s
+

@@ -79,7 +79,13 @@ export default function Index({ step, hasSettings, hasServices, hasProfessionals
                                 </CardTitle>
                                 <CardDescription>{s.description}</CardDescription>
                             </div>
-                            {s.id === step && !s.completed && (
+                            {s.completed ? (
+                                <Link href={s.route}>
+                                    <Button size="sm" variant="outline" className="flex items-center gap-1 border-emerald-200 hover:bg-emerald-50 text-emerald-700">
+                                        Revisar <ChevronRight className="w-4 h-4 text-emerald-500" />
+                                    </Button>
+                                </Link>
+                            ) : s.id === step && (
                                 <Link href={s.route}>
                                     <Button size="sm" className="flex items-center gap-1">
                                         Começar <ChevronRight className="w-4 h-4" />

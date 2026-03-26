@@ -13,12 +13,22 @@ class ChargeController extends Controller
         $this->authorize('update', $charge);
         $data = $request->validated();
 
-$charge->update([
-'status' => 'paid',
-'payment_method' => $data['payment_method'],
-'paid_at' => $data['paid_at'] ?? now(),
-]);
+        $charge->update([
+            'status' => 'paid',
+            'payment_method' => $data['payment_method'],
+            'paid_at' => $data['paid_at'] ?? now(),
+        ]);
 
-return $charge->fresh();
-}
+        return $charge->fresh();
+    }
+
+    public function portalIndex(Clinic $clinic)
+    {
+        return response()->json(
+            Charge::where('customer_id', auth('customer')->id())
+                ->where('status', 'pending')
+                ->latest()
+                ->get()
+        );
+    }
 }

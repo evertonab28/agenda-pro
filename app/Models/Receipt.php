@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Receipt extends Model
 {
-    use HasFactory, Logged;
+    use HasFactory, Logged, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
         'clinic_id',
@@ -21,14 +21,6 @@ class Receipt extends Model
         'received_at',
         'notes',
     ];
-
-    /**
-     * Apply Tenant Scope
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
-    }
 
     protected $casts = [
         'amount_received' => 'decimal:2',

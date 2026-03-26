@@ -6,13 +6,14 @@ interface Props {
   filterState: FiltersState;
   setFilterState: (state: FiltersState) => void;
   exportUrl: string;
+  baseUrl?: string;
   canExport?: boolean;
 }
 
-export function DashboardFilters({ filterState, setFilterState, exportUrl, canExport = true }: Props) {
+export function DashboardFilters({ filterState, setFilterState, exportUrl, baseUrl = '/dashboard', canExport = true }: Props) {
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault();
-    router.get('/dashboard', filterState as any, { preserveState: true });
+    router.get(baseUrl, filterState as any, { preserveState: true });
   };
 
   const handleStatusToggle = (val: string) => {
@@ -27,19 +28,19 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, canEx
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight mr-4">Dashboard</h1>
         
         <div className="flex gap-2 items-center flex-wrap">
           <form className="flex flex-wrap items-center gap-2 bg-white dark:bg-zinc-900 p-2 rounded-lg border shadow-sm" onSubmit={handleFilter}>
-            <div className="flex items-center">
-              <Calendar className="w-4 h-4 text-gray-500 mx-2" />
+            <div className="flex items-center gap-1 border-r pr-2">
+              <Calendar className="w-4 h-4 text-gray-400 mx-2" />
               <input 
                 type="date" 
                 className="text-sm bg-transparent border-none focus:ring-0 p-1 text-gray-700 dark:text-gray-300 w-32"
                 value={filterState.from || ''}
                 onChange={(e) => setFilterState({ ...filterState, from: e.target.value })}
               />
-              <span className="text-gray-400 px-1">até</span>
+              <span className="text-gray-400 px-1 text-xs">até</span>
               <input 
                 type="date" 
                 className="text-sm bg-transparent border-none focus:ring-0 p-1 text-gray-700 dark:text-gray-300 w-32"
@@ -48,23 +49,23 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, canEx
               />
             </div>
             
-            <div className="h-6 w-px bg-gray-200 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
-            
-            <input 
-              type="number" 
-              placeholder="ID Prof."
-              className="text-sm bg-transparent border border-gray-200 dark:border-zinc-700 rounded p-1 w-20 focus:ring-1 focus:ring-primary"
-              value={filterState.professional_id || ''}
-              onChange={(e) => setFilterState({ ...filterState, professional_id: e.target.value })}
-            />
-
-            <input 
-              type="number" 
-              placeholder="ID Serv."
-              className="text-sm bg-transparent border border-gray-200 dark:border-zinc-700 rounded p-1 w-20 focus:ring-1 focus:ring-primary"
-              value={filterState.service_id || ''}
-              onChange={(e) => setFilterState({ ...filterState, service_id: e.target.value })}
-            />
+            <div className="flex items-center gap-2 px-2">
+              <input 
+                type="number" 
+                placeholder="ID Prof."
+                className="text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-1 w-20 focus:ring-1 focus:ring-primary outline-none"
+                value={filterState.professional_id || ''}
+                onChange={(e) => setFilterState({ ...filterState, professional_id: e.target.value })}
+              />
+  
+              <input 
+                type="number" 
+                placeholder="ID Serv."
+                className="text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-1 w-20 focus:ring-1 focus:ring-primary outline-none"
+                value={filterState.service_id || ''}
+                onChange={(e) => setFilterState({ ...filterState, service_id: e.target.value })}
+              />
+            </div>
 
             <button type="submit" className="bg-primary hover:bg-primary/90 text-white text-sm px-4 py-1.5 rounded-md font-medium transition-colors ml-auto sm:ml-2">
               Filtrar

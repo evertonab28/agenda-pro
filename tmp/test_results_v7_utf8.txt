@@ -1,0 +1,21 @@
+﻿
+   PASS  Tests\Feature\FinancialIsolationTest
+  Ô£ô user cannot view charge of anothÔÇª 0.66s  
+  Ô£ô user cannot see charges of anothÔÇª 0.11s  
+  Ô£ô user cannot update charge of anoÔÇª 0.04s  
+  Ô£ô user cannot register payment forÔÇª 0.04s  
+  Ô£ô receipts are strictly isolated bÔÇª 0.05s  
+
+   PASS  Tests\Feature\FinancialRBACTest
+  Ô£ô admin has full financial access   0.09s  
+  Ô£ô operator can view and receive buÔÇª 0.08s  
+  Ô£ô manager has broad access          0.06s  
+
+   PASS  Tests\Feature\ChargeAuditTest
+  Ô£ô creating charge generates auditÔÇª  0.05s  
+  Ô£ô updating charge logs changes      0.04s  
+  Ô£ô receiving payment generates receÔÇª 0.05s  
+
+  Tests:    11 passed (37 assertions)
+  Duration: 1.45s
+

@@ -9,4 +9,9 @@ class Clinic extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'slug', 'status'];
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }

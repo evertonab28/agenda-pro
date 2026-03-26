@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { DailyActions } from './Components/DailyActions';
 import { TrendingUp, Users, AlertTriangle, DollarSign, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { DashboardFilters } from './Components/DashboardFilters';
+import { FiltersState } from './Components/types';
 
 interface Props {
     heatmap: any[];
@@ -21,9 +23,18 @@ interface Props {
         rate: number;
     };
     dailyActions: any[];
+    filters: FiltersState;
 }
 
-export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, retention, dailyActions }: Props) {
+export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, retention, dailyActions, filters }: Props) {
+    const [filterState, setFilterState] = React.useState<FiltersState>({
+        from: filters.from || '',
+        to: filters.to || '',
+        status: filters.status || ['confirmed', 'completed', 'no_show', 'pending', 'overdue'],
+        professional_id: filters.professional_id || '',
+        service_id: filters.service_id || '',
+    });
+
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
     };
@@ -33,9 +44,19 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
             <Head title="BI Executivo - Performance" />
 
             <div className="space-y-8 pb-12">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Business Intelligence</h1>
-                    <p className="text-muted-foreground">Visão estratégica de performance, finanças e retenção.</p>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Business Intelligence</h1>
+                        <p className="text-muted-foreground">Visão estratégica de performance, finanças e retenção.</p>
+                    </div>
+                    
+                    <DashboardFilters 
+                        filterState={filterState}
+                        setFilterState={setFilterState}
+                        baseUrl="/dashboard/executivo"
+                        exportUrl="/dashboard/export"
+                        canExport={true}
+                    />
                 </div>
 
                 {/* Top KPIs Row */}
@@ -48,10 +69,10 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Receita Realizada</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-2xl font-black text-emerald-600">{formatCurrency(revenue.realized)}</p>
-                            <div className="flex items-center gap-1 mt-2 text-[10px] font-bold text-muted-foreground">
-                                <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-                                {Math.round((revenue.realized / (revenue.forecasted || 1)) * 100)}% do projetado
+                            <p className="text-3xl font-black text-emerald-600">{formatCurrency(revenue.realized)}</p>
+                            <div className="flex items-center gap-1.5 mt-3 text-xs font-bold text-muted-foreground bg-emerald-50 dark:bg-emerald-900/20 w-fit px-2 py-0.5 rounded-full">
+                                <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" />
+                                <span>{Math.round((revenue.realized / (revenue.forecasted || 1)) * 100)}% do projetado</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -96,12 +117,12 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Ocupação Média</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {/* Simple logic for avg density */}
-                            <p className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
-                                {Math.round(heatmap.reduce((acc, h) => acc + h.count, 0) / (heatmap.length || 1) * 10)}%
+                            {/* logic for avg density based on heatmap max */}
+                            <p className="text-3xl font-black text-zinc-900 dark:text-zinc-100">
+                                {Math.round((heatmap.reduce((acc, h) => acc + h.count, 0) / (heatmap.length || 1)) / (Math.max(...heatmap.map(h => h.count), 1)) * 100)}%
                             </p>
-                            <div className="flex items-center gap-1 mt-2 text-[10px] font-bold text-muted-foreground uppercase">
-                                Últimos 30 dias
+                            <div className="flex items-center gap-1 mt-3 text-xs font-bold text-muted-foreground uppercase">
+                                Período Selecionado
                             </div>
                         </CardContent>
                     </Card>
@@ -120,45 +141,53 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                {heatmap.map((h, i) => (
-                                    <div key={i} className="flex items-center gap-4">
-                                        <span className="text-[10px] font-bold w-8 text-muted-foreground">{h.hour}</span>
-                                        <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
-                                            <div 
-                                                className="bg-primary h-full transition-all duration-1000" 
-                                                style={{ width: `${Math.min(h.count * 10, 100)}%` }} 
-                                            />
+                                {heatmap.length === 0 && <p className="text-sm text-muted-foreground italic text-center py-8">Nenhum dado no período.</p>}
+                                {heatmap.map((h, i) => {
+                                    const maxCount = Math.max(...heatmap.map(item => item.count), 1);
+                                    const percentage = (h.count / maxCount) * 100;
+                                    
+                                    return (
+                                        <div key={i} className="flex items-center gap-4">
+                                            <span className="text-[10px] font-bold w-10 text-muted-foreground">{h.hour}</span>
+                                            <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
+                                                <div 
+                                                    className={`h-full transition-all duration-1000 ${percentage > 80 ? 'bg-red-500' : percentage > 50 ? 'bg-amber-500' : 'bg-primary'}`} 
+                                                    style={{ width: `${percentage}%` }} 
+                                                />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-muted-foreground w-6 text-right">
+                                                {h.count}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] font-bold text-primary">{h.count}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Revenue Gap & No-Show Ranking */}
-                    <div className="space-y-8">
+                    <div className="space-y-8 lg:col-span-6">
                         <Card className="border-none shadow-sm bg-white dark:bg-zinc-900">
                             <CardHeader>
                                 <CardTitle className="text-lg">Projeção vs. Realizado</CardTitle>
                                 <CardDescription>Eficiência de cobrança mensal.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
-                                        <span>Eficiência</span>
-                                        <span>{Math.round((revenue.realized / (revenue.forecasted || 1)) * 100)}%</span>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-sm font-bold uppercase tracking-widest">
+                                        <span className="text-muted-foreground">Eficiência</span>
+                                        <span className="text-primary">{Math.round((revenue.realized / (revenue.forecasted || 1)) * 100)}%</span>
                                     </div>
                                     <Progress value={(revenue.realized / (revenue.forecasted || 1)) * 100} className="h-3 bg-zinc-100 dark:bg-zinc-800" />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                                <div className="grid grid-cols-2 gap-8 pt-6 border-t">
                                     <div>
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Projetado</p>
-                                        <p className="font-bold">{formatCurrency(revenue.forecasted)}</p>
+                                        <p className="text-xs uppercase font-bold text-muted-foreground mb-1">Projetado</p>
+                                        <p className="text-lg font-bold">{formatCurrency(revenue.forecasted)}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Realizado</p>
-                                        <p className="font-bold text-emerald-600">{formatCurrency(revenue.realized)}</p>
+                                        <p className="text-xs uppercase font-bold text-muted-foreground mb-1">Realizado</p>
+                                        <p className="text-lg font-bold text-emerald-600">{formatCurrency(revenue.realized)}</p>
                                     </div>
                                 </div>
                             </CardContent>

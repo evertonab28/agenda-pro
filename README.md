@@ -22,6 +22,7 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 ### 📊 Dashboard Analítico
 - **KPIs em Tempo Real**: Visualize agendamentos, faturamento e taxas de conversão com indicadores de variação percentual.
 - **Gráficos de Desempenho**: Acompanhe o cruzamento de Agendamentos vs. Receita Diária.
+- **Próximas Melhores Ações**: Recomendador inteligente que sugere ações de cobrança (Notificar via WhatsApp, Enviar Link de Pagamento ou Confirmar Recebimento).
 - **Alertas de Inadimplência**: Identificação rápida de cobranças vencidas e pendentes diretamente na home.
 - **Top Rankings**: Descubra seus serviços mais rentáveis e seus clientes mais fiéis.
 
@@ -33,12 +34,22 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 
 ### 👥 Gestão de Clientes & Insights
 - **Perfil 360°**: Histórico completo de agendamentos, pagamentos e logs de atividade de cada cliente.
+- **Busca Preditiva**: Autocomplete inteligente para localização rápida de clientes em agendamentos e cobranças.
 - **Métricas de Crescimento**: Cálculo automático de taxa de retenção e crescimento de base de clientes nos últimos 30 dias.
 - **Ações Rápidas**: Atalhos para editar perfil ou iniciar um novo agendamento com cliente pré-selecionado.
 
+### 🌐 Portal do Cliente (Self-Service)
+- **Acesso Sem Senha**: Login ultra-seguro via **Magic Link** (Token 6 dígitos via WhatsApp/Email).
+- **Auto-Agendamento**: Fluxo intuitivo para seleção de serviço, profissional e horário com disponibilidade em tempo real.
+- **Área do Cliente**: Dashboard centralizado para gerenciar agendamentos ativos e histórico de visitas.
+- **Gestão Financeira**: Visualização de faturas e botão "Pagar Agora" integrado.
+- **Meu Perfil**: Autonomia para o cliente atualizar seus próprios dados cadastrais.
+
 ### 💰 Módulo Financeiro
-- **Gestão de Cobranças**: Controle granular de faturas (Pago, Pendente, Vencido).
-- **Fluxo de Caixa**: Visão clara de receitas previstas vs. realizadas.
+- **Gestão de Cobranças**: Controle granular de faturas (Pago, Parcial, Pendente, Vencido) com UUIDs para segurança.
+- **Checkout e Quitação**: Fluxo unificado para registrar pagamentos parciais ou totais, com geração automática de recibos.
+- **Cobranças Avulsas**: Crie cobranças manuais vinculadas ou não a agendamentos, com suporte a busca de clientes existentes.
+- **Links de Pagamento**: Geração dinâmica de links únicos com alta entropia para envio via WhatsApp ou Email.
 - **Exportação de Dados**: Gere relatórios em CSV para integração com contabilidade ou Excel.
 
 ### ⚙️ Configurações Estruturais
@@ -47,9 +58,12 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 - **Horários de Trabalho**: Configuração flexível de expediente, incluindo intervalos de almoço por profissional.
 - **Feriados e Bloqueios**: Impeça agendamentos em datas específicas ou feriados nacionais/locais.
 
-### 🔐 Segurança e Acessos
-- **Controle de Acesso (RBAC)**: Perfis de Admin, Manager e Operator com permissões distintas.
-- **Onboarding Guiado**: Setup assistido para novos usuários, garantindo que o sistema esteja pronto para uso em minutos.
+### 🔐 Segurança & Compliance (Hardening)
+- **Isolamento de Tenant**: Multi-tenancy rigoroso via Global Scopes e `clinic_id` obrigatório em todas as transações financeiras.
+- **Integridade de Rotas**: Mapeamento explícito de parâmetros (`{charge}`, `{service}`) para garantir Route Model Binding resiliente e evitar falhas de resolução.
+- **Proteção de Webhooks**: Validação HMAC (SHA256), proteção Anti-Replay e auditoria de idempotência.
+- **Mascaramento de PII (LGPD)**: Processador automático de logs que mascara dados sensíveis (email, telefone, documentos).
+- **Controle de Acesso (RBAC)**: Perfis de Admin, Manager, Operator e Customer com permissões granulares.
 
 ---
 
@@ -74,27 +88,32 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
    - Terminal 1: `php artisan serve`
    - Terminal 2: `npm run dev`
 
-5. **Acesso**: [http://localhost:8000](http://localhost:8000)
-   - **E-mail padrão**: `test@example.com`
-   - **Senha padrão**: `password`
+5. **Acesso**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
+   - **E-mail**: `admin@agendapro.com.br`
+   - **Senha**: `AgendaPro@2026`
+   - **Clínica Modelo (Slug)**: `clinica-modelo`
+
+6. **Portal do Cliente (Self-Service)**: [http://localhost:8000/p/clinica-modelo/login](http://localhost:8000/p/clinica-modelo/login)
+   - **Identificador**: `test@example.com` ou `11988887777`
+   - **Acesso**: Magic Link (O código OTP será exibido no log: `storage/logs/laravel.log`)
 
 ---
 
 ## 🔐 Matriz de Permissões
 
-| Funcionalidade | Admin | Manager | Operator |
-|---|:---:|:---:|:---:|
-| Dashboard Analítico | ✅ | ✅ | ✅ |
-| Exportar CSV | ✅ | ✅ | ❌ |
-| Agenda — Ver | ✅ | ✅ | ✅ |
-| Agenda — Criar/Editar | ✅ | ✅ | ✅ |
-| Agenda — Excluir | ✅ | ✅ | ❌ |
-| Clientes — CRUD | ✅ | ✅ | ✅ |
-| Financeiro — Ver | ✅ | ✅ | ✅ |
-| Financeiro — Criar/Editar cobrança | ✅ | ✅ | ❌ |
-| Financeiro — Registrar recebimento | ✅ | ✅ | ✅ |
-| Configurações (Serviços/Profissionais) | ✅ | ✅ | ❌ |
-| Usuários — CRUD | ✅ | ❌ | ❌ |
+| Funcionalidade | Admin | Manager | Operator | Cliente (Portal) |
+|---|:---:|:---:|:---:|:---:|
+| Dashboard Analítico | ✅ | ✅ | ✅ | ❌ |
+| Exportar CSV | ✅ | ✅ | ❌ | ❌ |
+| Agenda — Ver | ✅ | ✅ | ✅ | ❌ |
+| Agenda (Portal) — Ver Próprio | ✅ | ✅ | ✅ | ✅ |
+| Agendar (Público/Portal) | ✅ | ✅ | ✅ | ✅ |
+| Clientes — CRUD | ✅ | ✅ | ✅ | ❌ |
+| Perfil (Portal) — Editar Próprio | ❌ | ❌ | ❌ | ✅ |
+| Financeiro — Ver | ✅ | ✅ | ✅ | ❌ |
+| Financeiro — Ver Próprias Faturas | ✅ | ✅ | ✅ | ✅ |
+| Configurações (Serviços/Equipe) | ✅ | ✅ | ❌ | ❌ |
+| Usuários — CRUD | ✅ | ❌ | ❌ | ❌ |
 
 ---
 

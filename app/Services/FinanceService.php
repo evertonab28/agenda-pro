@@ -119,6 +119,7 @@ class FinanceService
             $netAmount = $data['amount_received'] - $feeAmount;
 
             $receipt = Receipt::create([
+                'clinic_id' => $charge->clinic_id,
                 'charge_id' => $charge->id,
                 'amount_received' => $data['amount_received'],
                 'fee_amount' => $feeAmount,

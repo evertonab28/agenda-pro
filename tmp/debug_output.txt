@@ -1,0 +1,3 @@
+--- CUSTOMERS DETAIL ---
+ID: 2 | Name: Everton Antunes | Phone: '67999999999' (Len: 11)
+ID: 3 | Name: everton | Phone: '67999999999' (Len: 11)

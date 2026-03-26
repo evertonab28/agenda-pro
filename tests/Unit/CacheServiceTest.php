@@ -3,10 +3,12 @@
 namespace Tests\Unit;
 
 use App\Services\CacheService;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CacheServiceTest extends TestCase
 {
+    use RefreshDatabase;
     // ──────────────────────────────────────────
     // Key Generation
     // ──────────────────────────────────────────

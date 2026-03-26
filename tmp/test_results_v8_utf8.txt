@@ -1,0 +1,46 @@
+﻿
+   FAIL  Tests\Feature\CRMAutomationTest
+  Ô¿» canceling appointment triggers wÔÇª 0.62s  
+  Ô¿» reengage command identifies inacÔÇª 0.04s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  TeÔÇª  BindingResolutionException   
+  Target [App\Services\Messaging\MessagingServiceInterface] is not instantiable.
+
+  at vendor\laravel\framework\src\Illuminate\Container\Container.php:1216
+    1212Ôûò         } else {
+    1213Ôûò             $message = "Target [$concrete] is not instantiable.";
+    1214Ôûò         }
+    1215Ôûò 
+  Ô×£ 1216Ôûò         throw new BindingResolutionException($message);
+    1217Ôûò     }
+    1218Ôûò 
+    1219Ôûò     /**
+    1220Ôûò      * Throw an exception for an unresolvable primitive.
+
+  1   vendor\laravel\framework\src\Illuminate\Container\Container.php:1216
+  2   vendor\laravel\framework\src\Illuminate\Container\Container.php:968
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\FeatureÔÇª  QueryException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed (Connection: sqlite, SQL: insert into "appointments" ("clinic_id", "customer_id", "service_id", "professional_id", "starts_at", "ends_at", "status", "updated_at", "created_at") values (1, 2, 3, 2, 2026-03-15 19:06:58, 2026-03-25 21:06:58, finished, 2026-03-25 19:06:58, 2026-03-25 19:06:58))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+    821Ôûò                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822Ôûò                 );
+    823Ôûò             }
+    824Ôûò 
+  Ô×£ 825Ôûò             throw new QueryException(
+    826Ôûò                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827Ôûò             );
+    828Ôûò         }
+    829Ôûò     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed")
+
+
+  Tests:    2 failed (0 assertions)
+  Duration: 0.82s
+

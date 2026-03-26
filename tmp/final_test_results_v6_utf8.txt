@@ -1,0 +1,128 @@
+﻿
+   WARN  Metadata found in doc-comment for method Tests\Unit\Security\PiiMaskingTest::it_masks_sensitive_data_in_log_context(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_missing(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_signature_is_invalid(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_returns_401_when_timestamp_is_too_old(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_blocks_duplicate_event_id_idempotency(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Api\WebhookHardeningTest::it_throttles_excessive_requests(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_prioritizes_d_plus_3_over_d_plus_1(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_filters_out_paid_and_canceled_charges_from_nba(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Dashboard\NBATest::it_respects_timezone_for_daily_actions(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_persists_payment_link_hash_when_generated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_generates_different_hash_on_regeneration(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_blocks_link_generation_for_already_paid_charges(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\ChargePaymentLinkTest::it_logs_clicks_on_payment_link(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_processes_full_payment_flow_via_webhook(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\FinancialRegressionTest::it_handles_partial_payments_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_generates_unique_hashes_in_high_volume(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Finance\PaymentLinkServiceTest::it_marks_links_as_expired_based_on_timestamp(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_records_audit_log_when_charge_is_updated(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\AuditTrailTest::it_captures_client_ip_in_audit_log(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_automatically_scopes_queries_by_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\Security\TenantIsolationTest::it_prevents_unauthorized_access_to_other_tenant_resource(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Unit\AgendaServiceTest
+  Ô£ô can detect conflicts                   0.61s  
+  Ô£ô can calculate end date                 0.03s  
+
+   PASS  Tests\Unit\CacheServiceTest
+  Ô£ô dashboard key is deterministic for saÔÇª 0.03s  
+  Ô£ô dashboard key differs for different fÔÇª 0.03s  
+  Ô£ô dashboard key is order independent     0.03s  
+  Ô£ô finance key is deterministic for sameÔÇª 0.03s  
+  Ô£ô finance key differs from dashboard keÔÇª 0.03s  
+  Ô£ô dashboard key has correct prefix       0.03s  
+  Ô£ô finance key has correct prefix         0.03s  
+  Ô£ô dashboard ttl returns integer          0.03s  
+  Ô£ô finance ttl returns integer            0.03s  
+
+   PASS  Tests\Unit\CheckoutServiceTest
+  Ô£ô it ensures charge only once for appoiÔÇª 0.06s  
+  Ô£ô it registers total payment and marksÔÇª  0.04s  
+  Ô£ô it registers partial payment and markÔÇª 0.03s  
+  Ô£ô it prepares checkout data correctly    0.04s  
+
+   PASS  Tests\Unit\DashboardServiceTest
+  Ô£ô it calculates deltas correctly         0.04s  
+  Ô£ô it handles previous zeros in deltas    0.03s  
+  Ô£ô csv generation                         0.03s  
+
+   PASS  Tests\Unit\ExampleTest
+  Ô£ô that true is true
+
+   PASS  Tests\Unit\Security\PiiMaskingTest
+  Ô£ô it masks sensitive data in log context
+
+   PASS  Tests\Unit\StatusEnumsTest
+  Ô£ô appointment status has correct values
+  Ô£ô appointment status labels are in portuguese
+  Ô£ô appointment status values returns all strings
+  Ô£ô appointment status can be created from value
+  Ô£ô appointment status throws on invalid value
+  Ô£ô charge status has correct values
+  Ô£ô charge status labels are in portuguese
+  Ô£ô charge status values returns all strings
+  Ô£ô charge status can be created from value
+
+   PASS  Tests\Feature\AgendaFlowTest
+  Ô£ô can create appointment                 0.09s  
+  Ô£ô cannot create appointment with confliÔÇª 0.05s  
+
+   PASS  Tests\Feature\Api\WebhookHardeningTest
+  Ô£ô it returns 401 when signature is missÔÇª 0.04s  
+  Ô£ô it returns 401 when signature is invaÔÇª 0.04s  
+  Ô£ô it returns 401 when timestamp is tooÔÇª  0.04s  
+  Ô£ô it blocks duplicate event id idempoteÔÇª 0.04s  
+  Ô£ô it throttles excessive requests        0.05s  
+
+   PASS  Tests\Feature\CRMAutomationTest
+  Ô£ô canceling appointment triggers waitliÔÇª 0.05s  
+  Ô£ô reengage command identifies inactiveÔÇª  0.05s  
+
+   PASS  Tests\Feature\ChargeAuditTest
+  Ô£ô creating charge generates audit log    0.04s  
+  Ô£ô updating charge logs changes           0.04s  
+  Ô£ô receiving payment generates receipt aÔÇª 0.05s  
+
+   FAIL  Tests\Feature\CheckoutFlowTest
+  Ô¿» admin can finalize appointment and reÔÇª 0.07s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\CheckoutFlowTest > adÔÇª   
+  Expected response status code [201, 301, 302, 303, 307, 308] but received 404.
+Failed asserting that false is true.
+
+  at tests\Feature\CheckoutFlowTest.php:34
+     30Ôûò 
+     31Ôûò         $response = $this->actingAs($this->admin)
+     32Ôûò             ->patch(route('agenda.finalize', $appointment->id));
+     33Ôûò 
+  Ô×£  34Ôûò         $response->assertRedirect(route('agenda.checkout.show', $appointment->id));
+     35Ôûò         $this->assertEquals(AppointmentStatus::Completed->value, $appointment->fresh()->status);
+     36Ôûò         $this->assertNotNull($appointment->fresh()->charge);
+     37Ôûò         $this->assertEquals('pending', $appointment->fresh()->charge->status);
+     38Ôûò     }
+
+
+  Tests:    1 failed, 41 passed, [2m88 pending[22m (107 assertions)
+  Duration: 2.11s
+

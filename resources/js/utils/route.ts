@@ -38,6 +38,7 @@ const routes: Record<string, string> = {
     'users.index': '/usuarios',
     'users.create': '/usuarios/create',
     'users.store': '/usuarios',
+    'onboarding.index': '/onboarding',
 };
 
 export function route(name: string, params?: any): string {

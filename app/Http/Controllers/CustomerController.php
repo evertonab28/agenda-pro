@@ -70,6 +70,35 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function autocomplete(Request $request)
+    {
+        $this->authorize('viewAny', Customer::class);
+        
+        $search = $request->query('q');
+        $id = $request->query('id');
+        
+        $query = Customer::query();
+
+        if ($id) {
+            $customer = $query->find($id);
+            return response()->json($customer);
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $customers = $query->latest()
+            ->limit(10)
+            ->get(['id', 'name', 'phone', 'email']);
+
+        return response()->json(['data' => $customers]);
+    }
+
     public function create()
     {
         $this->authorize('create', Customer::class);

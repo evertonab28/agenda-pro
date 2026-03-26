@@ -19,8 +19,10 @@ class FinanceChargeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin = User::factory()->create(['role' => 'admin']);
-        $this->operator = User::factory()->create(['role' => 'operator']);
+        $this->clinic = \App\Models\Clinic::factory()->create();
+        $this->admin = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
+        $this->operator = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'operator']);
+        $this->fulfillOnboarding($this->clinic->id);
     }
 
     public function test_can_view_finance_dashboard()
@@ -32,7 +34,11 @@ class FinanceChargeTest extends TestCase
 
     public function test_can_list_charges()
     {
-        Charge::factory()->count(3)->create(['status' => 'pending', 'due_date' => Carbon::now()->addDays(5)]);
+        Charge::factory()->count(3)->create([
+            'clinic_id' => $this->clinic->id,
+            'status' => 'pending',
+            'due_date' => Carbon::now()->addDays(5)
+        ]);
 
         $response = $this->actingAs($this->admin)->get(route('finance.charges.index'));
 
@@ -46,7 +52,7 @@ class FinanceChargeTest extends TestCase
     public function test_admin_can_create_charge()
     {
         $this->withoutExceptionHandling();
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
 
         $data = [
             'description' => 'Test Charge',
@@ -82,7 +88,10 @@ class FinanceChargeTest extends TestCase
 
     public function test_admin_can_cancel_charge()
     {
-        $charge = Charge::factory()->create(['status' => 'pending']);
+        $charge = Charge::factory()->create([
+            'clinic_id' => $this->clinic->id,
+            'status' => 'pending'
+        ]);
 
         $response = $this->actingAs($this->admin)
             ->from(route('finance.charges.index'))

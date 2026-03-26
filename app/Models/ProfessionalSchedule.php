@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProfessionalSchedule extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
+        'clinic_id',
         'professional_id',
         'weekday',
         'start_time',
@@ -19,6 +20,7 @@ class ProfessionalSchedule extends Model
         'break_end',
         'is_active',
     ];
+
 
     protected $casts = [
         'is_active' => 'boolean',

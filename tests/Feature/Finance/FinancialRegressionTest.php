@@ -62,8 +62,10 @@ class FinancialRegressionTest extends TestCase
     public function it_handles_partial_payments_correctly()
     {
         // Este teste verifica se a lógica de 'partial' (da nossa migration anterior) funciona
-        $customer = Customer::factory()->create();
+        $clinic = \App\Models\Clinic::factory()->create();
+        $customer = Customer::factory()->create(['clinic_id' => $clinic->id]);
         $charge = Charge::create([
+            'clinic_id' => $clinic->id,
             'customer_id' => $customer->id,
             'amount' => 1000.00,
             'status' => 'pending',

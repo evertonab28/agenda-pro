@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
-class Customer extends Model
-{
-    use HasFactory, SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
+class Customer extends Authenticatable
+{
+    use HasFactory, SoftDeletes, Notifiable, \App\Traits\BelongsToTenant;
+    
     protected $fillable = [
         'clinic_id',
         'name',
@@ -24,14 +27,6 @@ class Customer extends Model
         'notes',
         'is_active',
     ];
-
-    /**
-     * Apply Tenant Scope
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope(new \App\Models\Scopes\TenantScope);
-    }
 
     protected $casts = [
         'is_active' => 'boolean',

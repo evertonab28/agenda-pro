@@ -25,5 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard/pending-charges', [DashboardController::class, 'pendingCharges']);
 });
 
+
+Route::get('p/{clinic}/charges', [\App\Http\Controllers\Api\ChargeController::class, 'portalIndex'])->middleware(['auth:customer', 'customer.clinic']);
+
 Route::get('appointments/{appointment}/confirm/{token}', [AppointmentController::class, 'confirm']);
 Route::post('webhooks/messaging/inbound', [MessagingWebhookController::class, 'inbound'])->middleware('throttle:6,1');
