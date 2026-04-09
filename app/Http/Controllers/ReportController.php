@@ -20,7 +20,7 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
-        $clinicId = $request->user()->clinic_id;
+        $clinicId = $request->user()->workspace_id;
 
         return Inertia::render('Finance/Reports', [
             'financialTrend' => $this->reportingService->getFinancialTrend($clinicId),
@@ -32,7 +32,7 @@ class ReportController extends Controller
     public function exportCsv(Request $request)
     {
         $type = $request->input('type', 'charges');
-        $clinicId = $request->user()->clinic_id;
+        $clinicId = $request->user()->workspace_id;
         $fileName = $type . '_export_' . now()->format('Y-m-d') . '.csv';
 
         $headers = [
@@ -48,7 +48,7 @@ class ReportController extends Controller
             
             if ($type === 'charges') {
                 fputcsv($file, ['ID', 'Cliente', 'Valor', 'Vencimento', 'Status']);
-                Charge::where('clinic_id', $clinicId)->chunk(100, function ($charges) use ($file) {
+                Charge::where('workspace_id', $clinicId)->chunk(100, function ($charges) use ($file) {
                     foreach ($charges as $charge) {
                         fputcsv($file, [
                             $charge->id,
@@ -61,7 +61,7 @@ class ReportController extends Controller
                 });
             } else {
                 fputcsv($file, ['ID', 'Cliente', 'Valor Recebido', 'Data Pagamento', 'Método']);
-                Receipt::where('clinic_id', $clinicId)->chunk(100, function ($receipts) use ($file) {
+                Receipt::where('workspace_id', $clinicId)->chunk(100, function ($receipts) use ($file) {
                     foreach ($receipts as $receipt) {
                         fputcsv($file, [
                             $receipt->id,

@@ -2,30 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, CreditCard, User, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, CreditCard, User, ArrowRight } from 'lucide-react';
 
-export default function Dashboard({ clinic, customer }: { clinic: any, customer: any }) {
+export default function Dashboard({ workspace, customer }: { workspace: any, customer: any }) {
     const [chargesCount, setChargesCount] = useState(0);
 
     useEffect(() => {
-        (window as any).axios.get(`/p/${clinic.slug}/charges`)
+        (window as any).axios.get(`/api/p/${workspace.slug}/charges`)
             .then((res: any) => setChargesCount(res.data.length))
             .catch((err: any) => console.error('Erro ao carregar faturas'));
-    }, [clinic.slug]);
+    }, [workspace.slug]);
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <Head title={`Dashboard - ${clinic.name}`} />
-            
+            <Head title={`Dashboard - ${workspace.name}`} />
+
             <header className="bg-white border-b shadow-sm sticky top-0 z-10">
                 <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-indigo-900">{clinic.name}</h1>
+                    <h1 className="text-xl font-bold text-indigo-900">{workspace.name}</h1>
                     <div className="flex items-center space-x-4">
-                        <Link href={route('portal.profile', clinic.slug)} className="text-sm font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1">
+                        <Link href={route('portal.profile', workspace.slug)} className="text-sm font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1">
                             <User className="w-4 h-4" />
                             <span className="hidden sm:inline">Meu Perfil</span>
                         </Link>
-                        <Link href={route('portal.logout', clinic.slug)} method="post" as="button" className="text-sm font-medium text-slate-500 hover:text-red-600">
+                        <Link href={route('portal.logout', workspace.slug)} method="post" as="button" className="text-sm font-medium text-slate-500 hover:text-red-600">
                             Sair
                         </Link>
                     </div>
@@ -39,7 +39,7 @@ export default function Dashboard({ clinic, customer }: { clinic: any, customer:
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="hover:shadow-lg transition-all cursor-pointer border-indigo-100 group" onClick={() => window.location.href = route('portal.appointments', clinic.slug)}>
+                    <Card className="hover:shadow-lg transition-all cursor-pointer border-indigo-100 group" onClick={() => window.location.href = route('portal.appointments', workspace.slug)}>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                                 <Calendar className="w-8 h-8" />
@@ -52,9 +52,9 @@ export default function Dashboard({ clinic, customer }: { clinic: any, customer:
                         </CardContent>
                     </Card>
 
-                    <Card 
+                    <Card
                         className={`hover:shadow-lg transition-all cursor-pointer border-emerald-100 group ${chargesCount > 0 ? 'ring-2 ring-emerald-500 ring-offset-2' : ''}`}
-                        onClick={() => window.location.href = route('portal.charges', clinic.slug)}
+                        onClick={() => window.location.href = route('portal.charges', workspace.slug)}
                     >
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors relative">
@@ -70,14 +70,14 @@ export default function Dashboard({ clinic, customer }: { clinic: any, customer:
                         <CardContent className="pt-2">
                             <CardTitle className="text-xl mb-1">Pagar Faturas</CardTitle>
                             <p className="text-sm text-slate-500">
-                                {chargesCount > 0 
-                                    ? `Você possui ${chargesCount} fatura(s) pendente(s).` 
+                                {chargesCount > 0
+                                    ? `Você possui ${chargesCount} fatura(s) pendente(s).`
                                     : 'Nenhuma fatura pendente no momento.'}
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card className="hover:shadow-lg transition-all cursor-pointer border-slate-100 group md:col-span-2" onClick={() => window.location.href = route('portal.profile', clinic.slug)}>
+                    <Card className="hover:shadow-lg transition-all cursor-pointer border-slate-100 group md:col-span-2" onClick={() => window.location.href = route('portal.profile', workspace.slug)}>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="bg-slate-100 p-3 rounded-xl text-slate-600 group-hover:bg-slate-800 group-hover:text-white transition-colors">
                                 <User className="w-8 h-8" />
@@ -98,8 +98,8 @@ export default function Dashboard({ clinic, customer }: { clinic: any, customer:
                             Agende seu próximo atendimento agora mesmo de forma rápida e segura.
                         </p>
                     </div>
-                    <Button 
-                        onClick={() => window.location.href = route('portal.schedule', clinic.slug)}
+                    <Button
+                        onClick={() => window.location.href = route('portal.schedule', workspace.slug)}
                         className="bg-white text-indigo-600 hover:bg-slate-100 font-bold px-10 h-14 text-xl rounded-xl shadow-lg border-0"
                     >
                         Novo Agendamento

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Charge;
 use App\Models\Customer;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Illuminate\Support\Carbon;
@@ -19,10 +20,10 @@ class FinanceChargeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = \App\Models\Clinic::factory()->create();
-        $this->admin = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
-        $this->operator = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'operator']);
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->workspace = Workspace::factory()->create();
+        $this->admin = User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'admin']);
+        $this->operator = User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'operator']);
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     public function test_can_view_finance_dashboard()
@@ -35,7 +36,7 @@ class FinanceChargeTest extends TestCase
     public function test_can_list_charges()
     {
         Charge::factory()->count(3)->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'status' => 'pending',
             'due_date' => Carbon::now()->addDays(5)
         ]);
@@ -52,7 +53,7 @@ class FinanceChargeTest extends TestCase
     public function test_admin_can_create_charge()
     {
         $this->withoutExceptionHandling();
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
 
         $data = [
             'description' => 'Test Charge',
@@ -89,7 +90,7 @@ class FinanceChargeTest extends TestCase
     public function test_admin_can_cancel_charge()
     {
         $charge = Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'status' => 'pending'
         ]);
 

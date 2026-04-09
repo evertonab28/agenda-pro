@@ -6,7 +6,7 @@ use App\Models\Charge;
 use App\Models\Receipt;
 use App\Models\Service;
 use App\Models\Customer;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use App\Models\Appointment;
 use App\Models\Professional;
 use App\Services\ReportingService;
@@ -23,10 +23,10 @@ class ReportingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = Clinic::factory()->create();
-        $this->admin = \App\Models\User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
+        $this->workspace = Workspace::factory()->create();
+        $this->admin = \App\Models\User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'admin']);
         $this->service = new ReportingService();
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     public function test_financial_trend_calculates_correctly()
@@ -35,13 +35,13 @@ class ReportingTest extends TestCase
 
         // This month
         Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount' => 1000,
             'due_date' => now(),
             'status' => 'paid'
         ]);
         Receipt::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount_received' => 1000,
             'received_at' => now()
         ]);
@@ -49,13 +49,13 @@ class ReportingTest extends TestCase
         // Last month
         $lastMonth = now()->subMonth();
         Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount' => 500,
             'due_date' => $lastMonth,
             'status' => 'pending'
         ]);
 
-        $trend = $this->service->getFinancialTrend($this->clinic->id, 2);
+        $trend = $this->service->getFinancialTrend($this->workspace->id, 2);
 
         $this->assertCount(2, $trend);
         $this->assertEquals(1000, $trend[1]['planned']);
@@ -66,22 +66,22 @@ class ReportingTest extends TestCase
 
     public function test_service_performance_ranking()
     {
-        $serviceA = Service::factory()->create(['clinic_id' => $this->clinic->id, 'name' => 'Service A']);
-        $serviceB = Service::factory()->create(['clinic_id' => $this->clinic->id, 'name' => 'Service B']);
+        $serviceA = Service::factory()->create(['workspace_id' => $this->workspace->id, 'name' => 'Service A']);
+        $serviceB = Service::factory()->create(['workspace_id' => $this->workspace->id, 'name' => 'Service B']);
         $prof = Professional::factory()->create();
 
         // Service A: 2 appointments
-        $app1 = Appointment::factory()->create(['clinic_id' => $this->clinic->id, 'service_id' => $serviceA->id, 'status' => 'finished', 'professional_id' => $prof->id]);
-        $app2 = Appointment::factory()->create(['clinic_id' => $this->clinic->id, 'service_id' => $serviceA->id, 'status' => 'finished', 'professional_id' => $prof->id]);
+        $app1 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceA->id, 'status' => 'finished', 'professional_id' => $prof->id]);
+        $app2 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceA->id, 'status' => 'finished', 'professional_id' => $prof->id]);
         
-        Charge::factory()->create(['clinic_id' => $this->clinic->id, 'appointment_id' => $app1->id, 'amount' => 100, 'status' => 'paid']);
-        Charge::factory()->create(['clinic_id' => $this->clinic->id, 'appointment_id' => $app2->id, 'amount' => 100, 'status' => 'paid']);
+        Charge::factory()->create(['workspace_id' => $this->workspace->id, 'appointment_id' => $app1->id, 'amount' => 100, 'status' => 'paid']);
+        Charge::factory()->create(['workspace_id' => $this->workspace->id, 'appointment_id' => $app2->id, 'amount' => 100, 'status' => 'paid']);
 
         // Service B: 1 appointment
-        $app3 = Appointment::factory()->create(['clinic_id' => $this->clinic->id, 'service_id' => $serviceB->id, 'status' => 'finished', 'professional_id' => $prof->id]);
-        Charge::factory()->create(['clinic_id' => $this->clinic->id, 'appointment_id' => $app3->id, 'amount' => 500, 'status' => 'paid']);
+        $app3 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceB->id, 'status' => 'finished', 'professional_id' => $prof->id]);
+        Charge::factory()->create(['workspace_id' => $this->workspace->id, 'appointment_id' => $app3->id, 'amount' => 500, 'status' => 'paid']);
 
-        $performance = $this->service->getServicePerformance($this->clinic->id);
+        $performance = $this->service->getServicePerformance($this->workspace->id);
 
         $this->assertEquals('Service B', $performance[0]['name']); // B has more revenue (500)
         $this->assertEquals(500, $performance[0]['revenue']);
@@ -91,11 +91,11 @@ class ReportingTest extends TestCase
 
     public function test_customer_ltv_insights()
     {
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
-        $charge = Charge::factory()->create(['clinic_id' => $this->clinic->id, 'customer_id' => $customer->id, 'amount' => 1000]);
-        Receipt::factory()->create(['clinic_id' => $this->clinic->id, 'charge_id' => $charge->id, 'amount_received' => 1000, 'received_at' => now()]);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
+        $charge = Charge::factory()->create(['workspace_id' => $this->workspace->id, 'customer_id' => $customer->id, 'amount' => 1000]);
+        Receipt::factory()->create(['workspace_id' => $this->workspace->id, 'charge_id' => $charge->id, 'amount_received' => 1000, 'received_at' => now()]);
 
-        $insights = $this->service->getCustomerInsights($this->clinic->id);
+        $insights = $this->service->getCustomerInsights($this->workspace->id);
 
         $this->assertEquals($customer->name, $insights[0]['name']);
         $this->assertEquals(1000, $insights[0]['ltv']);

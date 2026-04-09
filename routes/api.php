@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::get('p/{clinic}/charges', [\App\Http\Controllers\Api\ChargeController::class, 'portalIndex'])->middleware(['auth:customer', 'customer.clinic']);
+Route::get('p/{workspace}/charges', [\App\Http\Controllers\Api\ChargeController::class, 'portalIndex'])->middleware(['auth:customer', 'customer.workspace']);
 
 Route::get('appointments/{appointment}/confirm/{token}', [AppointmentController::class, 'confirm']);
 Route::post('webhooks/messaging/inbound', [MessagingWebhookController::class, 'inbound'])->middleware('throttle:6,1');

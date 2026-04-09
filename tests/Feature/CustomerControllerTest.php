@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Models\Appointment;
 use App\Models\Service;
+use App\Models\Workspace;
 use App\Models\Charge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,14 +20,14 @@ class CustomerControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = \App\Models\Clinic::factory()->create();
-        $this->user = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->workspace = Workspace::factory()->create();
+        $this->user = User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'admin']);
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     public function test_can_list_customers()
     {
-        Customer::factory()->count(3)->create(['clinic_id' => $this->clinic->id]);
+        Customer::factory()->count(3)->create(['workspace_id' => $this->workspace->id]);
 
         $response = $this->actingAs($this->user)
             ->get(route('customers.index'));
@@ -40,8 +41,8 @@ class CustomerControllerTest extends TestCase
 
     public function test_can_filter_customers_by_search()
     {
-        Customer::factory()->create(['clinic_id' => $this->clinic->id, 'name' => 'John Doe']);
-        Customer::factory()->create(['clinic_id' => $this->clinic->id, 'name' => 'Jane Smith']);
+        Customer::factory()->create(['workspace_id' => $this->workspace->id, 'name' => 'John Doe']);
+        Customer::factory()->create(['workspace_id' => $this->workspace->id, 'name' => 'Jane Smith']);
 
         $response = $this->actingAs($this->user)
             ->get(route('customers.index', ['search' => 'John']));
@@ -76,7 +77,7 @@ class CustomerControllerTest extends TestCase
     public function test_can_update_customer()
     {
         $this->withoutExceptionHandling();
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id, 'name' => 'Old Name']);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id, 'name' => 'Old Name']);
 
         $response = $this->actingAs($this->user)
             ->put(route('customers.update', $customer), [
@@ -91,7 +92,7 @@ class CustomerControllerTest extends TestCase
 
     public function test_can_toggle_customer_status()
     {
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id, 'is_active' => true]);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id, 'is_active' => true]);
 
         $response = $this->actingAs($this->user)
             ->from(route('customers.show', $customer))
@@ -104,12 +105,12 @@ class CustomerControllerTest extends TestCase
 
     public function test_cannot_delete_customer_with_appointments()
     {
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
-        $prof = \App\Models\Professional::factory()->create(['clinic_id' => $this->clinic->id]);
-        $svc = Service::factory()->create(['clinic_id' => $this->clinic->id]);
-        
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
+        $prof = \App\Models\Professional::factory()->create(['workspace_id' => $this->workspace->id]);
+        $svc = Service::factory()->create(['workspace_id' => $this->workspace->id]);
+
         Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'customer_id' => $customer->id,
             'professional_id' => $prof->id,
             'service_id' => $svc->id,

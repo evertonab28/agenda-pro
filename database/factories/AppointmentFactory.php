@@ -5,8 +5,7 @@ namespace Database\Factories;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
-use App\Models\User;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,15 +21,15 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'clinic_id' => Clinic::factory(),
+            'workspace_id' => Workspace::factory(),
             'customer_id' => function (array $attributes) {
-                return Customer::factory()->create(['clinic_id' => $attributes['clinic_id']])->id;
+                return Customer::factory()->create(['workspace_id' => $attributes['workspace_id']])->id;
             },
             'service_id' => function (array $attributes) {
-                return Service::factory()->create(['clinic_id' => $attributes['clinic_id']])->id;
+                return Service::factory()->create(['workspace_id' => $attributes['workspace_id']])->id;
             },
             'professional_id' => function (array $attributes) {
-                return \App\Models\Professional::factory()->create(['clinic_id' => $attributes['clinic_id']])->id;
+                return \App\Models\Professional::factory()->create(['workspace_id' => $attributes['workspace_id']])->id;
             },
             'starts_at' => now()->addHour(),
             'ends_at' => now()->addHours(2),

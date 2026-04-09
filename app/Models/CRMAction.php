@@ -9,7 +9,7 @@ class CRMAction extends Model
     protected $table = 'crm_actions';
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'customer_id',
         'type',
         'status',
@@ -25,9 +25,9 @@ class CRMAction extends Model
         'valid_until' => 'datetime',
     ];
 
-    public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function workspace(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Clinic::class);
+        return $this->belongsTo(Workspace::class);
     }
 
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo

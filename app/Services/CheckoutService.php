@@ -53,7 +53,7 @@ class CheckoutService
 
             if (!$charge) {
                 $charge = Charge::create([
-                    'clinic_id' => $appointment->clinic_id,
+                    'workspace_id' => $appointment->workspace_id,
                     'appointment_id' => $appointment->id,
                     'customer_id' => $appointment->customer_id,
                     'amount' => $payload['amount'] ?? $appointment->service->price ?? 0,
@@ -63,9 +63,9 @@ class CheckoutService
                 ]);
                 
                 AuditService::log(auth()->user(), 'charge.auto_created', $charge, ['appointment_id' => $appointment->id]);
-            } elseif ($charge->clinic_id === null) {
+            } elseif ($charge->workspace_id === null) {
                 // Heal orphaned record
-                $charge->update(['clinic_id' => $appointment->clinic_id]);
+                $charge->update(['workspace_id' => $appointment->workspace_id]);
             }
 
             return $charge;
@@ -82,7 +82,7 @@ class CheckoutService
             $netAmount = $data['amount_received'] - $feeAmount;
 
             $receipt = Receipt::create([
-                'clinic_id' => $charge->clinic_id,
+                'workspace_id' => $charge->workspace_id,
                 'charge_id' => $charge->id,
                 'amount_received' => $data['amount_received'],
                 'fee_amount' => $feeAmount,

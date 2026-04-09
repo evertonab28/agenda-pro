@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Clinic;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PortalProfileController extends Controller
 {
-    public function show(Clinic $clinic)
+    public function show(Workspace $workspace)
     {
         $customer = Auth::guard('customer')->user();
 
         return Inertia::render('Portal/Profile', [
-            'clinic' => $clinic,
+            'workspace' => $workspace,
             'customer' => $customer,
         ]);
     }
 
-    public function update(Request $request, Clinic $clinic)
+    public function update(Request $request, Workspace $workspace)
     {
         /** @var \App\Models\Customer $customer */
         $customer = Auth::guard('customer')->user();
@@ -33,6 +33,6 @@ class PortalProfileController extends Controller
 
         $customer->update($data);
 
-        return redirect()->route('portal.profile', $clinic->slug)->with('success', 'Perfil atualizado com sucesso!');
+        return redirect()->route('portal.profile', $workspace->slug)->with('success', 'Perfil atualizado com sucesso!');
     }
 }

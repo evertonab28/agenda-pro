@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Professional;
 use App\Models\Service;
+use App\Models\Workspace;
 use App\Enums\AppointmentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -18,15 +19,15 @@ class CheckoutFlowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = \App\Models\Clinic::factory()->create();
-        $this->admin = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->workspace = Workspace::factory()->create();
+        $this->admin = User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'admin']);
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     public function test_admin_can_finalize_appointment_and_redirect_to_checkout_and_creates_charge()
     {
         $appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'status' => AppointmentStatus::Scheduled->value
         ]);
         $this->assertNull($appointment->charge);
@@ -42,9 +43,9 @@ class CheckoutFlowTest extends TestCase
 
     public function test_checkout_screen_shows_correct_data()
     {
-        $service = Service::factory()->create(['clinic_id' => $this->clinic->id, 'price' => 120.50]);
+        $service = Service::factory()->create(['workspace_id' => $this->workspace->id, 'price' => 120.50]);
         $appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'service_id' => $service->id,
             'status' => AppointmentStatus::Completed->value
         ]);
@@ -63,7 +64,7 @@ class CheckoutFlowTest extends TestCase
     public function test_cannot_checkout_canceled_appointment()
     {
         $appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'status' => AppointmentStatus::Canceled->value
         ]);
 
@@ -76,9 +77,9 @@ class CheckoutFlowTest extends TestCase
 
     public function test_total_payment_marks_charge_as_paid_and_redirects_to_agenda()
     {
-        $service = Service::factory()->create(['clinic_id' => $this->clinic->id, 'price' => 100]);
+        $service = Service::factory()->create(['workspace_id' => $this->workspace->id, 'price' => 100]);
         $appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'service_id' => $service->id
         ]);
 

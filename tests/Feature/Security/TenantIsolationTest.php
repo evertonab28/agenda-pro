@@ -3,7 +3,7 @@
 namespace Tests\Feature\Security;
 
 use App\Models\User;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use App\Models\Charge;
 use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,21 +16,21 @@ class TenantIsolationTest extends TestCase
     /** @test */
     public function it_automatically_scopes_queries_by_tenant()
     {
-        // 1. Criar Clínica A e Clinica B
-        $clinicA = Clinic::create(['name' => 'Clinica A', 'slug' => 'clinic-a']);
-        $clinicB = Clinic::create(['name' => 'Clinica B', 'slug' => 'clinic-b']);
+        // 1. Criar Workspace A e Workspace B
+        $workspaceA = Workspace::create(['name' => 'Workspace A', 'slug' => 'workspace-a']);
+        $workspaceB = Workspace::create(['name' => 'Workspace B', 'slug' => 'workspace-b']);
 
-        // 2. Criar Admin na Clínica A
-        $adminA = User::factory()->create(['clinic_id' => $clinicA->id]);
-        
-        // 3. Criar Dados em ambas
-        Charge::factory()->create(['clinic_id' => $clinicA->id, 'amount' => 100]);
-        Charge::factory()->create(['clinic_id' => $clinicB->id, 'amount' => 200]);
+        // 2. Criar Admin no Workspace A
+        $adminA = User::factory()->create(['workspace_id' => $workspaceA->id]);
+
+        // 3. Criar Dados em ambos
+        Charge::factory()->create(['workspace_id' => $workspaceA->id, 'amount' => 100]);
+        Charge::factory()->create(['workspace_id' => $workspaceB->id, 'amount' => 200]);
 
         // 4. Agir como Admin A
         $this->actingAs($adminA);
 
-        // 5. Verificar que só vê dados da Clínica A
+        // 5. Verificar que só vê dados do Workspace A
         $this->assertEquals(1, Charge::count());
         $this->assertEquals(100, Charge::first()->amount);
     }
@@ -38,18 +38,17 @@ class TenantIsolationTest extends TestCase
     /** @test */
     public function it_prevents_unauthorized_access_to_other_tenant_resource()
     {
-        $clinicA = Clinic::create(['name' => 'Clinica A', 'slug' => 'clinic-a']);
-        $clinicB = Clinic::create(['name' => 'Clinica B', 'slug' => 'clinic-b']);
+        $workspaceA = Workspace::create(['name' => 'Workspace A', 'slug' => 'workspace-a']);
+        $workspaceB = Workspace::create(['name' => 'Workspace B', 'slug' => 'workspace-b']);
 
-        $adminA = User::factory()->create(['clinic_id' => $clinicA->id]);
-        $chargeB = Charge::factory()->create(['clinic_id' => $clinicB->id]);
+        $adminA = User::factory()->create(['workspace_id' => $workspaceA->id]);
+        $chargeB = Charge::factory()->create(['workspace_id' => $workspaceB->id]);
 
         $this->actingAs($adminA);
 
-        // Tenta buscar via API/Policy
-        // Nota: O GlobalScope já vai fazer retornar 404 se não achar no scope
+        // O GlobalScope vai fazer retornar 404 se não achar no scope
         $response = $this->getJson("/api/charges/{$chargeB->id}");
-        
+
         $response->assertStatus(404); // Scoped out
     }
 }

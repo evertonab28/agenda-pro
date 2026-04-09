@@ -9,7 +9,7 @@ class Setting extends Model
     use \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'key',
         'value',
     ];
@@ -30,7 +30,7 @@ class Setting extends Model
     {
         return self::updateOrCreate(
             [
-                'clinic_id' => auth()->user()->clinic_id,
+                'workspace_id' => auth()->user()->workspace_id,
                 'key' => $key
             ],
             ['value' => $value]

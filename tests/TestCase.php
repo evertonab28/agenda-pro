@@ -9,15 +9,15 @@ abstract class TestCase extends BaseTestCase
     /**
      * Satisfy CheckOnboarding middleware requirements.
      */
-    protected function fulfillOnboarding($clinicId): void
+    protected function fulfillOnboarding($workspaceId): void
     {
-        \App\Models\Setting::set('company_name', 'Test Clinic');
+        \App\Models\Setting::set('company_name', 'Test Workspace');
 
-        $service = \App\Models\Service::factory()->create(['clinic_id' => $clinicId]);
-        $prof = \App\Models\Professional::factory()->create(['clinic_id' => $clinicId]);
-        
+        $service = \App\Models\Service::factory()->create(['workspace_id' => $workspaceId]);
+        $prof = \App\Models\Professional::factory()->create(['workspace_id' => $workspaceId]);
+
         \App\Models\ProfessionalSchedule::create([
-            'clinic_id' => $clinicId,
+            'workspace_id' => $workspaceId,
             'professional_id' => $prof->id,
             'weekday' => 1,
             'start_time' => '08:00',

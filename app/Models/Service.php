@@ -11,7 +11,7 @@ class Service extends Model
     use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'name',
         'duration_minutes',
         'buffer_minutes',

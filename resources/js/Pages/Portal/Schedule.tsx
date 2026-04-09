@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Calendar as CalendarIcon, Clock, User, ChevronRight, CheckCircle2, MapPin } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, User, CheckCircle2, MapPin } from 'lucide-react';
 import { format, addDays, startOfToday, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast, Toaster } from 'sonner';
 
-export default function Schedule({ clinic, customer }: { clinic: any, customer?: any }) {
+export default function Schedule({ workspace, customer }: { workspace: any, customer?: any }) {
     const [step, setStep] = useState(1); // 1: Service, 2: Prof/Date, 3: Info, 4: Success
     const [services, setServices] = useState<any[]>([]);
     const [selectedService, setSelectedService] = useState<any>(null);
@@ -29,29 +29,29 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
     // Fetch Services on Step 1
     useEffect(() => {
         if (step === 1) {
-            (window as any).axios.get(`/p/${clinic.slug}/scheduling/services`)
+            (window as any).axios.get(`/p/${workspace.slug}/scheduling/services`)
                 .then((res: any) => setServices(res.data))
-                .catch((err: any) => toast.error('Erro ao carregar serviços'));
+                .catch(() => toast.error('Erro ao carregar serviços'));
         }
-    }, [step, clinic.slug]);
+    }, [step, workspace.slug]);
 
     // Fetch Professionals when service is selected
     useEffect(() => {
         if (selectedService && step === 2) {
-            (window as any).axios.get(`/p/${clinic.slug}/scheduling/services/${selectedService.id}/professionals`)
+            (window as any).axios.get(`/p/${workspace.slug}/scheduling/services/${selectedService.id}/professionals`)
                 .then((res: any) => {
                     setProfessionals(res.data);
                     if (res.data.length > 0) setSelectedProfessional(res.data[0]);
                 })
-                .catch((err: any) => toast.error('Erro ao carregar profissionais'));
+                .catch(() => toast.error('Erro ao carregar profissionais'));
         }
-    }, [selectedService, step, clinic.slug]);
+    }, [selectedService, step, workspace.slug]);
 
     // Fetch Availability when prof/date changes
     useEffect(() => {
         if (selectedProfessional && selectedDate && step === 2) {
             setLoading(true);
-            (window as any).axios.get(`/p/${clinic.slug}/scheduling/availability`, {
+            (window as any).axios.get(`/p/${workspace.slug}/scheduling/availability`, {
                 params: {
                     professional_id: selectedProfessional.id,
                     service_id: selectedService?.id,
@@ -60,18 +60,18 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
             }).then((res: any) => {
                 setAvailableSlots(res.data);
                 setLoading(false);
-            }).catch((err: any) => {
+            }).catch(() => {
                 toast.error('Erro ao carregar horários');
                 setLoading(false);
             });
         }
-    }, [selectedProfessional, selectedDate, selectedService, step, clinic.slug]);
+    }, [selectedProfessional, selectedDate, selectedService, step, workspace.slug]);
 
     const handleBooking = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        
-        (window as any).axios.post(`/p/${clinic.slug}/scheduling/book`, {
+
+        (window as any).axios.post(`/p/${workspace.slug}/scheduling/book`, {
             ...formData,
             service_id: selectedService?.id,
             professional_id: selectedProfessional?.id,
@@ -92,11 +92,11 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             <Toaster position="top-center" richColors />
-            <Head title={`Agendar Horário - ${clinic.name}`} />
+            <Head title={`Agendar Horário - ${workspace.name}`} />
 
             <header className="bg-white border-b shadow-sm p-4 sticky top-0 z-10">
                 <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-indigo-900">{clinic.name}</h1>
+                    <h1 className="text-xl font-bold text-indigo-900">{workspace.name}</h1>
                     {step < 4 && (
                         <div className="text-sm text-slate-500 font-medium">
                             Passo {step} de 3
@@ -114,8 +114,8 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {services.map(s => (
-                                <Card 
-                                    key={s.id} 
+                                <Card
+                                    key={s.id}
                                     className={`cursor-pointer transition-all hover:border-indigo-400 hover:shadow-md ${selectedService?.id === s.id ? 'ring-2 ring-indigo-600 border-indigo-600' : ''}`}
                                     onClick={() => {
                                         setSelectedService(s);
@@ -152,7 +152,6 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-2 space-y-6">
-                                {/* Date Selection */}
                                 <section>
                                     <label className="block text-sm font-semibold text-slate-700 mb-3">Selecione uma data</label>
                                     <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -169,7 +168,6 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                                     </div>
                                 </section>
 
-                                {/* Slots Selection */}
                                 <section>
                                     <label className="block text-sm font-semibold text-slate-700 mb-3">Horários disponíveis</label>
                                     {loading ? (
@@ -197,12 +195,11 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                             </div>
 
                             <div className="space-y-6">
-                                {/* Professional Selection */}
                                 <section>
                                     <label className="block text-sm font-semibold text-slate-700 mb-3">Profissional</label>
                                     <div className="space-y-3">
                                         {professionals.map(p => (
-                                            <div 
+                                            <div
                                                 key={p.id}
                                                 onClick={() => setSelectedProfessional(p)}
                                                 className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedProfessional?.id === p.id ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'bg-white hover:border-indigo-300'}`}
@@ -219,8 +216,8 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                                     </div>
                                 </section>
 
-                                <Button 
-                                    className="w-full h-12 text-lg shadow-lg shadow-indigo-200" 
+                                <Button
+                                    className="w-full h-12 text-lg shadow-lg shadow-indigo-200"
                                     disabled={!selectedSlot}
                                     onClick={() => setStep(3)}
                                 >
@@ -240,7 +237,7 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                             <CardHeader>
                                 <CardTitle>Seus Dados</CardTitle>
                                 <CardDescription>
-                                    {customer 
+                                    {customer
                                         ? `Olá ${customer.name}, confirme seus dados abaixo para o agendamento.`
                                         : 'Preencha para concluir seu agendamento.'}
                                 </CardDescription>
@@ -249,10 +246,10 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                                 <form onSubmit={handleBooking} className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Nome Completo</Label>
-                                        <Input 
-                                            id="name" 
-                                            required 
-                                            placeholder="Seu nome aqui" 
+                                        <Input
+                                            id="name"
+                                            required
+                                            placeholder="Seu nome aqui"
                                             value={formData.name}
                                             onChange={e => setFormData({...formData, name: e.target.value})}
                                         />
@@ -260,9 +257,9 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="email">Email (opcional)</Label>
-                                            <Input 
-                                                id="email" 
-                                                type="email" 
+                                            <Input
+                                                id="email"
+                                                type="email"
                                                 placeholder="exemplo@email.com"
                                                 value={formData.email}
                                                 onChange={e => setFormData({...formData, email: e.target.value})}
@@ -270,9 +267,9 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="phone">Telefone / WhatsApp</Label>
-                                            <Input 
-                                                id="phone" 
-                                                required 
+                                            <Input
+                                                id="phone"
+                                                required
                                                 placeholder="(00) 00000-0000"
                                                 value={formData.phone}
                                                 onChange={e => setFormData({...formData, phone: e.target.value})}
@@ -323,8 +320,7 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                                     <div className="flex items-start space-x-3">
                                         <MapPin className="text-slate-400 mt-1" size={20} />
                                         <div>
-                                            <div className="font-bold">{clinic.name}</div>
-                                            <div className="text-sm text-slate-500">Rua Exemplo, 123 - Centro</div>
+                                            <div className="font-bold">{workspace.name}</div>
                                         </div>
                                     </div>
                                     <div className="flex items-start space-x-3">
@@ -340,9 +336,9 @@ export default function Schedule({ clinic, customer }: { clinic: any, customer?:
                         <div className="pt-8 flex flex-col sm:flex-row justify-center gap-4">
                             <Button variant="outline" onClick={() => {
                                 if (customer) {
-                                    window.location.href = `/p/${clinic.slug}/dashboard`;
+                                    window.location.href = `/p/${workspace.slug}/dashboard`;
                                 } else {
-                                    window.location.href = `/p/${clinic.slug}/login?identifier=${formData.phone || formData.email}`;
+                                    window.location.href = `/p/${workspace.slug}/login?identifier=${formData.phone || formData.email}`;
                                 }
                             }}>
                                 Acessar Minha Área

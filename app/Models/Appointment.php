@@ -13,7 +13,7 @@ class Appointment extends Model
     use HasFactory, \App\Traits\BelongsToTenant;
     
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'customer_id',
         'service_id',
         'professional_id',

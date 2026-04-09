@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MarkChargePaidRequest;
 use App\Models\Charge;
+use App\Models\Workspace;
 
 class ChargeController extends Controller
 {
@@ -22,7 +23,7 @@ class ChargeController extends Controller
         return $charge->fresh();
     }
 
-    public function portalIndex(Clinic $clinic)
+    public function portalIndex(Workspace $workspace)
     {
         return response()->json(
             Charge::where('customer_id', auth('customer')->id())

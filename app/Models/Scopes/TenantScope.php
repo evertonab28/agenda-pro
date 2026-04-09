@@ -18,19 +18,19 @@ class TenantScope implements Scope
             return;
         }
 
-        $clinicId = null;
+        $workspaceId = null;
 
         // Check web guard first (Staff)
         if (Auth::guard('web')->hasUser()) {
-            $clinicId = Auth::guard('web')->user()->clinic_id;
-        } 
+            $workspaceId = Auth::guard('web')->user()->workspace_id;
+        }
         // Then check customer guard
         elseif (Auth::guard('customer')->hasUser()) {
-            $clinicId = Auth::guard('customer')->user()->clinic_id;
+            $workspaceId = Auth::guard('customer')->user()->workspace_id;
         }
 
-        if ($clinicId) {
-            $builder->where($model->getTable() . '.clinic_id', $clinicId);
+        if ($workspaceId) {
+            $builder->where($model->getTable() . '.workspace_id', $workspaceId);
         }
     }
 }

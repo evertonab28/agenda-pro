@@ -13,7 +13,7 @@ class Charge extends Model
     use HasFactory, Logged, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'description',
         'appointment_id',
         'customer_id',

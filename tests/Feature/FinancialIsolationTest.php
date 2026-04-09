@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Charge;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use App\Models\Customer;
 use App\Models\Receipt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,8 +14,8 @@ class FinancialIsolationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $clinicA;
-    protected $clinicB;
+    protected $workspaceA;
+    protected $workspaceB;
     protected $adminA;
     protected $adminB;
 
@@ -23,56 +23,52 @@ class FinancialIsolationTest extends TestCase
     {
         parent::setUp();
 
-        $this->clinicA = Clinic::factory()->create(['name' => 'Clinic A']);
-        $this->clinicB = Clinic::factory()->create(['name' => 'Clinic B']);
+        $this->workspaceA = Workspace::factory()->create(['name' => 'Workspace A']);
+        $this->workspaceB = Workspace::factory()->create(['name' => 'Workspace B']);
 
         $this->adminA = User::factory()->create([
-            'clinic_id' => $this->clinicA->id,
+            'workspace_id' => $this->workspaceA->id,
             'role' => 'admin'
         ]);
 
         $this->adminB = User::factory()->create([
-            'clinic_id' => $this->clinicB->id,
+            'workspace_id' => $this->workspaceB->id,
             'role' => 'admin'
         ]);
 
-        $this->fulfillOnboarding($this->clinicA->id);
-        $this->fulfillOnboarding($this->clinicB->id);
+        $this->fulfillOnboarding($this->workspaceA->id);
+        $this->fulfillOnboarding($this->workspaceB->id);
     }
 
-    public function test_user_cannot_view_charge_of_another_clinic_directly()
+    public function test_user_cannot_view_charge_of_another_workspace_directly()
     {
-        // Charge belonging to Clinic B
         $chargeB = Charge::factory()->create([
-            'clinic_id' => $this->clinicB->id
+            'workspace_id' => $this->workspaceB->id
         ]);
 
-        // Admin A tries to view Charge B
         $response = $this->actingAs($this->adminA)
             ->get(route('finance.charges.show', $chargeB));
 
-        // Should return 404 because TenantScope filters it out from the query
         $response->assertStatus(404);
     }
 
-    public function test_user_cannot_see_charges_of_another_clinic_in_list()
+    public function test_user_cannot_see_charges_of_another_workspace_in_list()
     {
-        // 2 charges for A, 3 for B
-        Charge::factory()->count(2)->create(['clinic_id' => $this->clinicA->id]);
-        Charge::factory()->count(3)->create(['clinic_id' => $this->clinicB->id]);
+        Charge::factory()->count(2)->create(['workspace_id' => $this->workspaceA->id]);
+        Charge::factory()->count(3)->create(['workspace_id' => $this->workspaceB->id]);
 
         $response = $this->actingAs($this->adminA)
             ->get(route('finance.charges.index'));
 
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => $page
-            ->has('charges.data', 2) // Only Clinic A's charges
+            ->has('charges.data', 2)
         );
     }
 
-    public function test_user_cannot_update_charge_of_another_clinic()
+    public function test_user_cannot_update_charge_of_another_workspace()
     {
-        $chargeB = Charge::factory()->create(['clinic_id' => $this->clinicB->id]);
+        $chargeB = Charge::factory()->create(['workspace_id' => $this->workspaceB->id]);
 
         $response = $this->actingAs($this->adminA)
             ->put(route('finance.charges.update', $chargeB), [
@@ -86,9 +82,9 @@ class FinancialIsolationTest extends TestCase
         ]);
     }
 
-    public function test_user_cannot_register_payment_for_charge_of_another_clinic()
+    public function test_user_cannot_register_payment_for_charge_of_another_workspace()
     {
-        $chargeB = Charge::factory()->create(['clinic_id' => $this->clinicB->id, 'amount' => 100]);
+        $chargeB = Charge::factory()->create(['workspace_id' => $this->workspaceB->id, 'amount' => 100]);
 
         $response = $this->actingAs($this->adminA)
             ->post(route('finance.charges.receive', $chargeB), [
@@ -100,21 +96,19 @@ class FinancialIsolationTest extends TestCase
         $this->assertDatabaseCount('receipts', 0);
     }
 
-    public function test_receipts_are_strictly_isolated_by_tenant()
+    public function test_receipts_are_strictly_isolated_by_workspace()
     {
-        $chargeA = Charge::factory()->create(['clinic_id' => $this->clinicA->id]);
-        $chargeB = Charge::factory()->create(['clinic_id' => $this->clinicB->id]);
+        $chargeA = Charge::factory()->create(['workspace_id' => $this->workspaceA->id]);
+        $chargeB = Charge::factory()->create(['workspace_id' => $this->workspaceB->id]);
 
-        // Create receipt for A
         Receipt::factory()->create([
-            'clinic_id' => $this->clinicA->id,
+            'workspace_id' => $this->workspaceA->id,
             'charge_id' => $chargeA->id,
             'amount_received' => 50,
         ]);
 
-        // Create receipt for B
         Receipt::factory()->create([
-            'clinic_id' => $this->clinicB->id,
+            'workspace_id' => $this->workspaceB->id,
             'charge_id' => $chargeB->id,
             'amount_received' => 70,
         ]);

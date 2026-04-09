@@ -11,7 +11,7 @@ class Holiday extends Model
     use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'name',
         'date',
         'professional_id',

@@ -91,52 +91,53 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('configuracoes')->name('configuracoes.')->group(function () {
         Route::resource('servicos', \App\Http\Controllers\ServiceController::class)->names('services');
         Route::resource('profissionais', \App\Http\Controllers\ProfessionalController::class)->names('professionals');
-        
+
         // Schedules
         Route::get('horarios', [\App\Http\Controllers\ScheduleController::class, 'index'])->name('schedules.index');
         Route::post('horarios', [\App\Http\Controllers\ScheduleController::class, 'store'])->name('schedules.store');
-        
+
         // Holidays
         Route::resource('feriados', \App\Http\Controllers\HolidayController::class)->names('holidays');
-        
+
         // General
         Route::get('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'index'])->name('general.index');
         Route::post('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'store'])->name('general.store');
     });
 });
-// --- PORTAL DO CLIENTE (Sprint 2) ---
-Route::prefix('p/{clinic}')->name('portal.')->group(function () {
-    Route::get('/login', function (\App\Models\Clinic $clinic) {
+
+// --- PORTAL DO CLIENTE ---
+Route::prefix('p/{workspace}')->name('portal.')->group(function () {
+    Route::get('/login', function (\App\Models\Workspace $workspace) {
         return Inertia::render('Portal/Login', [
-            'clinic' => $clinic,
+            'workspace' => $workspace,
             'initialIdentifier' => request('identifier')
         ]);
     })->name('login');
 
-    Route::get('/agendar', function (\App\Models\Clinic $clinic) {
+    Route::get('/agendar', function (\App\Models\Workspace $workspace) {
         return Inertia::render('Portal/Schedule', [
-            'clinic' => $clinic,
+            'workspace' => $workspace,
             'customer' => Auth::guard('customer')->user()
         ]);
     })->name('schedule');
 
-    Route::middleware(['auth:customer', 'customer.clinic'])->group(function () {
-        Route::get('/dashboard', function (\App\Models\Clinic $clinic) {
+    Route::middleware(['auth:customer', 'customer.workspace'])->group(function () {
+        Route::get('/dashboard', function (\App\Models\Workspace $workspace) {
             return Inertia::render('Portal/Dashboard', [
-                'clinic' => $clinic,
+                'workspace' => $workspace,
                 'customer' => Auth::guard('customer')->user()
             ]);
         })->name('dashboard');
 
-        Route::get('/agendamentos', function (\App\Models\Clinic $clinic) {
+        Route::get('/agendamentos', function (\App\Models\Workspace $workspace) {
             return Inertia::render('Portal/Appointments', [
-                'clinic' => $clinic,
+                'workspace' => $workspace,
                 'appointments' => Auth::guard('customer')->user()->appointments()->with(['service', 'professional'])->get()
             ]);
         })->name('appointments');
 
-        Route::get('/faturas', function (\App\Models\Clinic $clinic) {
-            return Inertia::render('Portal/Charges', ['clinic' => $clinic]);
+        Route::get('/faturas', function (\App\Models\Workspace $workspace) {
+            return Inertia::render('Portal/Charges', ['workspace' => $workspace]);
         })->name('charges');
 
         Route::get('/perfil', [\App\Http\Controllers\PortalProfileController::class, 'show'])->name('profile');
@@ -149,10 +150,10 @@ Route::prefix('p/{clinic}')->name('portal.')->group(function () {
         Route::post('/logout', [\App\Http\Controllers\Api\CustomerAuthController::class, 'logout'])->name('logout');
     });
 
-    // Auth & Scheduling (Moved from API for session support)
+    // Auth & Scheduling
     Route::post('/auth/send-token', [\App\Http\Controllers\Api\CustomerAuthController::class, 'sendToken'])->name('auth.send-token')->middleware('throttle:3,1');
     Route::post('/auth/verify-token', [\App\Http\Controllers\Api\CustomerAuthController::class, 'verifyToken'])->name('auth.verify-token')->middleware('throttle:10,1');
-    
+
     Route::prefix('scheduling')->name('scheduling.')->group(function () {
         Route::get('/services', [\App\Http\Controllers\Api\PublicSchedulingController::class, 'getServices'])->name('services');
         Route::get('/services/{service}/professionals', [\App\Http\Controllers\Api\PublicSchedulingController::class, 'getProfessionals'])->name('professionals');

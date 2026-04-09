@@ -12,7 +12,7 @@ class Receipt extends Model
     use HasFactory, Logged, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'charge_id',
         'amount_received',
         'fee_amount',
