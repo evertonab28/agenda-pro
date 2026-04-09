@@ -10,3 +10,7 @@ Artisan::command('inspire', function () {
 \Illuminate\Support\Facades\Schedule::command('reminders:dispatch')->everyTenMinutes();
 \Illuminate\Support\Facades\Schedule::command('finance:mark-overdue')->daily();
 \Illuminate\Support\Facades\Schedule::command('db:purge-security-logs')->weekly();
+
+// SaaS Billing Lifecycle
+\Illuminate\Support\Facades\Schedule::command('saas:billing-recurring')->daily();
+\Illuminate\Support\Facades\Schedule::command('saas:billing-dunning')->daily();

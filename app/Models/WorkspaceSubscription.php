@@ -50,11 +50,18 @@ class WorkspaceSubscription extends Model
             return $this->trial_ends_at && $this->trial_ends_at->isFuture();
         }
 
-        return $this->status === 'active' && (!$this->ends_at || $this->ends_at->isFuture());
+        // Permite acesso se estiver ativo ou cancelado porém ainda dentro do período pago
+        $validStatus = in_array($this->status, ['active', 'canceled']);
+        
+        return $validStatus && (!$this->ends_at || $this->ends_at->isFuture());
     }
 
     public function isTrialing(): bool
     {
         return $this->status === 'trialing' && $this->trial_ends_at->isFuture();
+    }
+    public function events()
+    {
+        return $this->hasMany(WorkspaceSubscriptionEvent::class, 'subscription_id');
     }
 }

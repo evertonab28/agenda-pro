@@ -67,9 +67,8 @@ interface Props {
 
 export default function Index({ subscription, stats, invoices, availablePlans }: Props) {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
-    const { post, processing } = useForm({
-        plan_id: null as number | null
-    });
+    const [isCancelModalOpen, setIsCancelModalOpen] = React.useState(false);
+    const { processing } = useForm();
 
     if (!subscription) {
         return (
@@ -84,7 +83,9 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
     }
 
     const isTrial = subscription.status === 'trialing';
-    const isActive = ['active', 'trialing'].includes(subscription.status);
+    const isOverdue = subscription.status === 'overdue';
+    const isCanceled = subscription.status === 'canceled';
+    const isActive = ['active', 'trialing'].includes(subscription.status) || (isCanceled && new Date(subscription.ends_at!) > new Date());
 
     const handleUpgrade = (planId: number) => {
         router.post(route('configuracoes.billing.upgrade'), { plan_id: planId }, {
@@ -92,8 +93,20 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                 setIsUpgradeModalOpen(false);
                 toast.success('Fatura de upgrade gerada com sucesso!');
             },
-            onError: (errors) => {
+            onError: () => {
                 toast.error('Erro ao gerar upgrade. Tente novamente.');
+            }
+        });
+    };
+
+    const handleCancel = () => {
+        router.post(route('configuracoes.billing.cancel'), {}, {
+            onSuccess: () => {
+                setIsCancelModalOpen(false);
+                toast.success('Assinatura cancelada com sucesso.');
+            },
+            onError: () => {
+                toast.error('Erro ao cancelar assinatura.');
             }
         });
     };
@@ -126,6 +139,16 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
             <Head title="Assinatura - Configurações" />
 
             <div className="max-w-4xl space-y-8">
+                {/* Overdue Alert */}
+                {isOverdue && (
+                    <div className="p-4 bg-red-100 border border-red-200 text-red-800 rounded-xl flex items-center gap-3 mb-6">
+                        <AlertTriangle className="w-5 h-5" />
+                        <div className="text-sm font-medium">
+                            Sua assinatura está em atraso. Regularize o pagamento para evitar o bloqueio total dos recursos operacionais.
+                        </div>
+                    </div>
+                )}
+
                 {/* Status Card */}
                 <div className={`p-6 rounded-2xl border flex flex-col md:flex-row gap-6 items-center justify-between ${
                     isActive 
@@ -148,50 +171,73 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                 </span>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {isTrial 
-                                    ? `Você está no período de teste gratuito até ${new Date(subscription.trial_ends_at!).toLocaleDateString()}.`
-                                    : `Sua assinatura está ativa e renova em ${new Date(subscription.ends_at!).toLocaleDateString()}.`
-                                }
+                                {isTrial && `Você está no período de teste gratuito até ${new Date(subscription.trial_ends_at!).toLocaleDateString()}.`}
+                                {!isTrial && !isCanceled && `Sua assinatura está ativa e renova em ${new Date(subscription.ends_at!).toLocaleDateString()}.`}
+                                {isCanceled && `Sua assinatura foi cancelada e expirará em ${new Date(subscription.ends_at!).toLocaleDateString()}.`}
                             </p>
                         </div>
                     </div>
 
-                    <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="gap-2 shadow-lg h-12 px-8">
-                                <ArrowUpCircle className="w-5 h-5" />
-                                Fazer Upgrade
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                                <DialogTitle>Escolha seu novo plano</DialogTitle>
-                                <DialogDescription>O upgrade será aplicado imediatamente após a confirmação do pagamento.</DialogDescription>
-                            </DialogHeader>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-                                {availablePlans.map((plan) => (
-                                    <div 
-                                        key={plan.id} 
-                                        className={`p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-primary ${
-                                            subscription.plan.name === plan.name ? 'border-primary bg-primary/5 opacity-60 pointer-events-none' : 'border-gray-200'
-                                        }`}
-                                        onClick={() => handleUpgrade(plan.id)}
-                                    >
-                                        <h4 className="font-bold text-lg">{plan.name}</h4>
-                                        <div className="text-2xl font-black my-2">R$ {plan.price}</div>
-                                        <p className="text-xs text-gray-500 mb-4">{plan.billing_cycle}</p>
-                                        <Button 
-                                            variant={subscription.plan.name === plan.name ? 'outline' : 'default'} 
-                                            className="w-full"
-                                            disabled={subscription.plan.name === plan.name || processing}
+                    <div className="flex items-center gap-3">
+                        {!isCanceled && !isOverdue && (
+                            <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                                        Cancelar
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Cancelar Assinatura?</DialogTitle>
+                                        <DialogDescription>
+                                            Você manterá acesso a todas as funcionalidades até o final do ciclo atual ({subscription.ends_at ? new Date(subscription.ends_at).toLocaleDateString() : 'N/A'}). Após isso, sua conta será bloqueada.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setIsCancelModalOpen(false)}>Manter Assinatura</Button>
+                                        <Button variant="destructive" onClick={handleCancel} disabled={processing}>Confirmar Cancelamento</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        )}
+
+                        <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="gap-2 shadow-lg h-12 px-8">
+                                    <ArrowUpCircle className="w-5 h-5" />
+                                    {isCanceled ? 'Reativar / Upgrade' : 'Alterar Plano'}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Escolha seu novo plano</DialogTitle>
+                                    <DialogDescription>O upgrade será aplicado imediatamente após a confirmação do pagamento.</DialogDescription>
+                                </DialogHeader>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
+                                    {availablePlans.map((plan) => (
+                                        <div 
+                                            key={plan.id} 
+                                            className={`p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-primary ${
+                                                subscription.plan.name === plan.name ? 'border-primary bg-primary/5 opacity-60 pointer-events-none' : 'border-gray-200'
+                                            }`}
+                                            onClick={() => handleUpgrade(plan.id)}
                                         >
-                                            {subscription.plan.name === plan.name ? 'Atual' : 'Selecionar'}
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                                            <h4 className="font-bold text-lg">{plan.name}</h4>
+                                            <div className="text-2xl font-black my-2">R$ {plan.price}</div>
+                                            <p className="text-xs text-gray-500 mb-4">{plan.billing_cycle}</p>
+                                            <Button 
+                                                variant={subscription.plan.name === plan.name ? 'outline' : 'default'} 
+                                                className="w-full"
+                                                disabled={subscription.plan.name === plan.name || processing}
+                                            >
+                                                {subscription.plan.name === plan.name ? 'Atual' : 'Selecionar'}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

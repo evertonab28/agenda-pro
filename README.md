@@ -58,6 +58,12 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 - **Horários de Trabalho**: Configuração flexível de expediente, incluindo intervalos de almoço por profissional.
 - **Feriados e Bloqueios**: Impeça agendamentos em datas específicas ou feriados nacionais/locais.
 
+### 🎟️ SaaS Billing (Assinatura do Sistema)
+- **Assinatura do Workspace**: Gestão de planos e faturamento direto da plataforma para o workspace.
+- **Upgrade de Plano**: Fluxo de contratação e upgrade com geração de faturas Asaas sob demanda.
+- **Isolamento Financeiro**: Faturas do SaaS (`workspace_billing_invoices`) são mantidas separadas do fluxo financeiro operacional do cliente.
+- **Status de Assinatura**: Gating comercial baseado em pagamento confirmado via webhook.
+
 ### 🔐 Segurança & Compliance (Hardening)
 - **Isolamento de Tenant**: Multi-tenancy rigoroso via Global Scopes e `clinic_id` obrigatório em todas as transações financeiras.
 - **Integridade de Rotas**: Mapeamento explícito de parâmetros (`{charge}`, `{service}`) para garantir Route Model Binding resiliente e evitar falhas de resolução.
@@ -91,9 +97,9 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 5. **Acesso**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
    - **E-mail**: `admin@agendapro.com.br`
    - **Senha**: `AgendaPro@2026`
-   - **Clínica Modelo (Slug)**: `clinica-modelo`
+   - **Workspace Modelo (Slug)**: `workspace-modelo`
 
-6. **Portal do Cliente (Self-Service)**: [http://localhost:8000/p/clinica-modelo/login](http://localhost:8000/p/clinica-modelo/login)
+6. **Portal do Cliente (Self-Service)**: [http://localhost:8000/p/workspace-modelo/login](http://localhost:8000/p/workspace-modelo/login)
    - **Identificador**: `test@example.com` ou `11988887777`
    - **Acesso**: Magic Link (O código OTP será exibido no log: `storage/logs/laravel.log`)
 
@@ -112,6 +118,7 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 | Perfil (Portal) — Editar Próprio | ❌ | ❌ | ❌ | ✅ |
 | Financeiro — Ver | ✅ | ✅ | ✅ | ❌ |
 | Financeiro — Ver Próprias Faturas | ✅ | ✅ | ✅ | ✅ |
+| Assinatura/Billing do SaaS | ✅ | ❌ | ❌ | ❌ |
 | Configurações (Serviços/Equipe) | ✅ | ✅ | ❌ | ❌ |
 | Usuários — CRUD | ✅ | ❌ | ❌ | ❌ |
 
@@ -124,6 +131,10 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
  FINANCE_CACHE_TTL=120     # TTL do cache Financeiro em segundos
  MESSAGING_DRIVER=fake     # Driver de mensagens (fake, whatsapp) - whatsapp é stub/futuro
  MESSAGING_WEBHOOK_SECRET= # Segredo obrigatório para validação de webhooks em produção
+ 
+ # Asaas SaaS Billing Integration
+ ASAAS_API_KEY=            # Chave da conta "Dona da Plataforma"
+ ASAAS_SAAS_WEBHOOK_TOKEN= # Token de segurança para webhook de billing
  ```
 
 ---

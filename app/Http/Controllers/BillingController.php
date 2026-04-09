@@ -69,4 +69,31 @@ class BillingController extends Controller
             return back()->with('error', 'Erro ao gerar fatura: ' . $e->getMessage());
         }
     }
+
+    public function cancel(Request $request)
+    {
+        $this->authorize('manage-settings');
+
+        $workspace = $request->user()->workspace;
+        $subscription = $workspace->subscription()->first();
+
+        if (!$subscription || $subscription->status === 'canceled') {
+            return back()->with('error', 'Nenhuma assinatura ativa para cancelar.');
+        }
+
+        $subscription->update([
+            'status' => 'canceled',
+            'canceled_at' => now(),
+        ]);
+
+        $subscription->events()->create([
+            'workspace_id' => $workspace->id,
+            'event_type' => 'canceled',
+            'payload' => [
+                'ends_at' => $subscription->ends_at?->toDateTimeString(),
+            ]
+        ]);
+
+        return back()->with('success', 'Sua assinatura foi cancelada e não será renovada. Você manterá acesso até o fim do período atual.');
+    }
 }

@@ -18,9 +18,9 @@ class WorkspaceBillingService
     /**
      * Generate an invoice for an upgrade or renewal.
      */
-    public function createInvoice(Workspace $workspace, Plan $plan, string $type = 'upgrade'): WorkspaceBillingInvoice
+    public function createInvoice(Workspace $workspace, Plan $plan, string $type = 'upgrade', ?string $referencePeriod = null): WorkspaceBillingInvoice
     {
-        return DB::transaction(function () use ($workspace, $plan, $type) {
+        return DB::transaction(function () use ($workspace, $plan, $type, $referencePeriod) {
             $subscription = $workspace->subscription;
             
             // 1. Ensure Customer exists in Asaas
@@ -39,7 +39,7 @@ class WorkspaceBillingService
                 'amount' => $plan->price,
                 'status' => 'pending',
                 'due_date' => now()->addDays(3), // Default 3 days to pay
-                'reference_period' => now()->format('m/Y'),
+                'reference_period' => $referencePeriod ?? now()->format('m/Y'),
                 'meta' => ['type' => $type],
             ]);
 
@@ -59,6 +59,19 @@ class WorkspaceBillingService
                 'provider_payment_link' => $asaasPayment['invoiceUrl'],
             ]);
 
+            // 5. Log Event
+            if ($subscription) {
+                $subscription->events()->create([
+                    'workspace_id' => $workspace->id,
+                    'event_type' => 'invoice_generated',
+                    'payload' => [
+                        'invoice_id' => $invoice->id,
+                        'amount' => $invoice->amount,
+                        'type' => $type
+                    ]
+                ]);
+            }
+
             return $invoice;
         });
     }
@@ -73,34 +86,56 @@ class WorkspaceBillingService
         }
 
         return DB::transaction(function () use ($invoice) {
+            $oldStatus = 'none';
             $invoice->update([
                 'status' => 'paid',
                 'paid_at' => now(),
             ]);
 
             $subscription = $invoice->workspace->subscriptions()->first();
+            $plan = $invoice->plan;
             
+            // Calculate next ends_at based on plan cycle
+            $endsAt = now();
+            if ($plan->billing_cycle === 'yearly') {
+                $endsAt = $endsAt->addYear();
+            } else {
+                $endsAt = $endsAt->addMonth();
+            }
+
             if (!$subscription) {
-                // Create new subscription if not exists
-                WorkspaceSubscription::create([
+                $subscription = WorkspaceSubscription::create([
                     'workspace_id' => $invoice->workspace_id,
                     'plan_id' => $invoice->plan_id,
                     'status' => 'active',
                     'starts_at' => now(),
-                    'ends_at' => now()->addMonth(), // Assuming monthly billing
+                    'ends_at' => $endsAt,
                 ]);
+                $eventType = 'subscription_activated';
             } else {
-                // Update existing subscription
+                $oldStatus = $subscription->status;
                 $subscription->update([
                     'plan_id' => $invoice->plan_id,
                     'status' => 'active',
-                    // Adjust dates based on current status (e.g. extending if already active)
                     'starts_at' => now(),
-                    'ends_at' => now()->addMonth(),
+                    'ends_at' => $endsAt,
                 ]);
+                $eventType = ($oldStatus === 'overdue') ? 'subscription_reactivated' : 'subscription_renewed';
             }
 
-            Log::info("WorkspaceBillingService: Assinatura do workspace {$invoice->workspace_id} ativada via fatura {$invoice->id}.");
+            // Log Commercial Event
+            $subscription->events()->create([
+                'workspace_id' => $invoice->workspace_id,
+                'event_type' => $eventType,
+                'payload' => [
+                    'invoice_id' => $invoice->id,
+                    'previous_status' => $oldStatus,
+                    'new_ends_at' => $endsAt->toDateTimeString(),
+                    'plan_slug' => $plan->slug
+                ]
+            ]);
+
+            Log::info("WorkspaceBillingService: Assinatura do workspace {$invoice->workspace_id} processada ({$eventType}).");
 
             return true;
         });
