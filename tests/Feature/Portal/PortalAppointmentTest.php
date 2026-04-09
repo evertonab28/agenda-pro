@@ -49,7 +49,7 @@ class PortalAppointmentTest extends TestCase
         $response->assertJson(['ok' => true]);
 
         $this->appointment->refresh();
-        $this->assertEquals('cancelled', $this->appointment->status);
+        $this->assertEquals('canceled', $this->appointment->status);
     }
 
     public function test_customer_cannot_cancel_others_appointment()
