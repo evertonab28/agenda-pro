@@ -63,6 +63,26 @@ interface TrialMetrics {
     expired_trials: number;
 }
 
+interface RevenueMovements {
+    period: string;
+    net_movement: number;
+    movements: {
+        new_mrr: number;
+        expansion_mrr: number;
+        contraction_mrr: number;
+        churned_mrr: number;
+        recovered_mrr: number;
+    };
+}
+
+interface RecentCancellation {
+    workspace_id: number;
+    workspace_name: string;
+    canceled_at: string;
+    category: string;
+    reason: string | null;
+}
+
 /* ─── Helpers ─────────────────────────────────────────────────────────── */
 const fmt = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -111,13 +131,15 @@ const eventHuman: Record<string, string> = {
 
 /* ─── Component ───────────────────────────────────────────────────────── */
 export default function Dashboard({
-    stats, alerts, at_risk, trial_metrics, recent_events,
+    stats, alerts, at_risk, trial_metrics, recent_events, revenue_movements, recent_cancellations
 }: {
     stats: Stats;
     alerts: Alert[];
     at_risk: AtRisk[];
     trial_metrics: TrialMetrics;
     recent_events: RecentEvent[];
+    revenue_movements: RevenueMovements;
+    recent_cancellations: RecentCancellation[];
 }) {
     return (
         <AdminLayout title="Dashboard SaaS">
@@ -188,9 +210,9 @@ export default function Dashboard({
                         </p>
                     </div>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                        <p className="text-zinc-500 text-xs mb-1">Churn (Cancelamentos)</p>
+                        <p className="text-zinc-500 text-xs mb-1">Motivos de Churn / Retenção</p>
                         <p className="text-2xl font-bold text-white">{stats.churn_count}</p>
-                        <p className="text-zinc-600 text-xs mt-1">Total histórico de cancelamentos</p>
+                        <p className="text-zinc-600 text-xs mt-1">Cancellations históricos totais no sistema</p>
                     </div>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
                         <p className="text-zinc-500 text-xs mb-1">MRR Projetado (c/ trials)</p>
@@ -198,6 +220,74 @@ export default function Dashboard({
                         <p className="text-zinc-600 text-xs mt-1">Se todos os trials converterem</p>
                     </div>
                 </div>
+
+                {/* Revenue Movements */}
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Movimentação de MRR</p>
+                        <span className="text-xs text-zinc-600 font-medium">Período: {revenue_movements.period}</span>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+                        <div className="bg-emerald-900/20 border border-emerald-900/50 rounded-xl p-4 lg:col-span-2">
+                            <p className="text-emerald-500/70 text-xs mb-1">Net MRR (Líquido)</p>
+                            <p className={`text-xl font-bold ${revenue_movements.net_movement >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {revenue_movements.net_movement > 0 ? '+' : ''}{fmt(revenue_movements.net_movement)}
+                            </p>
+                        </div>
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mb-1">New</p>
+                            <p className="text-emerald-400 font-semibold">{fmt(revenue_movements.movements.new_mrr)}</p>
+                        </div>
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mb-1">Expansion</p>
+                            <p className="text-emerald-400 font-semibold">{fmt(revenue_movements.movements.expansion_mrr)}</p>
+                        </div>
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mb-1">Contraction</p>
+                            <p className="text-red-400 font-semibold">{fmt(revenue_movements.movements.contraction_mrr)}</p>
+                        </div>
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mb-1">Churn / Lost</p>
+                            <p className="text-red-400 font-semibold">{fmt(revenue_movements.movements.churned_mrr)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Cancelamentos Recentes */}
+                {recent_cancellations.length > 0 && (
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+                        <div className="px-5 py-4 border-b border-zinc-800 flex items-center gap-2">
+                            <Ban className="w-4 h-4 text-zinc-500" />
+                            <h3 className="text-sm font-semibold text-white">Últimos Cancelamentos</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-zinc-800">
+                                        <th className="text-left px-5 py-2.5 text-zinc-500 text-xs font-medium">Workspace</th>
+                                        <th className="text-left px-5 py-2.5 text-zinc-500 text-xs font-medium">Data</th>
+                                        <th className="text-left px-5 py-2.5 text-zinc-500 text-xs font-medium">Categoria</th>
+                                        <th className="text-left px-5 py-2.5 text-zinc-500 text-xs font-medium">Detalhe</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-800">
+                                    {recent_cancellations.map(c => (
+                                        <tr key={c.workspace_id} className="hover:bg-zinc-800/40">
+                                            <td className="px-5 py-2.5">
+                                                <Link href={`/admin/workspaces/${c.workspace_id}`} className="text-zinc-300 hover:text-violet-400">
+                                                    {c.workspace_name}
+                                                </Link>
+                                            </td>
+                                            <td className="px-5 py-2.5 text-zinc-400 text-xs">{c.canceled_at}</td>
+                                            <td className="px-5 py-2.5 text-zinc-300 text-xs">{c.category}</td>
+                                            <td className="px-5 py-2.5 text-zinc-500 text-xs max-w-xs truncate">{c.reason || '—'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
 
                 {/* Workspaces em risco + Trials expirando */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -29,6 +29,12 @@ class AdminWorkspaceController extends Controller
             ->when($status && $status !== 'all', function ($q) use ($status) {
                 if ($status === 'none') {
                     $q->whereDoesntHave('subscriptions');
+                } elseif ($status === 'ending_trial') {
+                    $q->whereHas('subscription', fn($q2) => $q2->where('status', 'trialing')->whereBetween('trial_ends_at', [now(), now()->addDays(7)]));
+                } elseif ($status === 'canceled_recently') {
+                    $q->whereHas('subscription', fn($q2) => $q2->whereNotNull('canceled_at')->whereBetween('canceled_at', [now()->subDays(30), now()]));
+                } elseif ($status === 'winback') {
+                    $q->whereHas('subscription', fn($q2) => $q2->where('winback_candidate', true));
                 } else {
                     $q->whereHas('subscription', fn($q2) => $q2->where('status', $status));
                 }
@@ -125,6 +131,9 @@ class AdminWorkspaceController extends Controller
                 'ends_at'       => $workspace->subscription->ends_at?->toDateString(),
                 'trial_ends_at' => $workspace->subscription->trial_ends_at?->toDateString(),
                 'canceled_at'   => $workspace->subscription->canceled_at?->toDateString(),
+                'cancellation_category' => $workspace->subscription->cancellation_category,
+                'cancellation_reason'   => $workspace->subscription->cancellation_reason,
+                'winback_candidate'     => (bool) $workspace->subscription->winback_candidate,
                 'plan'          => [
                     'name'          => $workspace->subscription->plan?->name ?? '—',
                     'price'         => (float) ($workspace->subscription->plan?->price ?? 0),
@@ -134,5 +143,30 @@ class AdminWorkspaceController extends Controller
             'invoices' => $invoices,
             'timeline' => $timeline,
         ]);
+    public function updateRetention(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'cancellation_category' => 'nullable|string|max:255',
+            'cancellation_reason'   => 'nullable|string',
+            'winback_candidate'     => 'boolean',
+        ]);
+
+        $workspace = Workspace::withoutGlobalScopes()->findOrFail($id);
+        
+        if ($workspace->subscription) {
+            $workspace->subscription->update($validated);
+            
+            // Re-log as event if cancellation category provided
+            if (!empty($validated['cancellation_category'])) {
+                \App\Models\WorkspaceSubscriptionEvent::create([
+                    'workspace_id'    => $workspace->id,
+                    'subscription_id' => $workspace->subscription->id,
+                    'event_type'      => 'cancellation_reason_recorded',
+                    'payload'         => $validated,
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Dados de retenção atualizados com sucesso.');
     }
 }

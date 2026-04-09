@@ -17,6 +17,9 @@ class WorkspaceSubscription extends Model
         'starts_at',
         'ends_at',
         'canceled_at',
+        'cancellation_category',
+        'cancellation_reason',
+        'winback_candidate',
         'grace_ends_at',
         'external_id',
         'meta',
@@ -30,6 +33,7 @@ class WorkspaceSubscription extends Model
             'ends_at' => 'datetime',
             'canceled_at' => 'datetime',
             'grace_ends_at' => 'datetime',
+            'winback_candidate' => 'boolean',
             'meta' => 'array',
         ];
     }

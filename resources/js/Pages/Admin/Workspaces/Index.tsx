@@ -44,8 +44,11 @@ const STATUS_TABS = [
     { value: 'all',      label: 'Todos' },
     { value: 'active',   label: 'Ativos' },
     { value: 'trialing', label: 'Trial' },
+    { value: 'ending_trial', label: 'Fim de Trial' },
     { value: 'overdue',  label: 'Overdue' },
     { value: 'canceled', label: 'Cancelados' },
+    { value: 'canceled_recently', label: 'Recém Churn' },
+    { value: 'winback',  label: 'Win-back Flag' },
     { value: 'none',     label: 'Sem plano' },
 ];
 

@@ -1,9 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import {
     ArrowLeft, Building2, CreditCard, Activity, Users,
-    CheckCircle2, AlertTriangle, XCircle, Clock, ExternalLink,
+    CheckCircle2, AlertTriangle, XCircle, Clock, ExternalLink, ShieldAlert, BellRing
 } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 /* ─── Status/color maps ──────────────────────────────────────────────── */
 const subStatusColors: Record<string, string> = {
@@ -24,6 +25,7 @@ const invColors: Record<string, string> = {
 const timelineConfig: Record<string, { label: string; color: string; Icon: any }> = {
     trial_started:            { label: 'Trial iniciado',       color: 'bg-blue-500/20 text-blue-400',       Icon: Clock },
     trial_expired:            { label: 'Trial expirado',       color: 'bg-amber-500/20 text-amber-400',     Icon: Clock },
+    trial_ending_soon:        { label: 'Aviso fim de trial',   color: 'bg-blue-500/20 text-blue-400',       Icon: BellRing ?? Clock },
     subscription_activated:   { label: 'Assinatura ativada',   color: 'bg-emerald-500/20 text-emerald-400', Icon: CheckCircle2 },
     subscription_overdue:     { label: 'Inadimplência',        color: 'bg-red-500/20 text-red-400',         Icon: AlertTriangle },
     subscription_canceled:    { label: 'Cancelamento',         color: 'bg-zinc-500/20 text-zinc-400',       Icon: XCircle },
@@ -31,9 +33,11 @@ const timelineConfig: Record<string, { label: string; color: string; Icon: any }
     invoice_generated:        { label: 'Fatura gerada',        color: 'bg-amber-500/20 text-amber-400',     Icon: CreditCard },
     invoice_paid:             { label: 'Fatura paga',          color: 'bg-emerald-500/20 text-emerald-400', Icon: CreditCard },
     invoice_overdue:          { label: 'Fatura vencida',       color: 'bg-red-500/20 text-red-400',         Icon: CreditCard },
+    reminder_sent:            { label: 'Lembrete enviado',     color: 'bg-amber-500/20 text-amber-400',     Icon: Clock },
     plan_changed:             { label: 'Troca de plano',       color: 'bg-violet-500/20 text-violet-400',   Icon: Activity },
     plan_upgrade_requested:   { label: 'Upgrade solicitado',   color: 'bg-violet-500/20 text-violet-400',   Icon: Activity },
     plan_upgraded:            { label: 'Upgrade concluído',    color: 'bg-emerald-500/20 text-emerald-400', Icon: CheckCircle2 },
+    cancellation_reason_recorded: { label: 'Motivo de Churn',  color: 'bg-zinc-500/20 text-zinc-400',       Icon: ShieldAlert },
 };
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
@@ -45,6 +49,8 @@ interface SubscriptionData {
     id: number; status: string;
     starts_at: string | null; ends_at: string | null;
     trial_ends_at: string | null; canceled_at: string | null;
+    cancellation_category: string | null; cancellation_reason: string | null;
+    winback_candidate: boolean;
     plan: { name: string; price: number; billing_cycle: string };
 }
 interface InvoiceData {
@@ -71,6 +77,17 @@ export default function WorkspaceShow({
     const fmt = (val: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
+    const { data, setData, put, processing } = useForm({
+        cancellation_category: subscription?.cancellation_category ?? '',
+        cancellation_reason: subscription?.cancellation_reason ?? '',
+        winback_candidate: subscription?.winback_candidate ?? false,
+    });
+
+    const submitRetention: FormEventHandler = (e) => {
+        e.preventDefault();
+        put(`/admin/workspaces/${workspace.id}/retention`);
+    };
+
     return (
         <AdminLayout title={workspace.name}>
             <Head title={`Control Plane — ${workspace.name}`} />
@@ -92,6 +109,11 @@ export default function WorkspaceShow({
                         {subscription && (
                             <span className={`ml-2 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${subStatusColors[subscription.status] ?? ''}`}>
                                 {subStatusLabel[subscription.status] ?? subscription.status}
+                            </span>
+                        )}
+                        {subscription?.winback_candidate && (
+                            <span className="ml-1 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border bg-violet-500/20 text-violet-400 border-violet-500/30">
+                                Win-back Flag
                             </span>
                         )}
                     </div>
@@ -144,6 +166,62 @@ export default function WorkspaceShow({
                         <p className="text-zinc-500 text-sm">Sem assinatura registrada.</p>
                     )}
                 </div>
+
+                {/* Retenção e Win-back Action Block */}
+                {subscription && (subscription.status === 'canceled' || subscription.status === 'overdue') && (
+                    <form onSubmit={submitRetention} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                            <ShieldAlert className="w-4 h-4 text-amber-400" />
+                            <h2 className="text-sm font-semibold text-white">Retenção e Recuperação</h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label className="block text-xs text-zinc-500 mb-1">Motivo do Churn (Categoria)</label>
+                                <select 
+                                    className="w-full bg-zinc-950 border border-zinc-800 text-sm text-white rounded-lg px-3 py-2"
+                                    value={data.cancellation_category}
+                                    onChange={e => setData('cancellation_category', e.target.value)}
+                                >
+                                    <option value="">Selecione...</option>
+                                    <option value="Preço/Custo">Preço/Custo</option>
+                                    <option value="Falta de uso">Falta de uso (Não engajou)</option>
+                                    <option value="Concorrente">Migrou para concorrente</option>
+                                    <option value="Faltou feature">Falta de Feature / Funcionalidade</option>
+                                    <option value="Fechou as portas">Cliente fechou a empresa</option>
+                                    <option value="Outro">Outro motivo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-zinc-500 mb-1">Detalhes (Opcional)</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full bg-zinc-950 border border-zinc-800 text-sm text-white rounded-lg px-3 py-2"
+                                    placeholder="Descreva brevemente o motivo"
+                                    value={data.cancellation_reason}
+                                    onChange={e => setData('cancellation_reason', e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-between pt-4 border-t border-zinc-800/50">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    className="rounded border-zinc-700 bg-zinc-900 bg-zinc-950 text-violet-500"
+                                    checked={data.winback_candidate}
+                                    onChange={e => setData('winback_candidate', e.target.checked)}
+                                />
+                                <span className="text-sm text-zinc-300">Marcar como candidato a <strong>Win-back</strong> (Retorno)</span>
+                            </label>
+                            <button 
+                                type="submit" 
+                                disabled={processing}
+                                className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                Salvar Operação
+                            </button>
+                        </div>
+                    </form>
+                )}
 
                 {/* Timeline + Invoices */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">

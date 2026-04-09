@@ -19,4 +19,5 @@ Route::prefix('admin')->name('admin.')->middleware(EnsureAdmin::class)->group(fu
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('workspaces', [AdminWorkspaceController::class, 'index'])->name('workspaces.index');
     Route::get('workspaces/{id}', [AdminWorkspaceController::class, 'show'])->name('workspaces.show')->where('id', '[0-9]+');
+    Route::put('workspaces/{id}/retention', [AdminWorkspaceController::class, 'updateRetention'])->name('workspaces.retention.update')->where('id', '[0-9]+');
 });
