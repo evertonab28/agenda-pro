@@ -6,25 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->foreignId('professional_id')->nullable()->after('service_id')->constrained('users')->nullOnDelete();
+            $table->foreignId('professional_id')
+                ->nullable()
+                ->after('service_id')
+                ->constrained('users')
+                ->nullOnDelete();
+
             $table->index(['professional_id', 'starts_at']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
             $table->dropForeign(['professional_id']);
-            $table->dropIndex(['appointments_professional_id_starts_at_index']);
+            $table->dropIndex('appointments_professional_id_starts_at_index');
             $table->dropColumn('professional_id');
         });
     }
