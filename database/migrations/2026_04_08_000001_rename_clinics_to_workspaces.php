@@ -51,21 +51,25 @@ return new class extends Migration
                 continue;
             }
 
-            Schema::table($table, function (Blueprint $bp) use ($table) {
-                // Drop existing FK constraint (Laravel convention: table_column_foreign)
-                $bp->dropForeign("{$table}_clinic_id_foreign");
-            });
+            if (config('database.default') !== 'sqlite') {
+                Schema::table($table, function (Blueprint $bp) use ($table) {
+                    // Drop existing FK constraint (Laravel convention: table_column_foreign)
+                    $bp->dropForeign("{$table}_clinic_id_foreign");
+                });
+            }
 
             Schema::table($table, function (Blueprint $bp) {
                 $bp->renameColumn('clinic_id', 'workspace_id');
             });
 
-            Schema::table($table, function (Blueprint $bp) {
-                $bp->foreign('workspace_id')
-                    ->references('id')
-                    ->on('workspaces')
-                    ->cascadeOnDelete();
-            });
+            if (config('database.default') !== 'sqlite') {
+                Schema::table($table, function (Blueprint $bp) {
+                    $bp->foreign('workspace_id')
+                        ->references('id')
+                        ->on('workspaces')
+                        ->cascadeOnDelete();
+                });
+            }
         }
     }
 

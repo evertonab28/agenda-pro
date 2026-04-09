@@ -26,9 +26,11 @@ $appointment = $this->appointmentId ? Appointment::with(['customer','service'])-
 $charge = $this->chargeId ? Charge::with(['appointment.customer'])->find($this->chargeId) : null;
 
 $targetPhone = $appointment?->customer?->phone ?? $charge?->appointment?->customer?->phone;
+$workspaceId = $appointment?->workspace_id ?? $charge?->workspace_id;
 
 if (!$targetPhone) {
 ReminderLog::create([
+'workspace_id' => $workspaceId,
 'appointment_id' => $appointment?->id,
 'charge_id' => $charge?->id,
 'type' => $this->type,
@@ -49,6 +51,7 @@ $result = $messaging->send($targetPhone, $message, [
 ]);
 
 ReminderLog::create([
+'workspace_id' => $workspaceId,
 'appointment_id' => $appointment?->id,
 'charge_id' => $charge?->id,
 'type' => $this->type,

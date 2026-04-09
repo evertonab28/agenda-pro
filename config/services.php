@@ -36,8 +36,14 @@ return [
     ],
 
     'messaging' => [
-        'driver' => env('MESSAGING_DRIVER', 'fake'),
+        'provider' => env('MESSAGING_PROVIDER', 'fake'),
+        'provider_key' => env('MESSAGING_PROVIDER_KEY'),
         'webhook_secret' => env('MESSAGING_WEBHOOK_SECRET'),
+    ],
+
+    'payment' => [
+        'provider' => env('PAYMENT_PROVIDER', 'fake'),
+        'provider_key' => env('PAYMENT_PROVIDER_KEY'),
     ],
 
 ];

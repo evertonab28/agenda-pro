@@ -116,6 +116,10 @@ class CustomerAuthController extends Controller
 
         if ($authToken->token !== $request->token) {
             $authToken->increment('attempts');
+            if ($authToken->fresh()->attempts >= 3) {
+                $authToken->delete();
+                return response()->json(['ok' => false, 'message' => 'Limite de tentativas excedido. Solicite um novo código.'], 429);
+            }
             return response()->json(['ok' => false, 'message' => 'Código incorreto'], 401);
         }
 

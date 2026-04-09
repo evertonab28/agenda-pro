@@ -15,13 +15,13 @@ class PublicSchedulingController extends Controller
 {
     public function getServices(Workspace $workspace)
     {
-        $services = Service::where('is_active', true)->get();
+        $services = $workspace->services()->where('is_active', true)->get();
         return response()->json($services);
     }
 
     public function getProfessionals(Workspace $workspace, $service_id)
     {
-        $service = Service::findOrFail($service_id);
+        $service = $workspace->services()->findOrFail($service_id);
 
         $professionals = $service->professionals()
             ->where('is_active', true)
@@ -38,8 +38,8 @@ class PublicSchedulingController extends Controller
             'date' => 'required|date_format:Y-m-d',
         ]);
 
-        $professional = Professional::findOrFail($request->professional_id);
-        $service = Service::findOrFail($request->service_id);
+        $professional = $workspace->professionals()->findOrFail($request->professional_id);
+        $service = $workspace->services()->findOrFail($request->service_id);
         $date = Carbon::parse($request->date);
 
         $weekday = $date->dayOfWeek;
@@ -108,7 +108,8 @@ class PublicSchedulingController extends Controller
             'phone' => 'required|string|max:20',
         ]);
 
-        $service = Service::findOrFail($request->service_id);
+        $service = $workspace->services()->findOrFail($request->service_id);
+        $professional = $workspace->professionals()->findOrFail($request->professional_id);
 
         $phoneDigits = preg_replace('/\D/', '', $request->phone);
 

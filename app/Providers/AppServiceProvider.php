@@ -14,11 +14,19 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(\App\Services\Finance\PaymentLinkServiceInterface::class, function ($app) {
-            return new \App\Services\Finance\FakePaymentLinkService();
+            $provider = config('services.payment.provider', 'fake');
+            if ($provider === 'fake' || $app->environment('testing')) {
+                return new \App\Services\Finance\FakePaymentLinkService();
+            }
+            return new \App\Services\Finance\RealPaymentProviderService();
         });
 
         $this->app->bind(\App\Services\Messaging\MessagingServiceInterface::class, function ($app) {
-            return new \App\Services\Messaging\FakeMessagingService();
+            $provider = config('services.messaging.provider', 'fake');
+            if ($provider === 'fake' || $app->environment('testing')) {
+                return new \App\Services\Messaging\FakeMessagingService();
+            }
+            return new \App\Services\Messaging\RealMessagingService();
         });
     }
 

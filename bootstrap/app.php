@@ -21,8 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'customer.workspace' => \App\Http\Middleware\CheckCustomerWorkspace::class,
-            // Sprint 1 compatibility alias – remove after Sprint 2
-            'customer.clinic' => \App\Http\Middleware\CheckCustomerWorkspace::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

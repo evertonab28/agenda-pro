@@ -18,9 +18,11 @@ class MessagingWebhookController extends Controller
         $secret = config('services.messaging.webhook_secret');
         $payload = $request->getContent();
 
-        // 1. Fail-Safe: Bloquear se segredo não configurado em prod
-        if (app()->environment('production') && empty($secret)) {
-            Log::critical('WEBHOOK CRITICAL: Secret não configurado em produção!');
+        // 1. Fail-Safe: Bloquear se segredo não configurado fora do ambiente de dev/local
+        if (!app()->environment('local', 'testing') && empty($secret)) {
+            Log::critical('WEBHOOK CRITICAL: Secret não configurado em ambiente protegido!', [
+                'ip' => $request->ip()
+            ]);
             return response()->json(['ok' => false, 'message' => 'Configuração segura ausente'], 500);
         }
 
@@ -29,16 +31,17 @@ class MessagingWebhookController extends Controller
             return response()->json(['ok' => false, 'message' => 'Request expirado (Timestamp drift)'], 401);
         }
 
-        // 3. Validação de Assinatura HMAC (R2)
-        $expectedSignature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
-        if (!hash_equals($expectedSignature, (string)$signature)) {
-            Log::warning('Tentativa de webhook com assinatura inválida', [
-                'ip' => $request->ip(),
-                'expected_sig' => $expectedSignature,
-                'received_sig' => $signature,
-                'payload' => $payload
-            ]);
-            return response()->json(['ok' => false, 'message' => 'Assinatura inválida'], 401);
+        if (!empty($secret)) {
+            $expectedSignature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+            if (!hash_equals($expectedSignature, (string)$signature)) {
+                Log::warning('Tentativa de webhook com assinatura inválida', [
+                    'ip' => $request->ip(),
+                    'expected_sig' => $expectedSignature,
+                    'received_sig' => $signature,
+                    'event_id' => json_decode($payload, true)['event_id'] ?? null
+                ]);
+                return response()->json(['ok' => false, 'message' => 'Assinatura inválida'], 401);
+            }
         }
 
         $data = json_decode($payload, true);
@@ -70,7 +73,10 @@ class MessagingWebhookController extends Controller
                 ]);
                 
                 $this->auditEvent('messaging', $eventId);
+                Log::info("Webhook: Charge {$charge->id} (Workspace {$charge->workspace_id}) atualizado para paid via event {$eventId}");
                 return response()->json(['ok' => true, 'action' => 'payment_recorded']);
+            } else {
+                Log::warning("Webhook payment_provider_id {$externalId} não encontrou charge correspondente. Event: {$eventId}");
             }
         }
 
