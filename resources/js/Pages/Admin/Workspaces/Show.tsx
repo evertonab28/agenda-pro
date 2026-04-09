@@ -1,133 +1,104 @@
 import { Head, Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import {
-    ArrowLeft,
-    Building2,
-    CreditCard,
-    Activity,
-    Users,
-    Calendar,
-    ExternalLink,
-    CheckCircle2,
-    AlertTriangle,
-    XCircle,
-    Clock,
+    ArrowLeft, Building2, CreditCard, Activity, Users,
+    CheckCircle2, AlertTriangle, XCircle, Clock, ExternalLink,
 } from 'lucide-react';
 
-const statusColors: Record<string, string> = {
+/* ─── Status/color maps ──────────────────────────────────────────────── */
+const subStatusColors: Record<string, string> = {
     active:   'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
     trialing: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     overdue:  'bg-red-500/20 text-red-400 border-red-500/30',
     canceled: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30',
-    none:     'bg-zinc-700/20 text-zinc-500 border-zinc-700/30',
+};
+const subStatusLabel: Record<string, string> = {
+    active: 'Ativo', trialing: 'Trial', overdue: 'Inadimplente', canceled: 'Cancelado',
 };
 
-const statusLabel: Record<string, string> = {
-    active: 'Ativo', trialing: 'Trial', overdue: 'Inadimplente', canceled: 'Cancelado', none: 'Sem assinatura',
+const invColors: Record<string, string> = {
+    paid: 'bg-emerald-500/20 text-emerald-400', pending: 'bg-amber-500/20 text-amber-400',
+    overdue: 'bg-red-500/20 text-red-400', canceled: 'bg-zinc-500/20 text-zinc-400',
 };
 
-const invoiceStatusColors: Record<string, string> = {
-    paid:    'bg-emerald-500/20 text-emerald-400',
-    pending: 'bg-amber-500/20 text-amber-400',
-    overdue: 'bg-red-500/20 text-red-400',
-    canceled:'bg-zinc-500/20 text-zinc-400',
+const timelineConfig: Record<string, { label: string; color: string; Icon: any }> = {
+    trial_started:            { label: 'Trial iniciado',       color: 'bg-blue-500/20 text-blue-400',       Icon: Clock },
+    trial_expired:            { label: 'Trial expirado',       color: 'bg-amber-500/20 text-amber-400',     Icon: Clock },
+    subscription_activated:   { label: 'Assinatura ativada',   color: 'bg-emerald-500/20 text-emerald-400', Icon: CheckCircle2 },
+    subscription_overdue:     { label: 'Inadimplência',        color: 'bg-red-500/20 text-red-400',         Icon: AlertTriangle },
+    subscription_canceled:    { label: 'Cancelamento',         color: 'bg-zinc-500/20 text-zinc-400',       Icon: XCircle },
+    subscription_reactivated: { label: 'Reativação',           color: 'bg-blue-500/20 text-blue-400',       Icon: CheckCircle2 },
+    invoice_generated:        { label: 'Fatura gerada',        color: 'bg-amber-500/20 text-amber-400',     Icon: CreditCard },
+    invoice_paid:             { label: 'Fatura paga',          color: 'bg-emerald-500/20 text-emerald-400', Icon: CreditCard },
+    invoice_overdue:          { label: 'Fatura vencida',       color: 'bg-red-500/20 text-red-400',         Icon: CreditCard },
+    plan_changed:             { label: 'Troca de plano',       color: 'bg-violet-500/20 text-violet-400',   Icon: Activity },
+    plan_upgrade_requested:   { label: 'Upgrade solicitado',   color: 'bg-violet-500/20 text-violet-400',   Icon: Activity },
+    plan_upgraded:            { label: 'Upgrade concluído',    color: 'bg-emerald-500/20 text-emerald-400', Icon: CheckCircle2 },
 };
 
-const eventIcons: Record<string, any> = {
-    subscription_activated:   CheckCircle2,
-    subscription_renewed:     CheckCircle2,
-    subscription_reactivated: CheckCircle2,
-    overdue:                  AlertTriangle,
-    trial_started:            Clock,
-    canceled:                 XCircle,
-    invoice_generated:        CreditCard,
-};
-
-const eventColors: Record<string, string> = {
-    subscription_activated:   'text-emerald-400 bg-emerald-500/10',
-    subscription_renewed:     'text-emerald-400 bg-emerald-500/10',
-    subscription_reactivated: 'text-blue-400 bg-blue-500/10',
-    overdue:                  'text-red-400 bg-red-500/10',
-    trial_started:            'text-blue-400 bg-blue-500/10',
-    canceled:                 'text-zinc-400 bg-zinc-500/10',
-    invoice_generated:        'text-violet-400 bg-violet-500/10',
-};
-
-const eventLabel: Record<string, string> = {
-    subscription_activated:   'Assinatura ativada',
-    subscription_renewed:     'Assinatura renovada',
-    subscription_reactivated: 'Assinatura reativada',
-    overdue:                  'Inadimplência detectada',
-    trial_started:            'Período de trial iniciado',
-    canceled:                 'Assinatura cancelada',
-    invoice_generated:        'Fatura gerada',
-};
-
-interface Props {
-    workspace: {
-        id: number;
-        name: string;
-        slug: string;
-        created_at: string;
-        users_count: number;
-        customers_count: number;
-    };
-    subscription: {
-        id: number;
-        status: string;
-        starts_at: string | null;
-        ends_at: string | null;
-        trial_ends_at: string | null;
-        canceled_at: string | null;
-        plan: { name: string; price: number; billing_cycle: string };
-    } | null;
-    invoices: Array<{
-        id: number;
-        amount: number;
-        status: string;
-        due_date: string | null;
-        reference_period: string;
-        plan_name: string;
-        provider_payment_link: string | null;
-        created_at: string;
-    }>;
-    events: Array<{
-        id: number;
-        event_type: string;
-        payload: Record<string, any>;
-        created_at: string;
-    }>;
+/* ─── Types ──────────────────────────────────────────────────────────── */
+interface WorkspaceData {
+    id: number; name: string; slug: string; created_at: string;
+    users_count: number; customers_count: number;
+}
+interface SubscriptionData {
+    id: number; status: string;
+    starts_at: string | null; ends_at: string | null;
+    trial_ends_at: string | null; canceled_at: string | null;
+    plan: { name: string; price: number; billing_cycle: string };
+}
+interface InvoiceData {
+    id: number; amount: number; status: string;
+    due_date: string | null; paid_at: string | null;
+    reference_period: string; plan_name: string;
+    provider_payment_link: string | null; created_at: string;
+}
+interface TimelineItem {
+    date: string; source: 'event' | 'invoice';
+    event_type: string; payload: Record<string, any>;
+    amount: number | null; status: string | null;
 }
 
-export default function WorkspaceShow({ workspace, subscription, invoices, events }: Props) {
-    const formatCurrency = (val: number) =>
+/* ─── Component ───────────────────────────────────────────────────────── */
+export default function WorkspaceShow({
+    workspace, subscription, invoices, timeline,
+}: {
+    workspace: WorkspaceData;
+    subscription: SubscriptionData | null;
+    invoices: InvoiceData[];
+    timeline: TimelineItem[];
+}) {
+    const fmt = (val: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
     return (
         <AdminLayout title={workspace.name}>
             <Head title={`Control Plane — ${workspace.name}`} />
+            <div className="space-y-7 max-w-6xl">
 
-            <div className="space-y-8">
-                {/* Back + Header */}
+                {/* Header */}
                 <div className="flex items-start gap-4">
                     <Link href="/admin/workspaces" className="mt-1 p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
                         <ArrowLeft className="w-4 h-4" />
                     </Link>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-violet-400" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-white">{workspace.name}</h1>
-                                <p className="text-zinc-500 text-sm">{workspace.slug} · cadastrado em {workspace.created_at}</p>
-                            </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-violet-400" />
                         </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-white">{workspace.name}</h1>
+                            <p className="text-zinc-500 text-xs">{workspace.slug} · desde {workspace.created_at}</p>
+                        </div>
+                        {subscription && (
+                            <span className={`ml-2 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${subStatusColors[subscription.status] ?? ''}`}>
+                                {subStatusLabel[subscription.status] ?? subscription.status}
+                            </span>
+                        )}
                     </div>
                 </div>
 
-                {/* Info cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Quick stats */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
                         <Users className="w-4 h-4 text-violet-400 mb-2" />
                         <p className="text-2xl font-bold text-white">{workspace.users_count}</p>
@@ -141,83 +112,102 @@ export default function WorkspaceShow({ workspace, subscription, invoices, event
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
                         <CreditCard className="w-4 h-4 text-emerald-400 mb-2" />
                         <p className="text-2xl font-bold text-white">{invoices.length}</p>
-                        <p className="text-zinc-500 text-xs">Invoices totais</p>
+                        <p className="text-zinc-500 text-xs">Invoices SaaS</p>
                     </div>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
                         <Activity className="w-4 h-4 text-amber-400 mb-2" />
-                        <p className="text-2xl font-bold text-white">{events.length}</p>
-                        <p className="text-zinc-500 text-xs">Eventos comerciais</p>
+                        <p className="text-2xl font-bold text-white">{timeline.length}</p>
+                        <p className="text-zinc-500 text-xs">Eventos na timeline</p>
                     </div>
                 </div>
 
-                {/* Subscription status */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-                    <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-zinc-400" /> Assinatura
-                    </h2>
+                {/* Subscription details */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+                    <h2 className="text-sm font-semibold text-zinc-300 mb-4">Assinatura</h2>
                     {subscription ? (
-                        <div className="flex flex-wrap gap-6">
-                            <div>
-                                <p className="text-zinc-500 text-xs mb-1">Status</p>
-                                <span className={`text-xs font-bold uppercase px-3 py-1 rounded-full border ${statusColors[subscription.status] ?? statusColors.none}`}>
-                                    {statusLabel[subscription.status] ?? subscription.status}
-                                </span>
-                            </div>
-                            <div>
-                                <p className="text-zinc-500 text-xs mb-1">Plano</p>
-                                <p className="text-white font-medium">{subscription.plan.name}</p>
-                            </div>
-                            <div>
-                                <p className="text-zinc-500 text-xs mb-1">Valor</p>
-                                <p className="text-white font-medium">{formatCurrency(subscription.plan.price)} / {subscription.plan.billing_cycle}</p>
-                            </div>
-                            <div>
-                                <p className="text-zinc-500 text-xs mb-1">Início</p>
-                                <p className="text-zinc-300 text-sm">{subscription.starts_at ?? '—'}</p>
-                            </div>
-                            <div>
-                                <p className="text-zinc-500 text-xs mb-1">Vencimento</p>
-                                <p className="text-zinc-300 text-sm">{subscription.ends_at ?? '—'}</p>
-                            </div>
-                            {subscription.trial_ends_at && (
-                                <div>
-                                    <p className="text-zinc-500 text-xs mb-1">Fim do Trial</p>
-                                    <p className="text-blue-400 text-sm">{subscription.trial_ends_at}</p>
+                        <div className="flex flex-wrap gap-x-8 gap-y-4">
+                            {[
+                                { label: 'Plano', value: subscription.plan.name },
+                                { label: 'Valor', value: `${fmt(subscription.plan.price)} / ${subscription.plan.billing_cycle}` },
+                                { label: 'Início', value: subscription.starts_at ?? '—' },
+                                { label: 'Vencimento', value: subscription.ends_at ?? '—' },
+                                subscription.trial_ends_at ? { label: 'Fim do Trial', value: subscription.trial_ends_at } : null,
+                                subscription.canceled_at ? { label: 'Cancelado em', value: subscription.canceled_at } : null,
+                            ].filter(Boolean).map((item: any) => (
+                                <div key={item.label}>
+                                    <p className="text-zinc-600 text-xs mb-0.5">{item.label}</p>
+                                    <p className="text-zinc-200 text-sm font-medium">{item.value}</p>
                                 </div>
-                            )}
-                            {subscription.canceled_at && (
-                                <div>
-                                    <p className="text-zinc-500 text-xs mb-1">Cancelado em</p>
-                                    <p className="text-red-400 text-sm">{subscription.canceled_at}</p>
-                                </div>
-                            )}
+                            ))}
                         </div>
                     ) : (
-                        <p className="text-zinc-500 text-sm">Nenhuma assinatura encontrada para este workspace.</p>
+                        <p className="text-zinc-500 text-sm">Sem assinatura registrada.</p>
                     )}
                 </div>
 
-                {/* Invoices + Events in 2 cols */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Invoices */}
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-                        <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-2">
+                {/* Timeline + Invoices */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                    {/* Timeline — 3 cols */}
+                    <div className="lg:col-span-3 bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+                        <div className="px-5 py-4 border-b border-zinc-800 flex items-center gap-2">
+                            <Activity className="w-4 h-4 text-violet-400" />
+                            <h2 className="text-sm font-semibold text-white">Timeline Comercial</h2>
+                        </div>
+                        {timeline.length === 0 ? (
+                            <div className="px-5 py-10 text-center text-zinc-600 text-sm">Nenhum evento ainda.</div>
+                        ) : (
+                            <div className="p-5 space-y-1 max-h-[500px] overflow-y-auto">
+                                {[...timeline].reverse().map((item, i) => {
+                                    const cfg = timelineConfig[item.event_type] ?? {
+                                        label: item.event_type, color: 'bg-zinc-500/20 text-zinc-400', Icon: Activity,
+                                    };
+                                    const { Icon, color, label } = cfg;
+                                    return (
+                                        <div key={i} className="flex items-start gap-3 py-2.5">
+                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${color}`}>
+                                                <Icon className="w-3.5 h-3.5" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-zinc-200 text-sm font-medium">{label}</p>
+                                                    {item.amount !== null && (
+                                                        <span className="text-xs text-zinc-500">{fmt(item.amount)}</span>
+                                                    )}
+                                                </div>
+                                                <p className="text-zinc-600 text-xs">{item.date}</p>
+                                                {item.payload && Object.keys(item.payload).length > 0 && (
+                                                    <div className="mt-1 text-[11px] text-zinc-600 font-mono truncate max-w-xs">
+                                                        {item.payload.plan && <span>Plano: {item.payload.plan} · </span>}
+                                                        {item.payload.reference_period && <span>{item.payload.reference_period}</span>}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Invoices — 2 cols */}
+                    <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+                        <div className="px-5 py-4 border-b border-zinc-800 flex items-center gap-2">
                             <CreditCard className="w-4 h-4 text-zinc-400" />
-                            <h2 className="text-white font-semibold text-sm">Histórico de Invoices</h2>
+                            <h2 className="text-sm font-semibold text-white">Invoices</h2>
                         </div>
                         {invoices.length === 0 ? (
-                            <div className="px-6 py-8 text-center text-zinc-600 text-sm">Nenhuma invoice encontrada.</div>
+                            <div className="px-5 py-10 text-center text-zinc-600 text-sm">Nenhuma invoice.</div>
                         ) : (
-                            <ul className="divide-y divide-zinc-800">
+                            <ul className="divide-y divide-zinc-800 max-h-[500px] overflow-y-auto">
                                 {invoices.map(inv => (
-                                    <li key={inv.id} className="px-6 py-3 flex items-center justify-between">
-                                        <div>
-                                            <p className="text-zinc-200 text-sm font-medium">{inv.reference_period} — {inv.plan_name}</p>
-                                            <p className="text-zinc-600 text-xs">Venc: {inv.due_date ?? '—'} · criado {inv.created_at}</p>
+                                    <li key={inv.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-zinc-200 text-xs font-medium truncate">{inv.reference_period}</p>
+                                            <p className="text-zinc-600 text-[10px]">{inv.plan_name} · venc {inv.due_date ?? '—'}</p>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <p className="text-white text-sm font-bold">{formatCurrency(inv.amount)}</p>
-                                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${invoiceStatusColors[inv.status] ?? ''}`}>
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                            <p className="text-white text-xs font-bold">{fmt(inv.amount)}</p>
+                                            <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full ${invColors[inv.status] ?? ''}`}>
                                                 {inv.status}
                                             </span>
                                             {inv.provider_payment_link && inv.status !== 'paid' && (
@@ -228,40 +218,6 @@ export default function WorkspaceShow({ workspace, subscription, invoices, event
                                         </div>
                                     </li>
                                 ))}
-                            </ul>
-                        )}
-                    </div>
-
-                    {/* Events Timeline */}
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-                        <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-zinc-400" />
-                            <h2 className="text-white font-semibold text-sm">Histórico Comercial</h2>
-                        </div>
-                        {events.length === 0 ? (
-                            <div className="px-6 py-8 text-center text-zinc-600 text-sm">Nenhum evento registrado.</div>
-                        ) : (
-                            <ul className="divide-y divide-zinc-800">
-                                {events.map(ev => {
-                                    const Icon = eventIcons[ev.event_type] ?? Activity;
-                                    const color = eventColors[ev.event_type] ?? 'text-zinc-400 bg-zinc-500/10';
-                                    return (
-                                        <li key={ev.id} className="px-6 py-3 flex items-start gap-3">
-                                            <div className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${color}`}>
-                                                <Icon className="w-3.5 h-3.5" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-zinc-200 text-sm">{eventLabel[ev.event_type] ?? ev.event_type}</p>
-                                                <p className="text-zinc-600 text-xs">{ev.created_at}</p>
-                                                {ev.payload && Object.keys(ev.payload).length > 0 && (
-                                                    <div className="mt-1 text-xs text-zinc-600 font-mono truncate">
-                                                        {JSON.stringify(ev.payload)}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </li>
-                                    );
-                                })}
                             </ul>
                         )}
                     </div>
