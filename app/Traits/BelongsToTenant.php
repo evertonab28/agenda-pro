@@ -27,4 +27,12 @@ trait BelongsToTenant
             }
         });
     }
+
+    /**
+     * Get the workspace that owns the model.
+     */
+    public function workspace(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Workspace::class);
+    }
 }

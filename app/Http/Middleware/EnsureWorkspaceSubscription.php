@@ -24,8 +24,8 @@ class EnsureWorkspaceSubscription
         $subscription = $workspace->subscription()->first();
 
         if (!$subscription || !$subscription->isActive()) {
-            // Allow access to configuration area even if subscription is invalid for regularization
-            if ($request->is('configuracoes*') || $request->is('api/billing*')) {
+            // Allow access to configuration area and onboarding even if subscription is invalid for regularization
+            if ($request->is('configuracoes*') || $request->is('api/billing*') || $request->is('onboarding*')) {
                 return $next($request);
             }
 

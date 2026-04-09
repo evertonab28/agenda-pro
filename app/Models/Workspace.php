@@ -16,6 +16,11 @@ class Workspace extends Model
         return $this->hasMany(Service::class);
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function professionals()
     {
         return $this->hasMany(Professional::class);

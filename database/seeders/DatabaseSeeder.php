@@ -8,17 +8,32 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+    // use WithoutModelEvents;
 
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
+        $this->call(PlanSeeder::class);
+        
         $workspace = \App\Models\Workspace::updateOrCreate(
             ['slug' => 'workspace-modelo'],
             ['name' => 'Workspace Modelo', 'status' => 'active']
         );
+
+        // Ensure subscription if observer didn't fire (e.g. on update)
+        if ($workspace->subscriptions()->count() === 0) {
+            $plan = \App\Models\Plan::where('slug', 'starter')->first();
+            if ($plan) {
+                $workspace->subscriptions()->create([
+                    'plan_id' => $plan->id,
+                    'status' => 'trialing',
+                    'trial_ends_at' => now()->addDays(14),
+                    'starts_at' => now(),
+                ]);
+            }
+        }
 
         User::updateOrCreate(
             ['email' => 'admin@agendapro.com.br'],
