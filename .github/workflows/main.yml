@@ -2,9 +2,9 @@ name: CI — Release Quality Gate
 
 on:
   push:
-    branches: [ "main", "master", "develop" ]
+    branches: ["main", "master", "develop"]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
 
 jobs:
   # ──────────────────────────────────────────
@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP 8.2
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, dom, curl, libxml, pdo_sqlite, bcmath, gd, zip
+          php-version: "8.3"
+          extensions: intl, mbstring, dom, curl, libxml, pdo_sqlite, bcmath, gd, zip
           coverage: none
 
       - name: Cache Composer packages
@@ -77,7 +77,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install npm dependencies
         run: npm ci
