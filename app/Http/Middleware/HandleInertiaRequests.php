@@ -47,14 +47,19 @@ class HandleInertiaRequests extends Middleware
             ],
             'auth' => [
                 'user' => $request->user() ? [
-                    'id' => $request->user()->id,
+                    'id'   => $request->user()->id,
                     'name' => $request->user()->name,
-                    'email' => $request->user()->email,
+                    'email'=> $request->user()->email,
                     'role' => $request->user()->role,
                 ] : null,
+                'admin' => \Illuminate\Support\Facades\Auth::guard('admin')->user() ? [
+                    'id'    => \Illuminate\Support\Facades\Auth::guard('admin')->user()->id,
+                    'name'  => \Illuminate\Support\Facades\Auth::guard('admin')->user()->name,
+                    'email' => \Illuminate\Support\Facades\Auth::guard('admin')->user()->email,
+                ] : null,
                 'can' => $request->user() ? [
-                    'manage_users' => $request->user()->role === 'admin',
-                    'view_finance' => in_array($request->user()->role, ['admin', 'manager']),
+                    'manage_users'    => $request->user()->role === 'admin',
+                    'view_finance'    => in_array($request->user()->role, ['admin', 'manager']),
                     'manage_settings' => in_array($request->user()->role, ['admin', 'manager']),
                 ] : [],
                 'hide_nav' => $request->user() && 
