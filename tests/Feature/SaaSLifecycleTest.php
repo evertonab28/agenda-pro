@@ -381,4 +381,65 @@ class SaaSLifecycleTest extends TestCase
             'event_type'      => 'subscription_renewed',
         ]);
     }
+
+    public function test_activate_route_rejects_non_trialing_workspace()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $workspace = Workspace::factory()->create();
+        $user->workspace()->associate($workspace);
+        $user->save();
+
+        $plan = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        WorkspaceSubscription::create([
+            'workspace_id' => $workspace->id,
+            'plan_id'      => $plan->id,
+            'status'       => 'active',
+            'starts_at'    => now(),
+            'ends_at'      => now()->addMonth(),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('configuracoes.billing.activate'), ['plan_id' => $plan->id]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseMissing('workspace_billing_invoices', [
+            'workspace_id' => $workspace->id,
+        ]);
+    }
+
+    public function test_upgrade_route_allows_active_same_plan_as_renewal()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $workspace = Workspace::factory()->create();
+        $user->workspace()->associate($workspace);
+        $user->save();
+
+        $plan = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        WorkspaceSubscription::create([
+            'workspace_id' => $workspace->id,
+            'plan_id'      => $plan->id,
+            'status'       => 'active',
+            'starts_at'    => now(),
+            'ends_at'      => now()->addMonth(),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('configuracoes.billing.upgrade'), ['plan_id' => $plan->id]);
+
+        // upgrade for active + same plan is allowed (no 500, no uncontrolled error)
+        $response->assertRedirect();
+        $response->assertSessionMissing('exception');
+    }
 }
