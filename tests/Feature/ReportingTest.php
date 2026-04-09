@@ -71,14 +71,14 @@ class ReportingTest extends TestCase
         $prof = Professional::factory()->create();
 
         // Service A: 2 appointments
-        $app1 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceA->id, 'status' => 'finished', 'professional_id' => $prof->id]);
-        $app2 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceA->id, 'status' => 'finished', 'professional_id' => $prof->id]);
+        $app1 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceA->id, 'status' => 'completed', 'professional_id' => $prof->id]);
+        $app2 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceA->id, 'status' => 'completed', 'professional_id' => $prof->id]);
         
         Charge::factory()->create(['workspace_id' => $this->workspace->id, 'appointment_id' => $app1->id, 'amount' => 100, 'status' => 'paid']);
         Charge::factory()->create(['workspace_id' => $this->workspace->id, 'appointment_id' => $app2->id, 'amount' => 100, 'status' => 'paid']);
 
         // Service B: 1 appointment
-        $app3 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceB->id, 'status' => 'finished', 'professional_id' => $prof->id]);
+        $app3 = Appointment::factory()->create(['workspace_id' => $this->workspace->id, 'service_id' => $serviceB->id, 'status' => 'completed', 'professional_id' => $prof->id]);
         Charge::factory()->create(['workspace_id' => $this->workspace->id, 'appointment_id' => $app3->id, 'amount' => 500, 'status' => 'paid']);
 
         $performance = $this->service->getServicePerformance($this->workspace->id);
