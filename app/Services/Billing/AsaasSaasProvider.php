@@ -12,8 +12,8 @@ class AsaasSaasProvider
 
     public function __construct()
     {
-        $this->apiKey = config('services.payment.asaas.key', '');
-        $this->baseUrl = config('services.payment.asaas.url', 'https://sandbox.asaas.com/api/v3');
+        $this->apiKey = config('services.payment.asaas.key') ?? '';
+        $this->baseUrl = config('services.payment.asaas.url') ?? 'https://sandbox.asaas.com/api/v3';
 
         if (empty($this->apiKey)) {
             Log::warning("AsaasSaasProvider: API Key do SaaS não configurada.");
