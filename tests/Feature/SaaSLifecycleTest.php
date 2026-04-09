@@ -169,4 +169,111 @@ class SaaSLifecycleTest extends TestCase
             'event_type' => 'canceled'
         ]);
     }
+
+    public function test_activate_route_generates_trial_conversion_invoice()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $workspace = Workspace::factory()->create();
+        $user->workspace()->associate($workspace);
+        $user->save();
+
+        $plan = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        WorkspaceSubscription::create([
+            'workspace_id'  => $workspace->id,
+            'plan_id'       => $plan->id,
+            'status'        => 'trialing',
+            'trial_ends_at' => now()->addDays(7),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('configuracoes.billing.activate'), ['plan_id' => $plan->id]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('workspace_billing_invoices', [
+            'workspace_id' => $workspace->id,
+            'plan_id'      => $plan->id,
+            'status'       => 'pending',
+        ]);
+
+        $this->assertDatabaseHas('workspace_subscription_events', [
+            'workspace_id' => $workspace->id,
+            'event_type'   => 'invoice_generated',
+        ]);
+    }
+
+    public function test_upgrade_route_rejects_same_plan_when_trialing()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $workspace = Workspace::factory()->create();
+        $user->workspace()->associate($workspace);
+        $user->save();
+
+        $plan = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        WorkspaceSubscription::create([
+            'workspace_id'  => $workspace->id,
+            'plan_id'       => $plan->id,
+            'status'        => 'trialing',
+            'trial_ends_at' => now()->addDays(7),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('configuracoes.billing.upgrade'), ['plan_id' => $plan->id]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseMissing('workspace_billing_invoices', [
+            'workspace_id' => $workspace->id,
+        ]);
+    }
+
+    public function test_trial_to_higher_plan_uses_upgrade_route()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $workspace = Workspace::factory()->create();
+        $user->workspace()->associate($workspace);
+        $user->save();
+
+        $starter = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+        $pro = Plan::create([
+            'name' => 'Pro', 'slug' => 'pro',
+            'price' => 99.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        WorkspaceSubscription::create([
+            'workspace_id'  => $workspace->id,
+            'plan_id'       => $starter->id,
+            'status'        => 'trialing',
+            'trial_ends_at' => now()->addDays(7),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('configuracoes.billing.upgrade'), ['plan_id' => $pro->id]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('workspace_billing_invoices', [
+            'workspace_id' => $workspace->id,
+            'plan_id'      => $pro->id,
+            'status'       => 'pending',
+        ]);
+    }
 }
