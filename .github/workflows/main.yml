@@ -14,19 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP 8.3
+      - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: "8.4"
           extensions: intl, mbstring, dom, curl, xml, xmlwriter, xmlreader, pdo_sqlite, bcmath, gd, zip
           coverage: none
           tools: composer:v2
-
-      - name: Debug PHP / Composer platform
-        run: |
-          php -v
-          composer --version
-          composer show --platform
 
       - name: Cache Composer packages
         uses: actions/cache@v4
@@ -38,7 +32,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install Composer Dependencies
-        run: composer install --no-ansi --no-interaction --no-scripts --prefer-dist -vvv
+        run: composer install --no-ansi --no-interaction --no-scripts --prefer-dist
 
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
