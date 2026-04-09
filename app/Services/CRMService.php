@@ -19,6 +19,10 @@ class CRMService
             ->first();
 
         if (!$lastAppointment) {
+            // Se não tem agendamentos e foi criado há mais de 60 dias, tratamos como Inativo
+            if ($customer->created_at->lt(now()->subDays(60))) {
+                return 'Inativo';
+            }
             return 'Novo';
         }
 
@@ -49,22 +53,20 @@ class CRMService
      */
     public function getSegmentCounts(): array
     {
-        $customers = Customer::all();
-        $segments = [
+        $counts = Customer::select('current_segment', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('current_segment')
+            ->pluck('total', 'current_segment')
+            ->toArray();
+
+        // Garantir que todas as chaves existam para o frontend
+        return array_merge([
             'VIP' => 0,
             'Recorrente' => 0,
             'Ativo' => 0,
             'Em Risco' => 0,
             'Inativo' => 0,
             'Novo' => 0,
-        ];
-
-        foreach ($customers as $customer) {
-            $segment = $this->getSegment($customer);
-            $segments[$segment]++;
-        }
-
-        return $segments;
+        ], array_filter($counts)); // remove nulls se houver
     }
 
     /**
@@ -72,9 +74,7 @@ class CRMService
      */
     public function getCustomersBySegment(string $segment): Collection
     {
-        return Customer::all()->filter(function ($customer) use ($segment) {
-            return $this->getSegment($customer) === $segment;
-        });
+        return Customer::where('current_segment', $segment)->get();
     }
 
     /**
@@ -139,26 +139,10 @@ class CRMService
      */
     public function reengageInactiveCustomers(int $clinicId): array
     {
-        $cutoff = now()->subDays(60);
-        
-        // Find customers whose last COMPLETED appointment was more than 60 days ago
-        // OR who have NO completed appointments but were created > 60 days ago.
         return Customer::where('workspace_id', $clinicId)
             ->where('is_active', true)
+            ->where('current_segment', 'Inativo')
             ->get()
-            ->filter(function ($customer) use ($cutoff) {
-                $lastApp = $customer->appointments()
-                    ->where('status', 'completed')
-                    ->latest('starts_at')
-                    ->first();
-                
-                if (!$lastApp) {
-                    return $customer->created_at->lt($cutoff);
-                }
-                
-                return Carbon::parse($lastApp->starts_at)->lt($cutoff);
-            })
-            ->values()
             ->toArray();
     }
 

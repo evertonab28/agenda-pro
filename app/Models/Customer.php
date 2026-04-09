@@ -26,6 +26,7 @@ class Customer extends Authenticatable
         'birth_date',
         'notes',
         'is_active',
+        'current_segment',
     ];
 
     protected $casts = [
