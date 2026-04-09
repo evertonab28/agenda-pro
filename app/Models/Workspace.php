@@ -43,7 +43,7 @@ class Workspace extends Model
 
     public function subscription()
     {
-        return $this->hasOne(WorkspaceSubscription::class)->whereIn('status', ['active', 'trialing', 'overdue'])->latestOfMany();
+        return $this->hasOne(WorkspaceSubscription::class)->latestOfMany();
     }
 
     public function getRouteKeyName()

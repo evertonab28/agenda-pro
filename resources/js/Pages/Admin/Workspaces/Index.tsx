@@ -31,8 +31,10 @@ interface Workspace {
 interface Props {
     workspaces: {
         data: Workspace[];
-        meta: { current_page: number; last_page: number; total: number; per_page: number };
-        links: { prev: string | null; next: string | null };
+        current_page: number;
+        last_page: number;
+        total: number;
+        per_page: number;
     };
     filters: { search: string | null };
 }
@@ -53,7 +55,7 @@ export default function WorkspacesIndex({ workspaces, filters }: Props) {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Workspaces</h1>
-                        <p className="text-zinc-500 text-sm mt-1">{workspaces.meta.total} workspaces cadastrados</p>
+                        <p className="text-zinc-500 text-sm mt-1">{workspaces.total} workspaces cadastrados</p>
                     </div>
                     <form onSubmit={handleSearch} className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -122,22 +124,22 @@ export default function WorkspacesIndex({ workspaces, filters }: Props) {
                 </div>
 
                 {/* Pagination */}
-                {workspaces.meta.last_page > 1 && (
+                {workspaces.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-zinc-500 text-xs">
-                            Página {workspaces.meta.current_page} de {workspaces.meta.last_page}
+                            Página {workspaces.current_page} de {workspaces.last_page}
                         </p>
                         <div className="flex gap-2">
                             <button
-                                onClick={() => router.get('/admin/workspaces', { search, page: workspaces.meta.current_page - 1 })}
-                                disabled={workspaces.meta.current_page === 1}
+                                onClick={() => router.get('/admin/workspaces', { search, page: workspaces.current_page - 1 })}
+                                disabled={workspaces.current_page === 1}
                                 className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs flex items-center gap-1"
                             >
                                 <ChevronLeft className="w-3 h-3" /> Anterior
                             </button>
                             <button
-                                onClick={() => router.get('/admin/workspaces', { search, page: workspaces.meta.current_page + 1 })}
-                                disabled={workspaces.meta.current_page === workspaces.meta.last_page}
+                                onClick={() => router.get('/admin/workspaces', { search, page: workspaces.current_page + 1 })}
+                                disabled={workspaces.current_page === workspaces.last_page}
                                 className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs flex items-center gap-1"
                             >
                                 Próxima <ChevronRight className="w-3 h-3" />
