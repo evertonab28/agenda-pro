@@ -16,13 +16,13 @@ trait BelongsToTenant
         // Automatically apply TenantScope
         static::addGlobalScope(new TenantScope);
 
-        // Automatically set clinic_id on creation
+        // Automatically set workspace_id on creation
         static::creating(function (Model $model) {
-            if (!$model->clinic_id) {
+            if (!$model->workspace_id) {
                 if (Auth::guard('web')->check()) {
-                    $model->clinic_id = Auth::guard('web')->user()->clinic_id;
+                    $model->workspace_id = Auth::guard('web')->user()->workspace_id;
                 } elseif (Auth::guard('customer')->check()) {
-                    $model->clinic_id = Auth::guard('customer')->user()->clinic_id;
+                    $model->workspace_id = Auth::guard('customer')->user()->workspace_id;
                 }
             }
         });

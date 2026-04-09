@@ -12,7 +12,7 @@ class Professional extends Model
     use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'name',
         'email',
         'phone',

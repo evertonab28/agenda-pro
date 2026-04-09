@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use App\Models\Appointment;
 use App\Models\WebhookAudit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,17 +14,17 @@ class WebhookHardeningTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $clinic;
+    protected $workspace;
     protected $appointment;
 
     protected function setUp(): void
     {
         parent::setUp();
         Config::set('services.messaging.webhook_secret', 'secret-val-123');
-        
-        $this->clinic = Clinic::factory()->create();
+
+        $this->workspace = Workspace::factory()->create();
         $this->appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'public_token' => 'valid-token-123'
         ]);
     }

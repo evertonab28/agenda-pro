@@ -115,7 +115,7 @@ class CRMService
      */
     public function triggerAppointmentCanceled(\App\Models\Appointment $appointment): void
     {
-        $waitlistEntry = \App\Models\WaitlistEntry::where('clinic_id', $appointment->clinic_id)
+        $waitlistEntry = \App\Models\WaitlistEntry::where('workspace_id', $appointment->workspace_id)
             ->where('service_id', $appointment->service_id)
             ->where('status', \App\Enums\WaitlistStatus::Waiting)
             ->orderBy('priority', 'desc')
@@ -143,7 +143,7 @@ class CRMService
         
         // Find customers whose last FINISHED appointment was more than 60 days ago
         // OR who have NO finished appointments but were created > 60 days ago.
-        return Customer::where('clinic_id', $clinicId)
+        return Customer::where('workspace_id', $clinicId)
             ->where('is_active', true)
             ->get()
             ->filter(function ($customer) use ($cutoff) {

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronLeft, Clock, MapPin } from 'lucide-react';
+import { Calendar, ChevronLeft, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast, Toaster } from 'sonner';
@@ -20,14 +20,13 @@ interface Appointment {
 }
 
 interface AppointmentsProps {
-    clinic: { name: string, slug: string };
+    workspace: { name: string, slug: string };
     appointments: Appointment[];
 }
 
-// Global declaration for route() if not using ziggy-js directly in imports
 declare function route(name: string, params?: any): string;
 
-export default function Appointments({ clinic, appointments }: AppointmentsProps) {
+export default function Appointments({ workspace, appointments }: AppointmentsProps) {
     const [loading, setLoading] = React.useState(false);
     const [rescheduling, setRescheduling] = React.useState<Appointment | null>(null);
     const [selectedDate, setSelectedDate] = React.useState(format(new Date(), 'yyyy-MM-dd'));
@@ -43,7 +42,7 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
     const executeCancel = () => {
         if (!confirmingCancel) return;
         setLoading(true);
-        (window as any).axios.post(route('portal.appointments.cancel', [clinic.slug, confirmingCancel]))
+        (window as any).axios.post(route('portal.appointments.cancel', [workspace.slug, confirmingCancel]))
             .then((res: any) => {
                 if (res.data.ok) {
                     toast.success(res.data.message);
@@ -57,21 +56,19 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
 
     const handleReschedule = (apt: Appointment) => {
         setRescheduling(apt);
-        // Reset state for new reschedule attempt
         setAvailableSlots([]);
     };
 
     React.useEffect(() => {
         if (rescheduling && selectedDate) {
             setFetchingSlots(true);
-            (window as any).axios.get(route('portal.scheduling.availability', clinic.slug), {
+            (window as any).axios.get(route('portal.scheduling.availability', workspace.slug), {
                 params: {
                     service_id: rescheduling.service?.id,
                     professional_id: rescheduling.professional?.id,
                     date: selectedDate
                 }
             }).then((res: any) => {
-                // The API returns a plain array of strings
                 setAvailableSlots(Array.isArray(res.data) ? res.data : (res.data.slots || []));
             }).catch(() => {
                 toast.error('Erro ao buscar horários disponíveis');
@@ -88,7 +85,7 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
         const fullTime = `${selectedDate} ${confirmingSlot}`;
 
         setLoading(true);
-        (window as any).axios.put(route('portal.appointments.reschedule', [clinic.slug, rescheduling.id]), {
+        (window as any).axios.put(route('portal.appointments.reschedule', [workspace.slug, rescheduling.id]), {
             start_time: fullTime
         }).then((res: any) => {
             if (res.data.ok) {
@@ -100,13 +97,14 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
         }).catch(() => toast.error('Erro ao reagendar'))
           .finally(() => setLoading(false));
     };
+
     return (
         <div className="min-h-screen bg-slate-50">
-            <Head title={`Meus Agendamentos - ${clinic.name}`} />
-            
+            <Head title={`Meus Agendamentos - ${workspace.name}`} />
+
             <header className="bg-white border-b shadow-sm sticky top-0 z-10">
                 <div className="max-w-5xl mx-auto px-4 h-16 flex items-center space-x-4">
-                    <Link href={route('portal.dashboard', clinic.slug)} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
+                    <Link href={route('portal.dashboard', workspace.slug)} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
                     <h1 className="text-xl font-bold text-indigo-900">Meus Agendamentos</h1>
@@ -116,7 +114,6 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
             <main className="max-w-5xl mx-auto p-4 py-8 space-y-6">
                 <Toaster position="top-center" richColors />
                 {appointments.length === 0 ? (
-                    // ... (keep existing empty state)
                     <div className="text-center py-12 space-y-4">
                         <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-slate-400">
                             <Calendar className="w-8 h-8" />
@@ -150,23 +147,22 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                                                     apt.status === 'cancelled' ? 'bg-red-100 text-red-700 hover:bg-red-100' :
                                                     'bg-slate-100 text-slate-700 hover:bg-slate-100'
                                                 }>
-                                                    {apt.status === 'confirmed' ? 'Confirmado' : 
+                                                    {apt.status === 'confirmed' ? 'Confirmado' :
                                                      apt.status === 'cancelled' ? 'Cancelado' : 'Agendado'}
                                                 </Badge>
                                             </div>
                                         </div>
-                                        
-                                        {/* Actions for upcoming appointments */}
+
                                         {new Date(apt.starts_at) > new Date() && apt.status !== 'cancelled' && (
                                             <div className="flex items-center space-x-2 w-full md:w-auto">
-                                                <button 
+                                                <button
                                                     disabled={loading}
                                                     onClick={() => handleReschedule(apt)}
                                                     className="flex-1 md:flex-none text-sm font-medium text-indigo-600 hover:text-indigo-800 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
                                                 >
                                                     Reagendar
                                                 </button>
-                                                <button 
+                                                <button
                                                     disabled={loading}
                                                     onClick={() => handleCancel(apt.id)}
                                                     className="flex-1 md:flex-none text-sm font-medium text-red-600 hover:text-red-800 px-4 py-2 hover:bg-red-50 rounded-md transition-colors"
@@ -183,7 +179,6 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                 )}
             </main>
 
-            {/* Simple Reschedule "Modal" */}
             {rescheduling && (
                 <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <Card className="w-full max-w-lg shadow-2xl">
@@ -196,8 +191,8 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                         <CardContent className="p-6 space-y-6">
                             <div className="space-y-2">
                                 <Label>Selecione uma nova data</Label>
-                                <Input 
-                                    type="date" 
+                                <Input
+                                    type="date"
                                     className="h-11"
                                     min={format(new Date(), 'yyyy-MM-dd')}
                                     value={selectedDate}
@@ -237,7 +232,6 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                 </div>
             )}
 
-            {/* Cancellation Confirmation */}
             {confirmingCancel && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
                     <Card className="w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
@@ -247,16 +241,16 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                         <CardContent className="space-y-4">
                             <p className="text-slate-600">Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.</p>
                             <div className="flex gap-3 pt-2">
-                                <Button 
-                                    variant="destructive" 
+                                <Button
+                                    variant="destructive"
                                     className="flex-1"
                                     onClick={executeCancel}
                                     disabled={loading}
                                 >
                                     {loading ? 'Cancelando...' : 'Sim, Cancelar'}
                                 </Button>
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     className="flex-1"
                                     onClick={() => setConfirmingCancel(null)}
                                     disabled={loading}
@@ -269,7 +263,6 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                 </div>
             )}
 
-            {/* Reschedule Confirmation */}
             {confirmingSlot && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
                     <Card className="w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
@@ -284,15 +277,15 @@ export default function Appointments({ clinic, appointments }: AppointmentsProps
                                 </p>
                             </div>
                             <div className="flex gap-3 pt-2">
-                                <Button 
+                                <Button
                                     className="flex-1 bg-indigo-600 hover:bg-indigo-700"
                                     onClick={executeReschedule}
                                     disabled={loading}
                                 >
                                     {loading ? 'Confirmando...' : 'Confirmar'}
                                 </Button>
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     className="flex-1"
                                     onClick={() => setConfirmingSlot(null)}
                                     disabled={loading}

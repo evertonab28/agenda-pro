@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast, Toaster } from 'sonner';
 
 interface LoginProps {
-    clinic: {
+    workspace: {
         name: string;
         slug: string;
     };
     initialIdentifier?: string;
 }
 
-export default function Login({ clinic, initialIdentifier }: LoginProps) {
+export default function Login({ workspace, initialIdentifier }: LoginProps) {
     const [step, setStep] = useState(1); // 1: identifier, 2: name (new user), 3: token
     const [identifier, setIdentifier] = useState(initialIdentifier || '');
     const [name, setName] = useState('');
@@ -24,7 +24,7 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
     React.useEffect(() => {
         if (initialIdentifier && step === 1) {
             setLoading(true);
-            (window as any).axios.post(`/p/${clinic.slug}/auth/send-token`, {
+            (window as any).axios.post(`/p/${workspace.slug}/auth/send-token`, {
                 identifier: initialIdentifier
             }).then((res: any) => {
                 if (res.data.requires_name) {
@@ -42,7 +42,7 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
     const handleSendToken = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         setLoading(true);
-        (window as any).axios.post(`/p/${clinic.slug}/auth/send-token`, {
+        (window as any).axios.post(`/p/${workspace.slug}/auth/send-token`, {
             identifier,
             name: step === 2 ? name : undefined
         }).then((res: any) => {
@@ -61,7 +61,7 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
     const handleVerifyToken = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        (window as any).axios.post(`/p/${clinic.slug}/auth/verify-token`, {
+        (window as any).axios.post(`/p/${workspace.slug}/auth/verify-token`, {
             identifier,
             token
         }).then((res: any) => {
@@ -76,11 +76,11 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             <Toaster position="top-center" richColors />
-            <Head title={`Login - ${clinic.name}`} />
-            
+            <Head title={`Login - ${workspace.name}`} />
+
             <Card className="w-full max-w-md shadow-xl border-t-4 border-t-indigo-600">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">{clinic.name}</CardTitle>
+                    <CardTitle className="text-2xl font-bold">{workspace.name}</CardTitle>
                     <CardDescription>
                         {step === 2 ? 'Complete seu cadastro' : 'Acesse sua área exclusiva'}
                     </CardDescription>
@@ -90,7 +90,7 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
                         <form onSubmit={handleSendToken} className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="identifier">Telefone ou Email</Label>
-                                <Input 
+                                <Input
                                     id="identifier"
                                     placeholder="(11) 99999-9999 ou seu@email.com"
                                     value={identifier}
@@ -108,7 +108,7 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
                         <form onSubmit={handleSendToken} className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Como podemos te chamar? (Nome Completo)</Label>
-                                <Input 
+                                <Input
                                     id="name"
                                     placeholder="Seu nome completo"
                                     value={name}
@@ -120,8 +120,8 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
                             <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 h-11" disabled={loading}>
                                 Criar Conta e Enviar Código
                             </Button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={() => setStep(1)}
                                 className="w-full text-sm text-slate-500 hover:text-indigo-600"
                             >
@@ -134,7 +134,7 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
                         <form onSubmit={handleVerifyToken} className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="token">Código de 6 dígitos</Label>
-                                <Input 
+                                <Input
                                     id="token"
                                     placeholder="000000"
                                     className="text-center text-2xl tracking-[0.5em] font-mono h-14"
@@ -148,8 +148,8 @@ export default function Login({ clinic, initialIdentifier }: LoginProps) {
                             <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 h-11" disabled={loading}>
                                 Entrar no Portal
                             </Button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={() => {
                                     setStep(1);
                                     setToken('');

@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Clinic; // Added by the change
-use App\Models\CRMAction; // Added by the change
-use App\Services\CRMService; // Added by the change
+use App\Models\Workspace;
+use App\Models\CRMAction;
+use App\Services\CRMService;
 
 class CRMReEngage extends Command
 {
@@ -28,21 +28,21 @@ class CRMReEngage extends Command
      */
     public function handle()
     {
-        $clinics = Clinic::all();
+        $workspaces = Workspace::all();
         $crmService = app(CRMService::class);
 
         $this->info('Starting CRM Re-engagement check...');
 
-        foreach ($clinics as $clinic) {
-            $this->info("Checking clinic: {$clinic->name}");
-            
-            $inactiveCustomers = $crmService->reengageInactiveCustomers($clinic->id);
-            
+        foreach ($workspaces as $workspace) {
+            $this->info("Checking workspace: {$workspace->name}");
+
+            $inactiveCustomers = $crmService->reengageInactiveCustomers($workspace->id);
+
             foreach ($inactiveCustomers as $customerArray) {
                 $customerId = $customerArray['id'];
-                
+
                 $exists = CRMAction::withoutGlobalScopes()
-                    ->where('clinic_id', $clinic->id)
+                    ->where('workspace_id', $workspace->id)
                     ->where('customer_id', $customerId)
                     ->where('type', 'reengagement')
                     ->where('status', 'pending')
@@ -50,7 +50,7 @@ class CRMReEngage extends Command
 
                 if (!$exists) {
                     CRMAction::create([
-                        'clinic_id' => $clinic->id,
+                        'workspace_id' => $workspace->id,
                         'customer_id' => $customerId,
                         'type' => 'reengagement',
                         'priority' => 'medium',
@@ -61,7 +61,7 @@ class CRMReEngage extends Command
                             'suggested_action' => 'whatsapp_message'
                         ]
                     ]);
-                    
+
                     $this->line(" - Created action for customer ID: {$customerId}");
                 }
             }

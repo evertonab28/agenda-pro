@@ -24,10 +24,10 @@ class AgendaServiceTest extends TestCase
     public function test_can_detect_conflicts()
     {
         $professional = \App\Models\Professional::factory()->create();
-        $this->fulfillOnboarding($professional->clinic_id);
-        
+        $this->fulfillOnboarding($professional->workspace_id);
+
         Appointment::factory()->create([
-            'clinic_id' => $professional->clinic_id,
+            'workspace_id' => $professional->workspace_id,
             'professional_id' => $professional->id,
             'starts_at' => '2026-12-25 10:00:00',
             'ends_at' => '2026-12-25 11:00:00',

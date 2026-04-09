@@ -15,9 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $clinic = \App\Models\Clinic::updateOrCreate(
-            ['slug' => 'clinica-modelo'],
-            ['name' => 'Clínica Modelo', 'status' => 'active']
+        $workspace = \App\Models\Workspace::updateOrCreate(
+            ['slug' => 'workspace-modelo'],
+            ['name' => 'Workspace Modelo', 'status' => 'active']
         );
 
         User::updateOrCreate(
@@ -26,12 +26,12 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin Agenda Pro',
                 'password' => \Illuminate\Support\Facades\Hash::make('AgendaPro@2026'),
                 'role' => 'admin',
-                'clinic_id' => $clinic->id,
+                'workspace_id' => $workspace->id,
             ]
         );
 
         $customer = \App\Models\Customer::updateOrCreate(
-            ['email' => 'test@example.com', 'clinic_id' => $clinic->id],
+            ['email' => 'test@example.com', 'workspace_id' => $workspace->id],
             [
                 'name' => 'Cliente Teste',
                 'phone' => '11988887777',

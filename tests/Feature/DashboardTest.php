@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Workspace;
 
 class DashboardTest extends TestCase
 {
@@ -13,15 +13,14 @@ class DashboardTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Global onboarding for all dashboard tests
-        $this->clinic = \App\Models\Clinic::factory()->create();
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->workspace = Workspace::factory()->create();
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     private function createAdmin()
     {
         return \App\Models\User::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'role' => 'admin'
         ]);
     }
@@ -43,7 +42,6 @@ class DashboardTest extends TestCase
     public function test_dashboard_accepts_valid_filters()
     {
         $user = $this->createAdmin();
-        // Mock professional to avoid 404/Empty if validated
         $response = $this->actingAs($user)->get('/dashboard?status[]=confirmed&status[]=completed&professional_id=1&from=2024-01-01&to=2024-01-31');
         $response->assertStatus(200);
     }
@@ -52,7 +50,7 @@ class DashboardTest extends TestCase
     {
         $user = $this->createAdmin();
         $response = $this->actingAs($user)->get('/dashboard/export');
-        
+
         $response->assertStatus(200);
         $this->assertTrue(str_contains($response->headers->get('Content-Disposition'), 'attachment; filename="dashboard-'));
     }
@@ -78,7 +76,6 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_pending_pagination_params_accepted()
     {
-        // Require auth user due to new Middleware gates
         $user = $this->createAdmin();
         $response = $this->actingAs($user)->get('/dashboard?pending_page=2&pending_search=test&pending_status=overdue');
         $response->assertStatus(200);
@@ -93,14 +90,14 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_export_denied_for_operator()
     {
-        $user = \App\Models\User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'operator']);
+        $user = \App\Models\User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'operator']);
         $response = $this->actingAs($user)->get('/dashboard/export');
         $response->assertStatus(403);
     }
 
     public function test_dashboard_export_allowed_for_manager()
     {
-        $user = \App\Models\User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'manager']);
+        $user = \App\Models\User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'manager']);
         $response = $this->actingAs($user)->get('/dashboard/export');
         $response->assertStatus(200);
     }

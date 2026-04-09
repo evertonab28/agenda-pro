@@ -24,12 +24,12 @@ class ReportingService
             $month = $start->clone()->addMonths($i);
             $monthLabel = $month->translatedFormat('M/Y');
 
-            $planned = Charge::where('clinic_id', $clinicId)
+            $planned = Charge::where('workspace_id', $clinicId)
                 ->whereMonth('due_date', $month->month)
                 ->whereYear('due_date', $month->year)
                 ->sum('amount');
 
-            $actual = Receipt::where('clinic_id', $clinicId)
+            $actual = Receipt::where('workspace_id', $clinicId)
                 ->whereMonth('received_at', $month->month)
                 ->whereYear('received_at', $month->year)
                 ->sum('amount_received');
@@ -49,7 +49,7 @@ class ReportingService
      */
     public function getServicePerformance(int $clinicId): Collection
     {
-        return Service::where('clinic_id', $clinicId)
+        return Service::where('workspace_id', $clinicId)
             ->withCount(['appointments' => function ($query) {
                 $query->where('status', 'finished');
             }])
@@ -58,7 +58,7 @@ class ReportingService
                 $revenue = DB::table('charges')
                     ->join('appointments', 'charges.appointment_id', '=', 'appointments.id')
                     ->where('appointments.service_id', $service->id)
-                    ->where('charges.clinic_id', $clinicId)
+                    ->where('charges.workspace_id', $clinicId)
                     ->where('charges.status', 'paid')
                     ->sum('charges.amount');
 
@@ -77,13 +77,13 @@ class ReportingService
      */
     public function getCustomerInsights(int $clinicId, int $limit = 10): Collection
     {
-        return Customer::where('clinic_id', $clinicId)
+        return Customer::where('workspace_id', $clinicId)
             ->withCount(['appointments' => function ($query) {
                 $query->where('status', 'finished');
             }])
             ->get()
             ->map(function ($customer) use ($clinicId) {
-                $totalPaid = Receipt::where('clinic_id', $clinicId)
+                $totalPaid = Receipt::where('workspace_id', $clinicId)
                     ->whereHas('charge', function ($query) use ($customer) {
                         $query->where('customer_id', $customer->id);
                     })

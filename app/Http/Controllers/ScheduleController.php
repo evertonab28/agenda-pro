@@ -60,7 +60,7 @@ class ScheduleController extends Controller
         foreach ($request->schedules as $sched) {
             ProfessionalSchedule::updateOrCreate(
                 [
-                    'clinic_id' => auth()->user()->clinic_id,
+                    'workspace_id' => auth()->user()->workspace_id,
                     'professional_id' => $request->professional_id,
                     'weekday' => $sched['weekday'],
                 ],

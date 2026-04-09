@@ -8,7 +8,7 @@ use App\Models\Customer;
 use App\Models\Professional;
 use App\Models\User;
 use App\Models\Service;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,19 +19,19 @@ class RbacAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $clinic;
+    protected $workspace;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = Clinic::factory()->create();
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->workspace = Workspace::factory()->create();
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     private function createUser($role)
     {
         return User::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'role' => $role
         ]);
     }
@@ -49,9 +49,9 @@ class RbacAuthorizationTest extends TestCase
     public function test_operator_can_create_appointment()
     {
         $user     = $this->createUser('operator');
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
-        $prof     = Professional::factory()->create(['clinic_id' => $this->clinic->id, 'is_active' => true]);
-        $service  = Service::factory()->create(['clinic_id' => $this->clinic->id, 'is_active' => true]);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
+        $prof     = Professional::factory()->create(['workspace_id' => $this->workspace->id, 'is_active' => true]);
+        $service  = Service::factory()->create(['workspace_id' => $this->workspace->id, 'is_active' => true]);
 
         $payload = [
             'customer_id'     => $customer->id,
@@ -70,7 +70,7 @@ class RbacAuthorizationTest extends TestCase
     {
         $user        = $this->createUser('operator');
         $appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'status' => 'scheduled'
         ]);
 
@@ -83,7 +83,7 @@ class RbacAuthorizationTest extends TestCase
     {
         $user        = $this->createUser('manager');
         $appointment = Appointment::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'status' => 'scheduled'
         ]);
 
@@ -105,7 +105,7 @@ class RbacAuthorizationTest extends TestCase
     public function test_operator_cannot_create_charge()
     {
         $user     = $this->createUser('operator');
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
 
         $this->actingAs($user)->post(route('finance.charges.store'), [
             'description' => 'Test',
@@ -118,7 +118,7 @@ class RbacAuthorizationTest extends TestCase
     public function test_manager_can_create_charge()
     {
         $user     = $this->createUser('manager');
-        $customer = Customer::factory()->create(['clinic_id' => $this->clinic->id]);
+        $customer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
 
         $this->actingAs($user)->post(route('finance.charges.store'), [
             'description' => 'Test',
@@ -151,7 +151,6 @@ class RbacAuthorizationTest extends TestCase
     public function test_operator_CAN_access_services_config_index()
     {
         $user = $this->createUser('operator');
-        // Policy allow viewAny for operator
         $this->actingAs($user)->get(route('configuracoes.services.index'))->assertStatus(200);
     }
 

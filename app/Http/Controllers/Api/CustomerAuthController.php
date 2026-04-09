@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAuthToken;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CustomerAuthController extends Controller
 {
-    public function sendToken(Request $request, Clinic $clinic)
+    public function sendToken(Request $request, Workspace $workspace)
     {
         $request->validate([
             'identifier' => 'required', // phone or email
@@ -21,8 +21,8 @@ class CustomerAuthController extends Controller
 
         $rawIdentifier = $request->identifier;
         $phoneIdentifier = preg_replace('/\D/', '', $rawIdentifier);
-        
-        $customer = Customer::where('clinic_id', $clinic->id)
+
+        $customer = Customer::where('workspace_id', $workspace->id)
             ->where(function($q) use ($phoneIdentifier, $rawIdentifier) {
                 $isEmail = filter_var($rawIdentifier, FILTER_VALIDATE_EMAIL);
                 if ($isEmail) {
@@ -47,7 +47,7 @@ class CustomerAuthController extends Controller
             // Create new customer for first access
             $isEmail = filter_var($rawIdentifier, FILTER_VALIDATE_EMAIL);
             $customer = Customer::create([
-                'clinic_id' => $clinic->id,
+                'workspace_id' => $workspace->id,
                 'name' => $request->name,
                 'phone' => !$isEmail ? $phoneIdentifier : null,
                 'email' => $isEmail ? $rawIdentifier : null,
@@ -64,14 +64,14 @@ class CustomerAuthController extends Controller
         CustomerAuthToken::create([
             'customer_id' => $customer->id,
             'token' => $token,
-            'expires_at' => now()->addMinutes(15), 
+            'expires_at' => now()->addMinutes(15),
         ]);
 
         // 3. Simular envio (WhatsApp/Email Mock)
-        Log::info("MAGIC LINK OTP para {$customer->name} ({$clinic->slug}): {$token}");
-        
+        Log::info("MAGIC LINK OTP para {$customer->name} ({$workspace->slug}): {$token}");
+
         return response()->json([
-            'ok' => true, 
+            'ok' => true,
             'message' => 'Código de acesso enviado com sucesso!'
         ]);
     }
@@ -79,7 +79,7 @@ class CustomerAuthController extends Controller
     /**
      * Passo 2: Validar Token e Login
      */
-    public function verifyToken(Request $request, Clinic $clinic)
+    public function verifyToken(Request $request, Workspace $workspace)
     {
         $request->validate([
             'identifier' => 'required',
@@ -89,7 +89,7 @@ class CustomerAuthController extends Controller
         $rawIdentifier = $request->identifier;
         $phoneIdentifier = preg_replace('/\D/', '', $rawIdentifier);
 
-        $customer = Customer::where('clinic_id', $clinic->id)
+        $customer = Customer::where('workspace_id', $workspace->id)
             ->where(function($q) use ($phoneIdentifier, $rawIdentifier) {
                 $isEmail = filter_var($rawIdentifier, FILTER_VALIDATE_EMAIL);
                 if ($isEmail) {
@@ -123,15 +123,15 @@ class CustomerAuthController extends Controller
         Auth::guard('customer')->login($customer);
         $authToken->delete();
 
-        return response()->json(['ok' => true, 'redirect' => route('portal.dashboard', $clinic->slug)]);
+        return response()->json(['ok' => true, 'redirect' => route('portal.dashboard', $workspace->slug)]);
     }
 
-    public function logout(Request $request, Clinic $clinic)
+    public function logout(Request $request, Workspace $workspace)
     {
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('portal.login', $clinic->slug);
+        return redirect()->route('portal.login', $workspace->slug);
     }
 }

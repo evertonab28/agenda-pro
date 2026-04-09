@@ -22,10 +22,10 @@ class FinancialRegressionTest extends TestCase
     /** @test */
     public function it_processes_full_payment_flow_via_webhook()
     {
-        $clinic = \App\Models\Clinic::factory()->create();
-        $customer = Customer::factory()->create(['clinic_id' => $clinic->id]);
+        $workspace = \App\Models\Workspace::factory()->create();
+        $customer = Customer::factory()->create(['workspace_id' => $workspace->id]);
         $charge = Charge::create([
-            'clinic_id' => $clinic->id,
+            'workspace_id' => $workspace->id,
             'customer_id' => $customer->id,
             'amount' => 300.00,
             'status' => 'pending',
@@ -62,10 +62,10 @@ class FinancialRegressionTest extends TestCase
     public function it_handles_partial_payments_correctly()
     {
         // Este teste verifica se a lógica de 'partial' (da nossa migration anterior) funciona
-        $clinic = \App\Models\Clinic::factory()->create();
-        $customer = Customer::factory()->create(['clinic_id' => $clinic->id]);
+        $workspace = \App\Models\Workspace::factory()->create();
+        $customer = Customer::factory()->create(['workspace_id' => $workspace->id]);
         $charge = Charge::create([
-            'clinic_id' => $clinic->id,
+            'workspace_id' => $workspace->id,
             'customer_id' => $customer->id,
             'amount' => 1000.00,
             'status' => 'pending',

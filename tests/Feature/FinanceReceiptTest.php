@@ -14,21 +14,21 @@ class FinanceReceiptTest extends TestCase
     use RefreshDatabase;
 
     protected $admin;
-    protected $clinic;
+    protected $workspace;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = \App\Models\Clinic::factory()->create();
-        $this->admin = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->workspace = \App\Models\Workspace::factory()->create();
+        $this->admin = User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'admin']);
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     public function test_can_register_full_receipt()
     {
         $this->withoutExceptionHandling();
         $charge = Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount' => 100.00,
             'status' => 'pending'
         ]);
@@ -57,7 +57,7 @@ class FinanceReceiptTest extends TestCase
     public function test_can_register_partial_receipt_and_updates_status()
     {
         $charge = Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount' => 100.00,
             'status' => 'pending'
         ]);
@@ -94,7 +94,7 @@ class FinanceReceiptTest extends TestCase
     public function test_cannot_receive_more_than_open_balance()
     {
         $charge = Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount' => 50.00,
             'status' => 'pending'
         ]);
@@ -118,7 +118,7 @@ class FinanceReceiptTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $charge = Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'amount' => 100.00,
             'status' => 'pending'
         ]);

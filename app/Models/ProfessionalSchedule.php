@@ -11,7 +11,7 @@ class ProfessionalSchedule extends Model
     use HasFactory, \App\Traits\BelongsToTenant;
 
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'professional_id',
         'weekday',
         'start_time',

@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Charge;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use App\Models\AuditLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -13,20 +13,20 @@ class ChargeAuditTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $clinic;
+    protected $workspace;
     protected $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->clinic = Clinic::factory()->create();
+
+        $this->workspace = Workspace::factory()->create();
         $this->admin = User::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'role' => 'admin'
         ]);
 
-        $this->fulfillOnboarding($this->clinic->id);
+        $this->fulfillOnboarding($this->workspace->id);
     }
 
     public function test_creating_charge_generates_audit_log()
@@ -52,7 +52,7 @@ class ChargeAuditTest extends TestCase
     public function test_updating_charge_logs_changes()
     {
         $charge = Charge::factory()->create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'description' => 'Old Description',
             'amount' => 100
         ]);
@@ -83,7 +83,7 @@ class ChargeAuditTest extends TestCase
 
     public function test_receiving_payment_generates_receipt_audit_log()
     {
-        $charge = Charge::factory()->create(['clinic_id' => $this->clinic->id, 'amount' => 100]);
+        $charge = Charge::factory()->create(['workspace_id' => $this->workspace->id, 'amount' => 100]);
         
         $this->actingAs($this->admin);
 

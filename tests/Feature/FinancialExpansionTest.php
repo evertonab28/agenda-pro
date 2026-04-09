@@ -6,7 +6,7 @@ use App\Models\Customer;
 use App\Models\Package;
 use App\Models\Service;
 use App\Models\User;
-use App\Models\Clinic;
+use App\Models\Workspace;
 use App\Services\PackageService;
 use App\Services\WalletService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,24 +19,24 @@ class FinancialExpansionTest extends TestCase
     protected $user;
     protected $customer;
     protected $service;
-    protected $clinic;
+    protected $workspace;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->clinic = Clinic::factory()->create();
-        $this->user = User::factory()->create(['clinic_id' => $this->clinic->id, 'role' => 'admin']);
-        $this->fulfillOnboarding($this->clinic->id);
-        
+        $this->workspace = Workspace::factory()->create();
+        $this->user = User::factory()->create(['workspace_id' => $this->workspace->id, 'role' => 'admin']);
+        $this->fulfillOnboarding($this->workspace->id);
+
         $this->customer = Customer::create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'name' => 'John Doe',
             'phone' => '11999999999',
             'email' => 'john@example.com'
         ]);
-        
+
         $this->service = Service::create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'name' => 'Corte de Cabelo',
             'price' => 50.00,
             'duration_minutes' => 30,
@@ -60,7 +60,7 @@ class FinancialExpansionTest extends TestCase
     public function test_package_sale_creates_sessions_and_charge()
     {
         $package = Package::create([
-            'clinic_id' => $this->clinic->id,
+            'workspace_id' => $this->workspace->id,
             'name' => 'Combo 5 Cortes',
             'service_id' => $this->service->id,
             'sessions_count' => 5,
@@ -73,7 +73,7 @@ class FinancialExpansionTest extends TestCase
 
         $this->assertEquals(5, $customerPackage->remaining_sessions);
         $this->assertDatabaseHas('charges', [
-            'clinic_id' => $this->clinic->id, // Added clinic_id check
+            'workspace_id' => $this->workspace->id,
             'customer_id' => $this->customer->id,
             'amount' => 200.00,
             'reference_type' => 'customer_package',

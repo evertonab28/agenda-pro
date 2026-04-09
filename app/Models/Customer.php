@@ -18,7 +18,7 @@ class Customer extends Authenticatable
     use HasFactory, SoftDeletes, Notifiable, \App\Traits\BelongsToTenant;
     
     protected $fillable = [
-        'clinic_id',
+        'workspace_id',
         'name',
         'phone',
         'email',
