@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\ChargeController;
 use App\Http\Controllers\Api\MessagingWebhookController;
+use App\Http\Controllers\Api\PaymentWebhookController;
+use App\Http\Controllers\Api\WorkspaceIntegrationController;
 use App\Http\Controllers\Api\DashboardController;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -23,10 +25,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard/overview', [DashboardController::class, 'overview']);
     Route::get('dashboard/timeseries', [DashboardController::class, 'timeseries']);
     Route::get('dashboard/pending-charges', [DashboardController::class, 'pendingCharges']);
+
+    Route::apiResource('workspace-integrations', WorkspaceIntegrationController::class)->only(['index', 'store'])->names('api.workspace-integrations');
+    Route::post('workspace-integrations/{integration}/test-connection', [WorkspaceIntegrationController::class, 'testConnection']);
+    Route::post('charges/{charge}/generate-link', [WorkspaceIntegrationController::class, 'generateLink']);
 });
 
 
 Route::get('p/{workspace}/charges', [\App\Http\Controllers\Api\ChargeController::class, 'portalIndex'])->middleware(['auth:customer', 'customer.workspace']);
 
 Route::get('appointments/{appointment}/confirm/{token}', [AppointmentController::class, 'confirm']);
-Route::post('webhooks/{workspace:slug}/{provider}/inbound', [MessagingWebhookController::class, 'inbound'])->middleware('throttle:20,1');
+Route::post('webhooks/{workspace:slug}/{provider}/messaging', [MessagingWebhookController::class, 'inbound'])->middleware('throttle:20,1');
+Route::post('webhooks/{workspace:slug}/{provider}/payment', [PaymentWebhookController::class, 'inbound'])->middleware('throttle:20,1');

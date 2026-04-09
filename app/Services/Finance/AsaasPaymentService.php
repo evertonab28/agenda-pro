@@ -40,9 +40,11 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
             'externalReference' => (string) $charge->id,
         ];
 
-        $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->post("{$this->baseUrl}/payments", $payload);
+        $response = Http::timeout(10)
+            ->retry(2, 500)
+            ->withHeaders([
+                'access_token' => $this->apiKey,
+            ])->post("{$this->baseUrl}/payments", $payload);
 
         if ($response->failed()) {
             Log::error("AsaasPaymentService: Falha ao gerar cobrança", [
@@ -64,6 +66,7 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
             'payment_link_hash' => $hash,
             'payment_link_expires_at' => now()->parse($dueDate)->endOfDay(),
             'payment_provider_id' => $externalId,
+            'notes' => json_encode(['invoiceUrl' => $invoiceUrl]),
         ]);
 
         Log::info("AsaasPaymentService: Cobrança gerada com sucesso", [
@@ -96,14 +99,15 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
             $payload['cpfCnpj'] = $customer->document;
         }
 
-        $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->post("{$this->baseUrl}/customers", $payload);
+        $response = Http::timeout(10)
+            ->retry(2, 500)
+            ->withHeaders([
+                'access_token' => $this->apiKey,
+            ])->post("{$this->baseUrl}/customers", $payload);
 
         if ($response->failed()) {
-             Log::warning("AsaasCustomer: Falha ao criar cliente", ['response' => $response->json()]);
-             // Fallback
-             return ''; // Asaas pode rejeitar dependendo da config rigorosa
+             Log::error("AsaasCustomer: Falha estrita ao criar cliente.", ['response' => $response->json(), 'payload' => $payload]);
+             throw new \Exception("Impossível prosseguir: Falha ao providenciar o Customer na API do Asaas.");
         }
 
         return $response->json('id');
@@ -114,8 +118,27 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
      */
     public function processCallback(array $payload): bool
     {
-        // Se a chamada vier direta no hook
-        // Será roteado pelo WebhookController principal
-        return true;
+        $externalId = $payload['payment']['id'] ?? $payload['id'] ?? null;
+        $status = $payload['payment']['status'] ?? $payload['status'] ?? null;
+        $eventName = $payload['event'] ?? ($status === 'paid' ? 'PAYMENT_RECEIVED' : null);
+
+        if (!$externalId || !in_array($eventName, ['PAYMENT_RECEIVED', 'PAYMENT_CONFIRMED'])) {
+            return false;
+        }
+
+        $charge = Charge::withoutGlobalScopes()
+            ->where('payment_provider_id', $externalId)
+            ->first();
+            
+        if ($charge && $charge->status !== 'paid') {
+            $charge->update([
+                'status' => 'paid',
+                'paid_at' => now(),
+            ]);
+            Log::info("AsaasPaymentService: Transação {$charge->id} processada com sucessso pelo Worker local", ['external' => $externalId]);
+            return true;
+        }
+
+        return false;
     }
 }

@@ -7,7 +7,8 @@ import {
     UserCircle, 
     Clock, 
     CalendarDays, 
-    Settings2 
+    Settings2,
+    PlugZap 
 } from 'lucide-react';
 
 interface ConfigLayoutProps {
@@ -24,6 +25,7 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
         { name: 'Horários', href: route('configuracoes.schedules.index'), icon: Clock, pattern: '/configuracoes/horarios' },
         { name: 'Feriados', href: route('configuracoes.holidays.index'), icon: CalendarDays, pattern: '/configuracoes/feriados' },
         { name: 'Geral', href: route('configuracoes.general.index'), icon: Settings2, pattern: '/configuracoes/geral' },
+        { name: 'Integrações', href: route('configuracoes.integrations.index'), icon: PlugZap, pattern: '/configuracoes/integracoes' },
     ];
 
     const isCurrent = (pattern: string) => url.startsWith(pattern);

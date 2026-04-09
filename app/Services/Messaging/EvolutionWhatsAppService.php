@@ -44,18 +44,27 @@ class EvolutionWhatsAppService implements MessagingServiceInterface
             ]
         ];
 
-        $response = Http::withHeaders([
-            'apikey' => $this->apiKey,
-        ])->post("{$this->baseUrl}/message/sendText/{$this->instanceName}", $payload);
+        $response = Http::timeout(10)
+            ->withHeaders([
+                'apikey' => $this->apiKey,
+            ])->post("{$this->baseUrl}/message/sendText/{$this->instanceName}", $payload);
 
         if ($response->failed()) {
-            Log::error("EvolutionWhatsAppService: Failed to send message.", [
+            $status = $response->status();
+            $errorType = match(true) {
+                $status === 401 || $status === 403 => 'Autenticação Inválida/Não Autorizado',
+                $status === 422 => 'Número Inválido (422)',
+                $status >= 500 => 'Indisponibilidade do Provedor (500)',
+                default => 'Erro de Comunicação'
+            };
+
+            Log::error("EvolutionWhatsAppService: {$errorType}", [
                 'to' => $to,
-                'status' => $response->status(),
+                'status' => $status,
                 'response' => $response->json(),
                 'meta' => $meta,
             ]);
-            return ['ok' => false, 'error' => 'Falha no provedor de comunicação'];
+            return ['ok' => false, 'error' => $errorType];
         }
 
         $data = $response->json();

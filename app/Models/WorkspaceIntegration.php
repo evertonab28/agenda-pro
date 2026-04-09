@@ -27,4 +27,9 @@ class WorkspaceIntegration extends Model
             'last_check_at' => 'datetime',
         ];
     }
+
+    public function workspace()
+    {
+        return $this->belongsTo(Workspace::class);
+    }
 }

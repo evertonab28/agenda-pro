@@ -102,6 +102,9 @@ Route::middleware(['auth'])->group(function () {
         // General
         Route::get('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'index'])->name('general.index');
         Route::post('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'store'])->name('general.store');
+
+        // Integrations
+        Route::get('integrações', [\App\Http\Controllers\WorkspaceIntegrationPageController::class, 'index'])->name('integrations.index');
     });
 });
 

@@ -18,18 +18,22 @@ class WebhookSecurityTest extends TestCase
     {
         // Simulate production environment
         $this->app['env'] = 'production';
-        Config::set('services.messaging.webhook_secret', '');
-
         $workspace = Workspace::factory()->create();
+        $workspace->integrations()->create([
+            'type' => 'payment',
+            'provider' => 'asaas',
+            'credentials' => ['api_key' => 'fake_asaas_key'],
+            'meta' => ['webhook_secret' => '']
+        ]);
         
-        $response = $this->postJson("/api/webhooks/{$workspace->slug}/messaging/inbound", [
+        $response = $this->postJson("/api/webhooks/{$workspace->slug}/asaas/payment", [
             'event_id' => 'evt_123',
             'status' => 'paid',
             'id' => 'ext_123'
         ]);
 
-        $response->assertStatus(500);
-        $response->assertJson(['message' => 'Configuração segura ausente']);
+        $response->assertStatus(401);
+        $response->assertJson(['message' => 'Unauthorized signature']);
         
         // Reset env
         $this->app['env'] = 'testing';
@@ -65,7 +69,7 @@ class WebhookSecurityTest extends TestCase
         // Primeira requisição - deve processar
         $response = $this->call(
             'POST',
-            "/api/webhooks/{$workspace->slug}/asaas/inbound",
+            "/api/webhooks/{$workspace->slug}/asaas/payment",
             [], [], [],
             [
                 'CONTENT_TYPE' => 'application/json',
@@ -82,7 +86,7 @@ class WebhookSecurityTest extends TestCase
         // Segunda requisição - deve ser idempotente
         $response2 = $this->call(
             'POST',
-            "/api/webhooks/{$workspace->slug}/asaas/inbound",
+            "/api/webhooks/{$workspace->slug}/asaas/payment",
             [], [], [],
             [
                 'CONTENT_TYPE' => 'application/json',

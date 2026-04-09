@@ -36,14 +36,17 @@ return [
     ],
 
     'messaging' => [
-        'provider' => env('MESSAGING_PROVIDER', 'fake'),
-        'provider_key' => env('MESSAGING_PROVIDER_KEY'),
+        'evolution' => [
+            'url' => env('EVOLUTION_API_URL', 'http://evolution-api:8080'),
+        ],
+        // Default genérico apenas para testes limitados ou fallback de admin
         'webhook_secret' => env('MESSAGING_WEBHOOK_SECRET'),
     ],
 
     'payment' => [
-        'provider' => env('PAYMENT_PROVIDER', 'fake'),
-        'provider_key' => env('PAYMENT_PROVIDER_KEY'),
+        'asaas' => [
+            'url' => env('ASAAS_API_URL', 'https://sandbox.asaas.com/api/v3'),
+        ],
     ],
 
 ];

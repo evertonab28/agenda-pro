@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreWorkspaceIntegrationRequest;
 use App\Models\WorkspaceIntegration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,16 +20,8 @@ class WorkspaceIntegrationController extends Controller
         return response()->json($integrations);
     }
 
-    public function store(Request $request)
+    public function store(StoreWorkspaceIntegrationRequest $request)
     {
-        Gate::authorize('manage-settings');
-
-        $request->validate([
-            'type' => 'required|in:payment,messaging',
-            'provider' => 'required|string',
-            'credentials' => 'required|array',
-        ]);
-
         $workspaceId = $request->user()->workspace_id;
 
         $integration = WorkspaceIntegration::updateOrCreate(
@@ -60,9 +53,29 @@ class WorkspaceIntegrationController extends Controller
         try {
             $paymentService = \App\Services\IntegrationProviderFactory::payment($charge->workspace);
             $url = $paymentService->generate($charge);
-            
             return response()->json(['ok' => true, 'url' => $url]);
         } catch (\Exception $e) {
+            return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function testConnection(Request $request, WorkspaceIntegration $integration)
+    {
+        if ($integration->workspace_id !== $request->user()->workspace_id) {
+            abort(403);
+        }
+
+        try {
+            if ($integration->type === 'payment') {
+                $service = \App\Services\IntegrationProviderFactory::payment($integration->workspace);
+            } else if ($integration->type === 'messaging') {
+                $service = \App\Services\IntegrationProviderFactory::messaging($integration->workspace);
+            }
+            
+            $integration->update(['last_check_at' => now(), 'status' => 'active']);
+            return response()->json(['ok' => true]);
+        } catch (\Exception $e) {
+            $integration->update(['last_check_at' => now(), 'status' => 'error']);
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
         }
     }

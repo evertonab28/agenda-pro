@@ -76,32 +76,9 @@ class MessagingWebhookController extends Controller
             return response()->json(['ok' => true, 'action' => 'already_processed']);
         }
 
-        // --- Processamento Original com Tenant Isolation Safeness ---
+        // A remoção da lógica de pagamentos unificou Single Responsibility!
+        // O escopo atual agora valida PURAMENTE agendamentos.
         
-        $externalId = $data['payment']['id'] ?? $data['id'] ?? null;
-        $status = $data['payment']['status'] ?? $data['status'] ?? null;
-        $eventName = $data['event'] ?? ($status === 'paid' ? 'PAYMENT_RECEIVED' : null);
-
-        if ($externalId && in_array($eventName, ['PAYMENT_RECEIVED', 'PAYMENT_CONFIRMED'])) {
-            $charge = Charge::withoutGlobalScopes()
-                ->where('workspace_id', $workspace->id) // Scoped
-                ->where('payment_provider_id', $externalId)
-                ->first();
-                
-            if ($charge) {
-                $charge->update([
-                    'status' => 'paid',
-                    'paid_at' => now(),
-                ]);
-                
-                $this->auditEvent($provider, $eventId);
-                Log::info("Webhook: Charge {$charge->id} (Workspace {$charge->workspace_id}) atualizado para paid via event {$eventId}");
-                return response()->json(['ok' => true, 'action' => 'payment_recorded']);
-            } else {
-                Log::warning("Webhook payment_provider_id {$externalId} não encontrou charge para {$workspace->name}");
-            }
-        }
-
         $appointmentToken = $data['appointment_token'] ?? $data['token'] ?? null;
 
         if (!$appointmentToken) {
