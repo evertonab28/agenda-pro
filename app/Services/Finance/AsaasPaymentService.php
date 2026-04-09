@@ -15,7 +15,7 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
     public function __construct(array $credentials)
     {
         $this->apiKey = $credentials['api_key'] ?? '';
-        $this->baseUrl = config('services.payment.asaas.url', 'https://sandbox.asaas.com/api/v3');
+        $this->baseUrl = config('services.payment.asaas.url') ?? 'https://sandbox.asaas.com/api/v3';
 
         if (empty($this->apiKey)) {
             throw new \Exception("AsaasPaymentService: API Key ausente nas credenciais.");
