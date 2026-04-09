@@ -66,5 +66,25 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::define('manage-settings', function (\App\Models\User $user) {
             return $user->role === 'admin';
         });
+
+        // SaaS Commercial Events
+        $commercialEvents = [
+            \App\Events\SaaS\SubscriptionActivated::class,
+            \App\Events\SaaS\SubscriptionRenewed::class,
+            \App\Events\SaaS\SubscriptionReactivated::class,
+            \App\Events\SaaS\PlanUpgraded::class,
+            \App\Events\SaaS\InvoiceGenerated::class,
+            \App\Events\SaaS\TrialEndingSoon::class,
+            \App\Events\SaaS\InvoiceReminderSent::class,
+            \App\Events\SaaS\SubscriptionCanceled::class,
+            \App\Events\SaaS\CancellationReasonRecorded::class,
+        ];
+
+        foreach ($commercialEvents as $eventClass) {
+            \Illuminate\Support\Facades\Event::listen(
+                $eventClass,
+                \App\Listeners\SaaS\LogCommercialEvent::class
+            );
+        }
     }
 }

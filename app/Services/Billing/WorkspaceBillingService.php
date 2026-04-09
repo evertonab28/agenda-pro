@@ -8,6 +8,11 @@ use App\Models\WorkspaceBillingInvoice;
 use App\Models\WorkspaceSubscription;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Events\SaaS\InvoiceGenerated;
+use App\Events\SaaS\SubscriptionActivated;
+use App\Events\SaaS\SubscriptionRenewed;
+use App\Events\SaaS\SubscriptionReactivated;
+use App\Events\SaaS\PlanUpgraded;
 
 class WorkspaceBillingService
 {
@@ -61,15 +66,14 @@ class WorkspaceBillingService
 
             // 5. Log Event
             if ($subscription) {
-                $subscription->events()->create([
-                    'workspace_id' => $workspace->id,
-                    'event_type' => 'invoice_generated',
-                    'payload' => [
-                        'invoice_id' => $invoice->id,
-                        'amount' => $invoice->amount,
-                        'type' => $type
-                    ]
-                ]);
+                event(new InvoiceGenerated(
+                    workspaceId: $workspace->id,
+                    subscriptionId: $subscription->id,
+                    invoiceId: $invoice->id,
+                    planId: $plan->id,
+                    amount: (float) $invoice->amount,
+                    meta: ['type' => $type]
+                ));
             }
 
             return $invoice;
@@ -117,17 +121,18 @@ class WorkspaceBillingService
                     'ends_at'      => $endsAt,
                 ]);
 
-                $subscription->events()->create([
-                    'workspace_id' => $invoice->workspace_id,
-                    'event_type'   => 'subscription_activated',
-                    'payload'      => [
-                        'invoice_id'      => $invoice->id,
-                        'amount'          => (float) $plan->price,
+                event(new SubscriptionActivated(
+                    workspaceId: $invoice->workspace_id,
+                    subscriptionId: $subscription->id,
+                    invoiceId: $invoice->id,
+                    planId: $plan->id,
+                    amount: (float) $plan->price,
+                    meta: [
                         'previous_status' => 'none',
                         'new_ends_at'     => $endsAt->toDateTimeString(),
                         'plan_slug'       => $plan->slug,
-                    ],
-                ]);
+                    ]
+                ));
             } else {
                 $oldStatus    = $subscription->status;
                 $oldPlanId    = $subscription->plan_id;
@@ -142,39 +147,41 @@ class WorkspaceBillingService
                     'trial_ends_at' => $isFromTrial ? null : $subscription->trial_ends_at,
                 ]);
 
-                $eventType = match (true) {
-                    $oldStatus === 'overdue' => 'subscription_reactivated',
-                    $isFromTrial             => 'subscription_activated',
-                    default                  => 'subscription_renewed',
+                // Primary commercial event
+                $eventClass = match (true) {
+                    $oldStatus === 'overdue' => SubscriptionReactivated::class,
+                    $isFromTrial             => SubscriptionActivated::class,
+                    default                  => SubscriptionRenewed::class,
                 };
 
-                // Primary commercial event
-                $subscription->events()->create([
-                    'workspace_id' => $invoice->workspace_id,
-                    'event_type'   => $eventType,
-                    'payload'      => [
-                        'invoice_id'      => $invoice->id,
-                        'amount'          => (float) $plan->price,
+                event(new $eventClass(
+                    workspaceId: $invoice->workspace_id,
+                    subscriptionId: $subscription->id,
+                    invoiceId: $invoice->id,
+                    planId: $invoice->plan_id, // new plan
+                    amount: (float) $plan->price,
+                    meta: [
                         'previous_status' => $oldStatus,
                         'new_ends_at'     => $endsAt->toDateTimeString(),
                         'plan_slug'       => $plan->slug,
-                    ],
-                ]);
+                    ]
+                ));
 
                 // Secondary: expansion_mrr event when upgrading during trial
                 if ($isPlanChange) {
-                    $subscription->events()->create([
-                        'workspace_id' => $invoice->workspace_id,
-                        'event_type'   => 'plan_upgraded',
-                        'payload'      => [
-                            'invoice_id' => $invoice->id,
-                            'amount'     => (float) $plan->price,
+                    event(new PlanUpgraded(
+                        workspaceId: $invoice->workspace_id,
+                        subscriptionId: $subscription->id,
+                        invoiceId: $invoice->id,
+                        planId: (int) $invoice->plan_id,
+                        previousPlanId: (int) $oldPlanId,
+                        amount: (float) $plan->price,
+                        deltaAmount: (float) $plan->price,
+                        meta: [
                             'mrr_delta'  => (float) $plan->price,
-                            'from_plan'  => $oldPlanId,
-                            'to_plan'    => $invoice->plan_id,
                             'plan_slug'  => $plan->slug,
-                        ],
-                    ]);
+                        ]
+                    ));
                 }
             }
 

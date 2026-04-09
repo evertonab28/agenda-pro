@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Tests\Feature\SaaS\CommercialEventTest" file="D:\saas\agenda-pro\tests\Feature\SaaS\CommercialEventTest.php" tests="2" assertions="2" errors="0" failures="2" skipped="0" time="0.786506">
+    <testcase name="test_commercial_event_is_persisted_automatically" file="D:\saas\agenda-pro\tests\Feature\SaaS\CommercialEventTest.php" line="17" class="Tests\Feature\SaaS\CommercialEventTest" classname="Tests.Feature.SaaS.CommercialEventTest" assertions="1" time="0.753041">
+      <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\SaaS\CommercialEventTest::test_commercial_event_is_persisted_automatically&#13;
+Failed asserting that a row in the table [workspace_subscription_events] matches the attributes {
+    "workspace_id": 1,
+    "event_type": "subscription_activated"
+}.
+
+The table is empty.
+&#13;
+D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase.php:36
+D:\saas\agenda-pro\tests\Feature\SaaS\CommercialEventTest.php:38</failure>
+    </testcase>
+    <testcase name="test_plan_upgrade_payload_standardization" file="D:\saas\agenda-pro\tests\Feature\SaaS\CommercialEventTest.php" line="49" class="Tests\Feature\SaaS\CommercialEventTest" classname="Tests.Feature.SaaS.CommercialEventTest" assertions="1" time="0.033465">
+      <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\SaaS\CommercialEventTest::test_plan_upgrade_payload_standardization&#13;
+Failed asserting that a row in the table [workspace_subscription_events] matches the attributes {
+    "workspace_id": 1,
+    "event_type": "plan_upgraded"
+}.
+
+The table is empty.
+&#13;
+D:\saas\agenda-pro\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase.php:36
+D:\saas\agenda-pro\tests\Feature\SaaS\CommercialEventTest.php:65</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

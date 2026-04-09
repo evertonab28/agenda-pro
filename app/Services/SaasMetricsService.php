@@ -254,7 +254,7 @@ class SaasMetricsService
                 'workspace_id'   => $e->workspace_id,
                 'workspace_name' => $e->workspace->name ?? '—',
                 'event_type'     => $e->event_type,
-                'payload'        => $e->payload,
+                'payload'        => $this->normalizePayload($e->payload, $e->event_type),
                 'created_at'     => $e->created_at->toDateTimeString(),
             ])
             ->toArray();
@@ -274,7 +274,7 @@ class SaasMetricsService
                 'date'       => $e->created_at->toDateTimeString(),
                 'source'     => 'event',
                 'event_type' => $e->event_type,
-                'payload'    => $e->payload,
+                'payload'    => $this->normalizePayload($e->payload, $e->event_type),
                 'amount'     => null,
                 'status'     => null,
             ]);
@@ -341,5 +341,32 @@ class SaasMetricsService
             ]);
 
         return $overdue->concat($expiringTrials)->values()->toArray();
+    }
+
+    /**
+     * Normaliza o payload para uso no frontend/métricas, 
+     * garantindo retrocompatibilidade entre o formato antigo e o novo (Epic 1).
+     */
+    private function normalizePayload(?array $payload, string $type): array
+    {
+        if (!$payload) return [];
+
+        // Mapeamento de chaves legadas para o novo padrão
+        $mapping = [
+            'from_plan' => 'previous_plan_id',
+            'to_plan'   => 'plan_id',
+            // amount já costumava ser amount na maioria, mas garantimos
+        ];
+
+        foreach ($mapping as $old => $new) {
+            if (isset($payload[$old]) && !isset($payload[$new])) {
+                $payload[$new] = $payload[$old];
+            }
+        }
+
+        // Caso especial: trial_ending_soon payload original já era ok, 
+        // mas garantimos que as chaves mínimas existam se possível (contextual)
+        
+        return $payload;
     }
 }

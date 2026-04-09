@@ -106,17 +106,17 @@ class DunningService
 
     private function recordReminder(WorkspaceBillingInvoice $invoice, string $type): void
     {
-        WorkspaceSubscriptionEvent::create([
-            'workspace_id' => $invoice->workspace_id,
-            'subscription_id' => $invoice->subscription_id,
-            'event_type' => 'reminder_sent',
-            'payload' => [
-                'invoice_id' => $invoice->id,
+        event(new \App\Events\SaaS\InvoiceReminderSent(
+            workspaceId: $invoice->workspace_id,
+            subscriptionId: $invoice->subscription_id,
+            invoiceId: $invoice->id,
+            planId: $invoice->plan_id,
+            amount: (float) $invoice->amount,
+            meta: [
                 'reminder_type' => $type, // upcoming, due_today, overdue
                 'due_date' => $invoice->due_date?->toDateString(),
-                'amount' => (float) $invoice->amount,
-            ],
-        ]);
+            ]
+        ));
         
         Log::info("Dunning: sent {$type} reminder for invoice {$invoice->id}");
     }

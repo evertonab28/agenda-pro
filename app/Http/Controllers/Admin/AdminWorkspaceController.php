@@ -168,25 +168,28 @@ class AdminWorkspaceController extends Controller
             $workspace->subscription->update($validated);
 
             if (!empty($validated['cancellation_category'])) {
-                \App\Models\WorkspaceSubscriptionEvent::create([
-                    'workspace_id'    => $workspace->id,
-                    'subscription_id' => $workspace->subscription->id,
-                    'event_type'      => 'cancellation_reason_recorded',
-                    'payload'         => $validated,
-                ]);
+                event(new \App\Events\SaaS\CancellationReasonRecorded(
+                    workspaceId: $workspace->id,
+                    subscriptionId: $workspace->subscription->id,
+                    planId: $workspace->subscription->plan_id,
+                    amount: (float) ($workspace->subscription->plan?->price ?? 0),
+                    actorId: auth()->id(),
+                    meta: $validated
+                ));
 
                 // Emite subscription_canceled na primeira gravação para alimentar Revenue Movement
                 if ($isFirstCancellation) {
-                    \App\Models\WorkspaceSubscriptionEvent::create([
-                        'workspace_id'    => $workspace->id,
-                        'subscription_id' => $workspace->subscription->id,
-                        'event_type'      => 'subscription_canceled',
-                        'payload'         => [
-                            'amount'                => (float) ($workspace->subscription->plan?->price ?? 0),
+                    event(new \App\Events\SaaS\SubscriptionCanceled(
+                        workspaceId: $workspace->id,
+                        subscriptionId: $workspace->subscription->id,
+                        planId: $workspace->subscription->plan_id,
+                        amount: (float) ($workspace->subscription->plan?->price ?? 0),
+                        actorId: auth()->id(),
+                        meta: [
                             'cancellation_category' => $validated['cancellation_category'],
                             'canceled_by'           => 'admin',
-                        ],
-                    ]);
+                        ]
+                    ));
                 }
             }
         }
