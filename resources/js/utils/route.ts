@@ -3,7 +3,9 @@
  * Maps dynamic route names to their respective URL paths.
  */
 const routes: Record<string, string> = {
+    // Staff app routes
     'dashboard': '/dashboard',
+    'logout': '/logout',
     'agenda': '/agenda',
     'agenda.store': '/agenda',
     'customers.index': '/customers',
@@ -27,6 +29,10 @@ const routes: Record<string, string> = {
     'configuracoes.holidays.store': '/configuracoes/feriados',
     'configuracoes.general.index': '/configuracoes/geral',
     'configuracoes.general.store': '/configuracoes/geral',
+    'configuracoes.billing.index': '/configuracoes/assinatura',
+    'configuracoes.billing.upgrade': '/configuracoes/assinatura/upgrade',
+    'configuracoes.billing.cancel': '/configuracoes/assinatura/cancelar',
+    'configuracoes.integrations.index': '/configuracoes/integrações',
     'agenda.checkout.store': '/agenda/:id/checkout',
     'waitlist.index': '/lista-espera',
     'waitlist.store': '/lista-espera',
@@ -112,6 +118,21 @@ export function route(name: string, params?: any): string {
     if (name === 'users.update') return `/usuarios/${params?.id || params}`;
     if (name === 'users.destroy') return `/usuarios/${params?.id || params}`;
     if (name === 'users.status') return `/usuarios/${params?.id || params}/status`;
+
+    // Portal (cliente) routes - params is the workspace slug
+    if (name === 'portal.login') return `/p/${params}/login`;
+    if (name === 'portal.schedule') return `/p/${params}/agendar`;
+    if (name === 'portal.dashboard') return `/p/${params}/dashboard`;
+    if (name === 'portal.appointments') return `/p/${params}/agendamentos`;
+    if (name === 'portal.charges') return `/p/${params}/faturas`;
+    if (name === 'portal.profile') return `/p/${params}/perfil`;
+    if (name === 'portal.logout') return `/p/${params}/logout`;
+    if (name === 'portal.auth.send-token') return `/p/${params}/auth/send-token`;
+    if (name === 'portal.auth.verify-token') return `/p/${params}/auth/verify-token`;
+    if (name === 'portal.scheduling.services') return `/p/${params}/scheduling/services`;
+    if (name === 'portal.scheduling.professionals') return `/p/${params}/scheduling/services`;
+    if (name === 'portal.scheduling.availability') return `/p/${params}/scheduling/availability`;
+    if (name === 'portal.scheduling.book') return `/p/${params}/scheduling/book`;
 
     return url;
 }
