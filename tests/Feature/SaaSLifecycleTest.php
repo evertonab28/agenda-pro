@@ -276,4 +276,109 @@ class SaaSLifecycleTest extends TestCase
             'status'       => 'pending',
         ]);
     }
+
+    public function test_confirm_payment_for_trial_conversion_emits_subscription_activated()
+    {
+        $plan = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        $workspace = Workspace::factory()->create();
+
+        $sub = WorkspaceSubscription::create([
+            'workspace_id'  => $workspace->id,
+            'plan_id'       => $plan->id,
+            'status'        => 'trialing',
+            'trial_ends_at' => now()->addDays(5),
+        ]);
+
+        $invoice = WorkspaceBillingInvoice::create([
+            'workspace_id'    => $workspace->id,
+            'subscription_id' => $sub->id,
+            'plan_id'         => $plan->id,
+            'amount'          => 49.90,
+            'status'          => 'pending',
+            'due_date'        => now()->addDays(3),
+            'reference_period' => now()->format('m/Y'),
+            'meta'            => ['type' => 'trial_conversion'],
+        ]);
+
+        $billingService = app(\App\Services\Billing\WorkspaceBillingService::class);
+        $billingService->confirmPayment($invoice);
+
+        $this->assertEquals('active', $sub->fresh()->status);
+        $this->assertTrue($sub->fresh()->isActive());
+        $this->assertNull($sub->fresh()->trial_ends_at);
+
+        $this->assertDatabaseHas('workspace_subscription_events', [
+            'subscription_id' => $sub->id,
+            'event_type'      => 'subscription_activated',
+        ]);
+
+        $this->assertDatabaseMissing('workspace_subscription_events', [
+            'subscription_id' => $sub->id,
+            'event_type'      => 'subscription_renewed',
+        ]);
+    }
+
+    public function test_confirm_payment_for_trial_upgrade_emits_subscription_activated_and_plan_upgraded()
+    {
+        $starter = Plan::create([
+            'name' => 'Starter', 'slug' => 'starter',
+            'price' => 49.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+        $pro = Plan::create([
+            'name' => 'Pro', 'slug' => 'pro',
+            'price' => 99.90, 'billing_cycle' => 'monthly',
+            'is_active' => true, 'features' => [],
+        ]);
+
+        $workspace = Workspace::factory()->create();
+
+        $sub = WorkspaceSubscription::create([
+            'workspace_id'  => $workspace->id,
+            'plan_id'       => $starter->id,
+            'status'        => 'trialing',
+            'trial_ends_at' => now()->addDays(5),
+        ]);
+
+        // Invoice is for the Pro plan (upgrade during trial)
+        $invoice = WorkspaceBillingInvoice::create([
+            'workspace_id'    => $workspace->id,
+            'subscription_id' => $sub->id,
+            'plan_id'         => $pro->id,
+            'amount'          => 99.90,
+            'status'          => 'pending',
+            'due_date'        => now()->addDays(3),
+            'reference_period' => now()->format('m/Y'),
+            'meta'            => ['type' => 'upgrade'],
+        ]);
+
+        $billingService = app(\App\Services\Billing\WorkspaceBillingService::class);
+        $billingService->confirmPayment($invoice);
+
+        $this->assertEquals('active', $sub->fresh()->status);
+        $this->assertEquals($pro->id, $sub->fresh()->plan_id);
+        $this->assertNull($sub->fresh()->trial_ends_at);
+
+        // Must emit subscription_activated
+        $this->assertDatabaseHas('workspace_subscription_events', [
+            'subscription_id' => $sub->id,
+            'event_type'      => 'subscription_activated',
+        ]);
+
+        // Must ALSO emit plan_upgraded to capture MRR movement
+        $this->assertDatabaseHas('workspace_subscription_events', [
+            'subscription_id' => $sub->id,
+            'event_type'      => 'plan_upgraded',
+        ]);
+
+        $this->assertDatabaseMissing('workspace_subscription_events', [
+            'subscription_id' => $sub->id,
+            'event_type'      => 'subscription_renewed',
+        ]);
+    }
 }
