@@ -20,7 +20,7 @@ class ChargeFactory extends Factory
             'amount' => $this->faker->randomFloat(2, 50, 500),
             'status' => $this->faker->randomElement(['pending', 'paid', 'overdue', 'canceled']),
             'due_date' => $this->faker->dateTimeBetween('-1 month', '+1 month')->format('Y-m-d'),
-            'payment_method' => $this->faker->randomElement(['pix', 'dinheiro', 'cartao', 'boleto']),
+            'payment_method' => $this->faker->randomElement(['pix', 'cash', 'card', 'transfer']),
             'notes' => $this->faker->optional()->sentence,
         ];
     }

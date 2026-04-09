@@ -11,7 +11,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected function fulfillOnboarding($workspaceId): void
     {
-        \App\Models\Setting::set('company_name', 'Test Workspace');
+        \App\Models\Setting::setForWorkspace($workspaceId, 'company_name', 'Test Workspace');
 
         $service = \App\Models\Service::factory()->create(['workspace_id' => $workspaceId]);
         $prof = \App\Models\Professional::factory()->create(['workspace_id' => $workspaceId]);
