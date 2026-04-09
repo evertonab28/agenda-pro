@@ -154,16 +154,19 @@ class AdminWorkspaceController extends Controller
         ]);
 
         $workspace = Workspace::withoutGlobalScopes()->findOrFail($id);
-        
+        $workspace->load(['subscription.plan']);
+
         if ($workspace->subscription) {
-            if (!empty($validated['cancellation_category']) && !$workspace->subscription->cancellation_recorded_at) {
+            $isFirstCancellation = !empty($validated['cancellation_category'])
+                && !$workspace->subscription->cancellation_recorded_at;
+
+            if ($isFirstCancellation) {
                 $validated['cancellation_recorded_at'] = now();
                 $validated['canceled_by'] = 'admin';
             }
 
             $workspace->subscription->update($validated);
-            
-            // Re-log as event if cancellation category provided
+
             if (!empty($validated['cancellation_category'])) {
                 \App\Models\WorkspaceSubscriptionEvent::create([
                     'workspace_id'    => $workspace->id,
@@ -171,6 +174,20 @@ class AdminWorkspaceController extends Controller
                     'event_type'      => 'cancellation_reason_recorded',
                     'payload'         => $validated,
                 ]);
+
+                // Emite subscription_canceled na primeira gravação para alimentar Revenue Movement
+                if ($isFirstCancellation) {
+                    \App\Models\WorkspaceSubscriptionEvent::create([
+                        'workspace_id'    => $workspace->id,
+                        'subscription_id' => $workspace->subscription->id,
+                        'event_type'      => 'subscription_canceled',
+                        'payload'         => [
+                            'amount'                => (float) ($workspace->subscription->plan?->price ?? 0),
+                            'cancellation_category' => $validated['cancellation_category'],
+                            'canceled_by'           => 'admin',
+                        ],
+                    ]);
+                }
             }
         }
 

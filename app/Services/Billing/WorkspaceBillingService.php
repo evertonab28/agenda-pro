@@ -128,10 +128,11 @@ class WorkspaceBillingService
                 'workspace_id' => $invoice->workspace_id,
                 'event_type' => $eventType,
                 'payload' => [
-                    'invoice_id' => $invoice->id,
+                    'invoice_id'      => $invoice->id,
+                    'amount'          => (float) $plan->price,
                     'previous_status' => $oldStatus,
-                    'new_ends_at' => $endsAt->toDateTimeString(),
-                    'plan_slug' => $plan->slug
+                    'new_ends_at'     => $endsAt->toDateTimeString(),
+                    'plan_slug'       => $plan->slug,
                 ]
             ]);
 
