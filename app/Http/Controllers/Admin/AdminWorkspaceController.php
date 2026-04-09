@@ -143,6 +143,8 @@ class AdminWorkspaceController extends Controller
             'invoices' => $invoices,
             'timeline' => $timeline,
         ]);
+    }
+
     public function updateRetention(Request $request, int $id)
     {
         $validated = $request->validate([
@@ -154,6 +156,11 @@ class AdminWorkspaceController extends Controller
         $workspace = Workspace::withoutGlobalScopes()->findOrFail($id);
         
         if ($workspace->subscription) {
+            if (!empty($validated['cancellation_category']) && !$workspace->subscription->cancellation_recorded_at) {
+                $validated['cancellation_recorded_at'] = now();
+                $validated['canceled_by'] = 'admin';
+            }
+
             $workspace->subscription->update($validated);
             
             // Re-log as event if cancellation category provided

@@ -224,7 +224,12 @@ export default function Dashboard({
                 {/* Revenue Movements */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Movimentação de MRR</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Movimentação de MRR</p>
+                            <span className="text-[10px] text-zinc-600 italic hidden md:inline-block">
+                                * Dados calculados de forma incremental a partir de Abr/2026
+                            </span>
+                        </div>
                         <span className="text-xs text-zinc-600 font-medium">Período: {revenue_movements.period}</span>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
