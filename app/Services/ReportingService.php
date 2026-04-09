@@ -51,7 +51,7 @@ class ReportingService
     {
         return Service::where('workspace_id', $clinicId)
             ->withCount(['appointments' => function ($query) {
-                $query->where('status', 'finished');
+                $query->where('status', 'completed');
             }])
             ->get()
             ->map(function ($service) use ($clinicId) {
@@ -79,7 +79,7 @@ class ReportingService
     {
         return Customer::where('workspace_id', $clinicId)
             ->withCount(['appointments' => function ($query) {
-                $query->where('status', 'finished');
+                $query->where('status', 'completed');
             }])
             ->get()
             ->map(function ($customer) use ($clinicId) {
