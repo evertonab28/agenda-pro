@@ -31,6 +31,7 @@ const routes: Record<string, string> = {
     'configuracoes.general.store': '/configuracoes/geral',
     'configuracoes.billing.index': '/configuracoes/assinatura',
     'configuracoes.billing.upgrade': '/configuracoes/assinatura/upgrade',
+    'configuracoes.billing.activate': '/configuracoes/assinatura/ativar',
     'configuracoes.billing.cancel': '/configuracoes/assinatura/cancelar',
     'configuracoes.integrations.index': '/configuracoes/integrações',
     'agenda.checkout.store': '/agenda/:id/checkout',
