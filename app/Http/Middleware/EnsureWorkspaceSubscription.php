@@ -24,8 +24,8 @@ class EnsureWorkspaceSubscription
         $subscription = $workspace->subscription()->first();
 
         if (!$subscription || !$subscription->isActive()) {
-            // Allow access to billing page even if subscription is invalid
-            if ($request->is('configuracoes/assinatura*') || $request->is('api/billing*')) {
+            // Allow access to configuration area even if subscription is invalid for regularization
+            if ($request->is('configuracoes*') || $request->is('api/billing*')) {
                 return $next($request);
             }
 
