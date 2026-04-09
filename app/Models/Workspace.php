@@ -50,4 +50,9 @@ class Workspace extends Model
     {
         return 'slug';
     }
+
+    public function billingInvoices()
+    {
+        return $this->hasMany(WorkspaceBillingInvoice::class);
+    }
 }

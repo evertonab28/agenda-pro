@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\MessagingWebhookController;
 use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\WorkspaceIntegrationController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\SaasBillingWebhookController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('customers', CustomerController::class)->names('api.customers');
@@ -37,3 +38,5 @@ Route::get('p/{workspace}/charges', [\App\Http\Controllers\Api\ChargeController:
 Route::get('appointments/{appointment}/confirm/{token}', [AppointmentController::class, 'confirm']);
 Route::post('webhooks/{workspace:slug}/{provider}/messaging', [MessagingWebhookController::class, 'inbound'])->middleware('throttle:20,1');
 Route::post('webhooks/{workspace:slug}/{provider}/payment', [PaymentWebhookController::class, 'inbound'])->middleware('throttle:20,1');
+
+Route::post('webhooks/saas-billing/asaas', [SaasBillingWebhookController::class, 'handle']);

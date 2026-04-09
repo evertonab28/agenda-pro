@@ -46,6 +46,8 @@ return [
     'payment' => [
         'asaas' => [
             'url' => env('ASAAS_API_URL', 'https://sandbox.asaas.com/api/v3'),
+            'key' => env('ASAAS_API_KEY'),
+            'webhook_token' => env('ASAAS_SAAS_WEBHOOK_TOKEN'),
         ],
     ],
 

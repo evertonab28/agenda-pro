@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
+import { route } from '@/utils/route';
 import ConfigLayout from '../Layout';
 import { 
     CreditCard, 
@@ -11,6 +12,17 @@ import {
     ArrowUpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useForm, router } from '@inertiajs/react';
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogHeader, 
+    DialogTitle, 
+    DialogTrigger,
+    DialogFooter,
+    DialogDescription
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 interface Subscription {
     id: number;
@@ -25,15 +37,40 @@ interface Subscription {
     };
 }
 
+interface Invoice {
+    id: number;
+    amount: string;
+    status: 'pending' | 'paid' | 'overdue' | 'canceled';
+    due_date: string;
+    provider_payment_link: string | null;
+    reference_period: string;
+    plan: { name: string };
+}
+
+interface Plan {
+    id: number;
+    name: string;
+    price: string;
+    billing_cycle: string;
+    features: Record<string, any>;
+}
+
 interface Props {
     subscription: Subscription | null;
     stats: {
         professionals: { current: number, limit: number };
         users: { current: number, limit: number };
     };
+    invoices: Invoice[];
+    availablePlans: Plan[];
 }
 
-export default function Index({ subscription, stats }: Props) {
+export default function Index({ subscription, stats, invoices, availablePlans }: Props) {
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
+    const { post, processing } = useForm({
+        plan_id: null as number | null
+    });
+
     if (!subscription) {
         return (
             <ConfigLayout title="Assinatura">
@@ -48,6 +85,18 @@ export default function Index({ subscription, stats }: Props) {
 
     const isTrial = subscription.status === 'trialing';
     const isActive = ['active', 'trialing'].includes(subscription.status);
+
+    const handleUpgrade = (planId: number) => {
+        router.post(route('configuracoes.billing.upgrade'), { plan_id: planId }, {
+            onSuccess: () => {
+                setIsUpgradeModalOpen(false);
+                toast.success('Fatura de upgrade gerada com sucesso!');
+            },
+            onError: (errors) => {
+                toast.error('Erro ao gerar upgrade. Tente novamente.');
+            }
+        });
+    };
 
     const UsageBar = ({ label, current, limit, icon: Icon }: any) => {
         const percent = Math.min((current / limit) * 100, 100);
@@ -106,10 +155,43 @@ export default function Index({ subscription, stats }: Props) {
                             </p>
                         </div>
                     </div>
-                    <Button className="gap-2 shadow-lg h-12 px-8">
-                        <ArrowUpCircle className="w-5 h-5" />
-                        Fazer Upgrade
-                    </Button>
+
+                    <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="gap-2 shadow-lg h-12 px-8">
+                                <ArrowUpCircle className="w-5 h-5" />
+                                Fazer Upgrade
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                                <DialogTitle>Escolha seu novo plano</DialogTitle>
+                                <DialogDescription>O upgrade será aplicado imediatamente após a confirmação do pagamento.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
+                                {availablePlans.map((plan) => (
+                                    <div 
+                                        key={plan.id} 
+                                        className={`p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-primary ${
+                                            subscription.plan.name === plan.name ? 'border-primary bg-primary/5 opacity-60 pointer-events-none' : 'border-gray-200'
+                                        }`}
+                                        onClick={() => handleUpgrade(plan.id)}
+                                    >
+                                        <h4 className="font-bold text-lg">{plan.name}</h4>
+                                        <div className="text-2xl font-black my-2">R$ {plan.price}</div>
+                                        <p className="text-xs text-gray-500 mb-4">{plan.billing_cycle}</p>
+                                        <Button 
+                                            variant={subscription.plan.name === plan.name ? 'outline' : 'default'} 
+                                            className="w-full"
+                                            disabled={subscription.plan.name === plan.name || processing}
+                                        >
+                                            {subscription.plan.name === plan.name ? 'Atual' : 'Selecionar'}
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -149,6 +231,68 @@ export default function Index({ subscription, stats }: Props) {
                                 );
                             })}
                         </ul>
+                    </div>
+                </div>
+
+                {/* Invoices Table */}
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 dark:border-zinc-800">
+                        <h3 className="font-bold flex items-center gap-2 text-lg">
+                            <CreditCard className="w-5 h-5 text-gray-400" />
+                            Histórico de Faturamento (SaaS)
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+                                <tr>
+                                    <th className="px-6 py-4">Período</th>
+                                    <th className="px-6 py-4">Plano</th>
+                                    <th className="px-6 py-4">Valor</th>
+                                    <th className="px-6 py-4">Vencimento</th>
+                                    <th className="px-6 py-4">Status</th>
+                                    <th className="px-6 py-4">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+                                {invoices.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                            Nenhuma fatura encontrada.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    invoices.map((invoice) => (
+                                        <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/20">
+                                            <td className="px-6 py-4 font-medium">{invoice.reference_period}</td>
+                                            <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{invoice.plan.name}</td>
+                                            <td className="px-6 py-4 font-bold">R$ {invoice.amount}</td>
+                                            <td className="px-6 py-4">{new Date(invoice.due_date).toLocaleDateString()}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                                                    invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
+                                                    invoice.status === 'overdue' ? 'bg-red-100 text-red-700' :
+                                                    'bg-amber-100 text-amber-700'
+                                                }`}>
+                                                    {invoice.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {invoice.status !== 'paid' && invoice.provider_payment_link && (
+                                                    <Button 
+                                                        variant="link" 
+                                                        className="h-auto p-0 font-bold"
+                                                        onClick={() => window.open(invoice.provider_payment_link!, '_blank')}
+                                                    >
+                                                        Pagar agora
+                                                    </Button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

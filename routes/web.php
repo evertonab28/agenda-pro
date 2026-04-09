@@ -114,6 +114,7 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
 
         // Billing
         Route::get('assinatura', [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
+        Route::post('assinatura/upgrade', [\App\Http\Controllers\BillingController::class, 'upgrade'])->name('billing.upgrade');
     });
 });
 
