@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'customer.workspace' => \App\Http\Middleware\CheckCustomerWorkspace::class,
+            'subscribed' => \App\Http\Middleware\EnsureWorkspaceSubscription::class,
+            'feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

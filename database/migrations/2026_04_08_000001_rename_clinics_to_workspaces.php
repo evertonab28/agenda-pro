@@ -39,7 +39,9 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Rename the root tenant table
-        Schema::rename('clinics', 'workspaces');
+        if (Schema::hasTable('clinics') && !Schema::hasTable('workspaces')) {
+            Schema::rename('clinics', 'workspaces');
+        }
 
         // 2. For each tenant table: drop FK, rename column, recreate FK
         foreach ($this->tenantTables as $table) {
@@ -58,9 +60,11 @@ return new class extends Migration
                 });
             }
 
-            Schema::table($table, function (Blueprint $bp) {
-                $bp->renameColumn('clinic_id', 'workspace_id');
-            });
+            if (Schema::hasColumn($table, 'clinic_id') && !Schema::hasColumn($table, 'workspace_id')) {
+                Schema::table($table, function (Blueprint $bp) {
+                    $bp->renameColumn('clinic_id', 'workspace_id');
+                });
+            }
 
             if (config('database.default') !== 'sqlite') {
                 Schema::table($table, function (Blueprint $bp) {

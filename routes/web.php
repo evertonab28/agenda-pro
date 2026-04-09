@@ -27,7 +27,7 @@ Route::get('/', function () {
     return redirect('/dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::resource('usuarios', \App\Http\Controllers\UserController::class)->names('users');
     Route::patch('usuarios/{user}/status', [\App\Http\Controllers\UserController::class, 'toggleStatus'])->name('users.status');
 
@@ -55,12 +55,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('clientes/{customer}/credito', [\App\Http\Controllers\CustomerController::class, 'addCredit'])->name('customers.add-credit');
 
     Route::prefix('dashboard')->name('dashboard.')->group(function () {
-        Route::get('/executivo', [\App\Http\Controllers\ExecutiveDashboardController::class, 'index'])->name('executive');
+        Route::get('/executivo', [\App\Http\Controllers\ExecutiveDashboardController::class, 'index'])
+            ->name('executive')
+            ->middleware('feature:executive_bi');
     });
 
     Route::prefix('crm')->name('crm.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\CRMController::class, 'index'])->name('index');
-        Route::get('/segmento/{segment}', [\App\Http\Controllers\CRMController::class, 'segment'])->name('segment');
+        Route::get('/', [\App\Http\Controllers\CRMController::class, 'index'])
+            ->name('index')
+            ->middleware('feature:crm_tools');
+        Route::get('/segmento/{segment}', [\App\Http\Controllers\CRMController::class, 'segment'])
+            ->name('segment')
+            ->middleware('feature:crm_tools');
     });
     // Módulo Financeiro
     Route::prefix('financeiro')->name('finance.')->group(function () {
@@ -105,6 +111,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Integrations
         Route::get('integrações', [\App\Http\Controllers\WorkspaceIntegrationPageController::class, 'index'])->name('integrations.index');
+
+        // Billing
+        Route::get('assinatura', [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
     });
 });
 

@@ -33,6 +33,14 @@ class ProfessionalController extends Controller
     public function store(StoreProfessionalRequest $request): RedirectResponse
     {
         $this->authorize('create', Professional::class);
+
+        $subscriptionService = app(\App\Services\Subscription\SubscriptionService::class);
+        $currentCount = Professional::count();
+
+        if (!$subscriptionService->canAddResource(auth()->user()->workspace, 'max_professionals', $currentCount)) {
+            return redirect()->back()->with('error', 'Limite de profissionais atingido para seu plano atual. Faça um upgrade!');
+        }
+
         $professional = Professional::create($request->validated());
 
         if ($request->has('services')) {

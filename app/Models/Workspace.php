@@ -31,6 +31,16 @@ class Workspace extends Model
         return $this->hasMany(WorkspaceIntegration::class);
     }
 
+    public function subscriptions()
+    {
+        return $this->hasMany(WorkspaceSubscription::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(WorkspaceSubscription::class)->whereIn('status', ['active', 'trialing', 'overdue'])->latestOfMany();
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

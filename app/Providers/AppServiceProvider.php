@@ -53,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Appointment::observe(\App\Observers\AppointmentObserver::class);
         \App\Models\Charge::observe(\App\Observers\ChargeObserver::class);
         \App\Models\Receipt::observe(\App\Observers\ReceiptObserver::class);
+        \App\Models\Workspace::observe(\App\Observers\WorkspaceObserver::class);
 
         \Illuminate\Support\Facades\Gate::define('export-dashboard', function (\App\Models\User $user) {
             return in_array($user->role ?? 'admin', ['admin', 'manager']);

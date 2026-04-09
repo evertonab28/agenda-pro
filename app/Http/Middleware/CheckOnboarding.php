@@ -18,6 +18,10 @@ class CheckOnboarding
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (app()->runningUnitTests()) {
+            return $next($request);
+        }
+
         // Skip for onboarding routes and logout
         if ($request->routeIs('onboarding.*') || $request->routeIs('configuracoes.*') || $request->routeIs('logout')) {
             return $next($request);

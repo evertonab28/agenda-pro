@@ -19,7 +19,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         return Inertia::render('Users/Index', [
-            'users' => User::orderBy('name')->get(),
+            'users' => auth()->user()->workspace->users()->orderBy('name')->get(),
         ]);
     }
 
@@ -38,6 +38,13 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->authorize('create', User::class);
+
+        $subscriptionService = app(\App\Services\Subscription\SubscriptionService::class);
+        $currentCount = User::count();
+
+        if (!$subscriptionService->canAddResource(auth()->user()->workspace, 'max_users', $currentCount)) {
+            return redirect()->back()->with('error', 'Limite de usuários atingido para seu plano atual. Faça um upgrade!');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
