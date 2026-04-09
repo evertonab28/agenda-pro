@@ -11,17 +11,27 @@ use Illuminate\Support\Facades\Log;
 
 class MessagingWebhookController extends Controller
 {
-    public function inbound(Request $request)
+    public function inbound(Request $request, \App\Models\Workspace $workspace, string $provider)
     {
-        $signature = $request->header('X-Webhook-Signature');
-        $timestamp = $request->header('X-Webhook-Timestamp');
-        $secret = config('services.messaging.webhook_secret');
+        $signature = $request->header('X-Webhook-Signature', $request->header('asaas-signature'));
+        $timestamp = $request->header('X-Webhook-Timestamp', now()->timestamp);
         $payload = $request->getContent();
+        // Determine actual verification secret based on Provider
+        $secret = '';
+        if ($provider === 'asaas') {
+            // No asaas a validação secundária pode vir de um header estático configurado no painel ou secret hmac
+            $secret = $workspace->integrations()->where('provider', 'asaas')->first()?->meta['webhook_secret'] ?? '';
+        } else {
+            // Messaging Providers
+            $integration = $workspace->integrations()->where('provider', $provider)->first();
+            $secret = $integration?->meta['webhook_secret'] ?? config("services.messaging.webhook_secret");
+        }
 
-        // 1. Fail-Safe: Bloquear se segredo não configurado fora do ambiente de dev/local
-        if (!app()->environment('local', 'testing') && empty($secret)) {
+        // 1. Fail-Safe: Bloquear se segredo não configurado fora do ambiente local
+        if (!app()->environment('local', 'testing') && empty($secret) && $provider !== 'evolution') {
             Log::critical('WEBHOOK CRITICAL: Secret não configurado em ambiente protegido!', [
-                'ip' => $request->ip()
+                'ip' => $request->ip(),
+                'workspace' => $workspace->slug
             ]);
             return response()->json(['ok' => false, 'message' => 'Configuração segura ausente'], 500);
         }
@@ -31,10 +41,16 @@ class MessagingWebhookController extends Controller
             return response()->json(['ok' => false, 'message' => 'Request expirado (Timestamp drift)'], 401);
         }
 
-        if (!empty($secret)) {
+        if (!empty($secret) && $provider !== 'evolution') {
             $expectedSignature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
-            if (!hash_equals($expectedSignature, (string)$signature)) {
-                Log::warning('Tentativa de webhook com assinatura inválida', [
+            $isValid = hash_equals($expectedSignature, (string)$signature);
+            // Fallback for some providers like asaas that just send a static token in the header
+            if (!$isValid && $signature === $secret) {
+                $isValid = true;
+            }
+
+            if (!$isValid) {
+                Log::warning("Tentativa de webhook com assinatura inválida ({$provider})", [
                     'ip' => $request->ip(),
                     'expected_sig' => $expectedSignature,
                     'received_sig' => $signature,
@@ -43,7 +59,7 @@ class MessagingWebhookController extends Controller
                 return response()->json(['ok' => false, 'message' => 'Assinatura inválida'], 401);
             }
         }
-
+        
         $data = json_decode($payload, true);
         $eventId = $data['event_id'] ?? null;
 
@@ -52,7 +68,7 @@ class MessagingWebhookController extends Controller
         }
 
         // 4. Idempotência (R5)
-        $alreadyProcessed = WebhookAudit::where('provider', 'messaging')
+        $alreadyProcessed = WebhookAudit::where('provider', $provider)
             ->where('event_id', $eventId)
             ->exists();
 
@@ -62,21 +78,27 @@ class MessagingWebhookController extends Controller
 
         // --- Processamento Original com Tenant Isolation Safeness ---
         
-        // Suporte para Webhooks de Pagamento (TC-REG-001)
-        $externalId = $data['id'] ?? null;
-        if ($externalId && ($data['status'] ?? null) === 'paid') {
-            $charge = Charge::withoutGlobalScopes()->where('payment_provider_id', $externalId)->first();
+        $externalId = $data['payment']['id'] ?? $data['id'] ?? null;
+        $status = $data['payment']['status'] ?? $data['status'] ?? null;
+        $eventName = $data['event'] ?? ($status === 'paid' ? 'PAYMENT_RECEIVED' : null);
+
+        if ($externalId && in_array($eventName, ['PAYMENT_RECEIVED', 'PAYMENT_CONFIRMED'])) {
+            $charge = Charge::withoutGlobalScopes()
+                ->where('workspace_id', $workspace->id) // Scoped
+                ->where('payment_provider_id', $externalId)
+                ->first();
+                
             if ($charge) {
                 $charge->update([
                     'status' => 'paid',
                     'paid_at' => now(),
                 ]);
                 
-                $this->auditEvent('messaging', $eventId);
+                $this->auditEvent($provider, $eventId);
                 Log::info("Webhook: Charge {$charge->id} (Workspace {$charge->workspace_id}) atualizado para paid via event {$eventId}");
                 return response()->json(['ok' => true, 'action' => 'payment_recorded']);
             } else {
-                Log::warning("Webhook payment_provider_id {$externalId} não encontrou charge correspondente. Event: {$eventId}");
+                Log::warning("Webhook payment_provider_id {$externalId} não encontrou charge para {$workspace->name}");
             }
         }
 
@@ -86,7 +108,10 @@ class MessagingWebhookController extends Controller
             return response()->json(['ok' => false, 'message' => 'Token do agendamento ausente'], 422);
         }
 
-        $appointment = Appointment::withoutGlobalScopes()->where('public_token', $appointmentToken)->first();
+        $appointment = Appointment::withoutGlobalScopes()
+            ->where('workspace_id', $workspace->id)
+            ->where('public_token', $appointmentToken)
+            ->first();
         if (!$appointment) {
             return response()->json(['ok' => false, 'message' => 'Agendamento não encontrado'], 404);
         }

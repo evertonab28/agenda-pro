@@ -20,7 +20,9 @@ class WebhookSecurityTest extends TestCase
         $this->app['env'] = 'production';
         Config::set('services.messaging.webhook_secret', '');
 
-        $response = $this->postJson('/api/webhooks/messaging/inbound', [
+        $workspace = Workspace::factory()->create();
+        
+        $response = $this->postJson("/api/webhooks/{$workspace->slug}/messaging/inbound", [
             'event_id' => 'evt_123',
             'status' => 'paid',
             'id' => 'ext_123'
@@ -44,6 +46,13 @@ class WebhookSecurityTest extends TestCase
             'status' => 'pending'
         ]);
 
+        $workspace->integrations()->create([
+            'type' => 'payment',
+            'provider' => 'asaas',
+            'credentials' => ['api_key' => 'fake_asaas_key'],
+            'meta' => ['webhook_secret' => 'secret']
+        ]);
+
         $payload = json_encode([
             'event_id' => 'evt_999',
             'status' => 'paid',
@@ -53,22 +62,35 @@ class WebhookSecurityTest extends TestCase
         $timestamp = time();
         $signature = hash_hmac('sha256', $timestamp . '.' . $payload, 'secret');
 
-        // Primeir requisição - deve processar
-        $response = $this->postJson('/api/webhooks/messaging/inbound', json_decode($payload, true), [
-            'X-Webhook-Signature' => $signature,
-            'X-Webhook-Timestamp' => $timestamp
-        ]);
+        // Primeira requisição - deve processar
+        $response = $this->call(
+            'POST',
+            "/api/webhooks/{$workspace->slug}/asaas/inbound",
+            [], [], [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_X_WEBHOOK_SIGNATURE' => $signature,
+                'HTTP_X_WEBHOOK_TIMESTAMP' => $timestamp,
+            ],
+            $payload
+        );
 
         $response->assertStatus(200);
         $this->assertEquals('paid', $charge->fresh()->status);
         $this->assertDatabaseHas('webhook_audits', ['event_id' => 'evt_999']);
 
         // Segunda requisição - deve ser idempotente
-        $response2 = $this->postJson('/api/webhooks/messaging/inbound', json_decode($payload, true), [
-            'X-Webhook-Signature' => $signature,
-            'X-Webhook-Timestamp' => $timestamp
-        ]);
-
+        $response2 = $this->call(
+            'POST',
+            "/api/webhooks/{$workspace->slug}/asaas/inbound",
+            [], [], [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_X_WEBHOOK_SIGNATURE' => $signature,
+                'HTTP_X_WEBHOOK_TIMESTAMP' => $timestamp,
+            ],
+            $payload
+        );
         $response2->assertStatus(200);
         $response2->assertJson(['action' => 'already_processed']);
     }

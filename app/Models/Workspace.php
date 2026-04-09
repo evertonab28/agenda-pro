@@ -26,6 +26,11 @@ class Workspace extends Model
         return $this->hasMany(Customer::class);
     }
 
+    public function integrations()
+    {
+        return $this->hasMany(WorkspaceIntegration::class);
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

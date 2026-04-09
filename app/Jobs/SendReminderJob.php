@@ -20,13 +20,26 @@ public ?int $appointmentId = null,
 public ?int $chargeId = null
 ) {}
 
-public function handle(MessagingServiceInterface $messaging): void
+public function handle(): void
 {
-$appointment = $this->appointmentId ? Appointment::with(['customer','service'])->find($this->appointmentId) : null;
-$charge = $this->chargeId ? Charge::with(['appointment.customer'])->find($this->chargeId) : null;
+$appointment = $this->appointmentId ? Appointment::with(['customer','service','workspace'])->find($this->appointmentId) : null;
+$charge = $this->chargeId ? Charge::with(['appointment.customer', 'workspace'])->find($this->chargeId) : null;
 
 $targetPhone = $appointment?->customer?->phone ?? $charge?->appointment?->customer?->phone;
-$workspaceId = $appointment?->workspace_id ?? $charge?->workspace_id;
+$workspace = $appointment?->workspace ?? $charge?->workspace;
+$workspaceId = $workspace?->id;
+
+if (!$workspace) {
+    \Illuminate\Support\Facades\Log::warning("SendReminderJob: Workspace não encontrado para Appt: {$this->appointmentId} ou Charge: {$this->chargeId}");
+    return;
+}
+
+try {
+    $messaging = \App\Services\IntegrationProviderFactory::messaging($workspace);
+} catch (\Exception $e) {
+    \Illuminate\Support\Facades\Log::warning("SendReminderJob: Falha de integração - " . $e->getMessage());
+    return;
+}
 
 if (!$targetPhone) {
 ReminderLog::create([

@@ -123,8 +123,8 @@ class CRMService
             ->first();
 
         if ($waitlistEntry) {
-            // Notify customer (via stub messaging service for now)
-            $messaging = app(\App\Services\Messaging\MessagingServiceInterface::class);
+            // Notify customer (via specific workspace messaging service)
+            $messaging = \App\Services\IntegrationProviderFactory::messaging($appointment->workspace);
             $messaging->send(
                 $waitlistEntry->customer->phone,
                 "Olá {$waitlistEntry->customer->name}! Um horário acaba de vagar para o serviço {$appointment->service->name}. Tem interesse? Responda SIM."
