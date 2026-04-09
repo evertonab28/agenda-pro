@@ -22,11 +22,11 @@ class PortalAppointmentController extends Controller
             ->where('customer_id', $customer->id)
             ->findOrFail($appointmentId);
 
-        if ($appointment->status === 'cancelled') {
+        if ($appointment->status === 'canceled') {
             return response()->json(['ok' => false, 'message' => 'Este agendamento já está cancelado.']);
         }
 
-        $appointment->update(['status' => 'cancelled']);
+        $appointment->update(['status' => 'canceled']);
 
         return response()->json([
             'ok' => true,
@@ -57,12 +57,12 @@ class PortalAppointmentController extends Controller
         $hasOverlap = Appointment::where('professional_id', $appointment->professional_id)
             ->where('workspace_id', $workspace->id)
             ->where('id', '!=', $appointment->id)
-            ->where('status', '!=', 'cancelled')
-            ->where(function($query) use ($startTime, $endTime) {
-                $query->where(function($q) use ($startTime, $endTime) {
+            ->where('status', '!=', 'canceled')
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where(function ($q) use ($startTime, $endTime) {
                     $q->where('starts_at', '>=', $startTime)
                       ->where('starts_at', '<', $endTime);
-                })->orWhere(function($q) use ($startTime, $endTime) {
+                })->orWhere(function ($q) use ($startTime, $endTime) {
                     $q->where('ends_at', '>', $startTime)
                       ->where('ends_at', '<=', $endTime);
                 });

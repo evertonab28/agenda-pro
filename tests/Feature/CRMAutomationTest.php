@@ -39,7 +39,7 @@ class CRMAutomationTest extends TestCase
         $appointment = Appointment::factory()->create([
             'workspace_id' => $this->workspace->id,
             'service_id' => $service->id,
-            'status' => 'pending'
+            'status' => 'scheduled'
         ]);
 
         $appointment->update(['status' => 'canceled']);
@@ -49,21 +49,19 @@ class CRMAutomationTest extends TestCase
 
     public function test_reengage_command_identifies_inactive_customers()
     {
-        // 1. Inactive customer (last app 70 days ago)
         $inactive = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
         Appointment::factory()->create([
             'workspace_id' => $this->workspace->id,
             'customer_id' => $inactive->id,
-            'status' => 'finished',
+            'status' => 'completed',
             'starts_at' => now()->subDays(70)
         ]);
 
-        // 2. Active customer (last app 10 days ago)
         $active = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
         Appointment::factory()->create([
             'workspace_id' => $this->workspace->id,
             'customer_id' => $active->id,
-            'status' => 'finished',
+            'status' => 'completed',
             'starts_at' => now()->subDays(10)
         ]);
 

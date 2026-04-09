@@ -14,7 +14,7 @@ class CRMService
     public function getSegment(Customer $customer): string
     {
         $lastAppointment = $customer->appointments()
-            ->where('status', 'finished')
+            ->where('status', 'completed')
             ->latest('starts_at')
             ->first();
 
@@ -23,7 +23,7 @@ class CRMService
         }
 
         $daysSinceLastVisit = Carbon::parse($lastAppointment->starts_at)->diffInDays(now());
-        $totalFinished = $customer->appointments()->where('status', 'finished')->count();
+        $totalCompleted = $customer->appointments()->where('status', 'completed')->count();
 
         if ($daysSinceLastVisit > 60) {
             return 'Inativo';
@@ -33,11 +33,11 @@ class CRMService
             return 'Em Risco';
         }
 
-        if ($totalFinished >= 10) {
+        if ($totalCompleted >= 10) {
             return 'VIP';
         }
 
-        if ($totalFinished >= 3) {
+        if ($totalCompleted >= 3) {
             return 'Recorrente';
         }
 
@@ -141,14 +141,14 @@ class CRMService
     {
         $cutoff = now()->subDays(60);
         
-        // Find customers whose last FINISHED appointment was more than 60 days ago
-        // OR who have NO finished appointments but were created > 60 days ago.
+        // Find customers whose last COMPLETED appointment was more than 60 days ago
+        // OR who have NO completed appointments but were created > 60 days ago.
         return Customer::where('workspace_id', $clinicId)
             ->where('is_active', true)
             ->get()
             ->filter(function ($customer) use ($cutoff) {
                 $lastApp = $customer->appointments()
-                    ->where('status', 'finished')
+                    ->where('status', 'completed')
                     ->latest('starts_at')
                     ->first();
                 
