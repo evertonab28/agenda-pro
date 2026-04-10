@@ -117,7 +117,5 @@ class DunningService
                 'due_date' => $invoice->due_date?->toDateString(),
             ]
         ));
-        
-        Log::info("Dunning: sent {$type} reminder for invoice {$invoice->id}");
     }
 }

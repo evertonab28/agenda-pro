@@ -13,6 +13,8 @@ use App\Events\SaaS\SubscriptionActivated;
 use App\Events\SaaS\SubscriptionRenewed;
 use App\Events\SaaS\SubscriptionReactivated;
 use App\Events\SaaS\PlanUpgraded;
+use App\Events\SaaS\InvoicePaid;
+use App\Events\SaaS\InvoiceOverdue;
 
 class WorkspaceBillingService
 {
@@ -72,7 +74,10 @@ class WorkspaceBillingService
                     invoiceId: $invoice->id,
                     planId: $plan->id,
                     amount: (float) $invoice->amount,
-                    meta: ['type' => $type]
+                    meta: [
+                        'type' => $type,
+                        'payment_link' => $invoice->provider_payment_link
+                    ]
                 ));
             }
 
@@ -113,6 +118,18 @@ class WorkspaceBillingService
 
             Log::info("WorkspaceBillingService: workspace {$invoice->workspace_id} payment confirmed for invoice {$invoice->id}.");
 
+            DB::afterCommit(fn() => event(new InvoicePaid(
+                workspaceId: $invoice->workspace_id,
+                subscriptionId: $subscription?->id,
+                invoiceId: $invoice->id,
+                planId: $invoice->plan_id,
+                amount: (float) $invoice->amount,
+                meta: [
+                    'paid_at'   => $invoice->paid_at->toDateTimeString(),
+                    'plan_slug' => $plan->slug,
+                ]
+            )));
+
             return true;
         });
     }
@@ -135,7 +152,14 @@ class WorkspaceBillingService
                 $subscription->update(['status' => 'overdue']);
             }
             
-            Log::info("WorkspaceBillingService: invoice {$invoice->id} marked as overdue.");
+            DB::afterCommit(fn() => event(new InvoiceOverdue(
+                workspaceId: $invoice->workspace_id,
+                subscriptionId: $invoice->subscription_id,
+                invoiceId: $invoice->id,
+                planId: $invoice->plan_id,
+                amount: (float) $invoice->amount,
+                meta: ['due_date' => $invoice->due_date?->toDateString()]
+            )));
         });
     }
 

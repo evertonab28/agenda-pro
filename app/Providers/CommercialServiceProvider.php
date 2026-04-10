@@ -18,6 +18,8 @@ class CommercialServiceProvider extends ServiceProvider
             \App\Events\SaaS\SubscriptionReactivated::class,
             \App\Events\SaaS\PlanUpgraded::class,
             \App\Events\SaaS\InvoiceGenerated::class,
+            \App\Events\SaaS\InvoicePaid::class,
+            \App\Events\SaaS\InvoiceOverdue::class,
             \App\Events\SaaS\TrialEndingSoon::class,
             \App\Events\SaaS\InvoiceReminderSent::class,
             \App\Events\SaaS\SubscriptionCanceled::class,
@@ -25,10 +27,16 @@ class CommercialServiceProvider extends ServiceProvider
         ];
 
         foreach ($commercialEvents as $eventClass) {
-            Event::listen(
-                $eventClass,
-                \App\Listeners\SaaS\LogCommercialEvent::class
-            );
+            Event::listen($eventClass, \App\Listeners\SaaS\LogCommercialEvent::class);
         }
+
+        // Domain Notifications
+        Event::listen([
+            \App\Events\SaaS\SubscriptionActivated::class,
+            \App\Events\SaaS\InvoiceGenerated::class,
+            \App\Events\SaaS\InvoicePaid::class,
+            \App\Events\SaaS\InvoiceOverdue::class,
+            \App\Events\SaaS\InvoiceReminderSent::class,
+        ], \App\Listeners\SaaS\SendCommercialNotification::class);
     }
 }
