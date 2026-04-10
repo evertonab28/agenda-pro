@@ -38,7 +38,7 @@ return new class extends Migration
         // DO NOT use migrate:rollback past this point in any environment with data.
         // In ephemeral environments (CI/CD), use `migrate:fresh` instead.
         //
-        // Ref: docs/db/migration-audit.md — "Migrations com down() incompleto"
+        // Ref: docs/db/migration-audit.md — "Sprint T4 — Hardening Audit"
         Schema::table('remaining_core_tables', function (Blueprint $table) {
             //
         });
