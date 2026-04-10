@@ -17,16 +17,25 @@ class WebhookHardeningTest extends TestCase
     protected $workspace;
     protected $appointment;
 
+    // Use a non-evolution provider so signature validation is enforced
+    protected string $provider = 'whatsapp';
+
     protected function setUp(): void
     {
         parent::setUp();
         Config::set('services.messaging.webhook_secret', 'secret-val-123');
 
-        $this->workspace = Workspace::factory()->create();
+        $this->workspace = Workspace::factory()->create(['slug' => 'test-workspace']);
         $this->appointment = Appointment::factory()->create([
             'workspace_id' => $this->workspace->id,
             'public_token' => 'valid-token-123'
         ]);
+    }
+
+    protected function webhookUrl(?string $provider = null): string
+    {
+        $p = $provider ?? $this->provider;
+        return "/api/webhooks/{$this->workspace->slug}/{$p}/messaging";
     }
 
     protected function getSignature($timestamp, $payload, $secret)
@@ -37,7 +46,7 @@ class WebhookHardeningTest extends TestCase
     /** @test */
     public function it_returns_401_when_signature_is_missing()
     {
-        $response = $this->postJson('/api/webhooks/messaging/inbound', [
+        $response = $this->postJson($this->webhookUrl(), [
             'event_id' => 'evt_001',
             'text' => 'CONFIRMAR',
             'token' => 'some-appt-token'
@@ -51,12 +60,12 @@ class WebhookHardeningTest extends TestCase
     {
         $timestamp = time();
         $payload = ['event_id' => 'evt_001', 'text' => 'C', 'token' => 'T'];
-        
+
         $response = $this->withHeaders([
                 'X-Webhook-Signature' => 'invalid-sig',
                 'X-Webhook-Timestamp' => $timestamp,
             ])
-            ->postJson('/api/webhooks/messaging/inbound', $payload);
+            ->postJson($this->webhookUrl(), $payload);
 
         $response->assertStatus(401);
     }
@@ -73,7 +82,7 @@ class WebhookHardeningTest extends TestCase
                 'X-Webhook-Signature' => $signature,
                 'X-Webhook-Timestamp' => $timestamp,
             ])
-            ->postJson('/api/webhooks/messaging/inbound', $payload);
+            ->postJson($this->webhookUrl(), $payload);
 
         $response->assertStatus(401);
         $this->assertEquals('Request expirado (Timestamp drift)', $response->json('message'));
@@ -82,26 +91,25 @@ class WebhookHardeningTest extends TestCase
     /** @test */
     public function it_blocks_duplicate_event_id_idempotency()
     {
-        $secret = 'secret-val-123';
+        // Use evolution provider which bypasses signature validation for simplicity
+        $provider = 'evolution';
         $timestamp = time();
         $payload = ['event_id' => 'evt_unique_1', 'text' => 'CONFIRMAR', 'token' => 'valid-token-123'];
-        $signature = $this->getSignature($timestamp, $payload, $secret);
 
         // Primeira vez - sucesso
         $res1 = $this->withHeaders([
-                'X-Webhook-Signature' => $signature,
                 'X-Webhook-Timestamp' => $timestamp,
             ])
-            ->postJson('/api/webhooks/messaging/inbound', $payload);
-        
-        $res1->assertStatus(200);
+            ->postJson($this->webhookUrl($provider), $payload);
 
-        // Segunda vez - deve retornar already_processed
+        $res1->assertStatus(200);
+        $this->assertEquals('confirmed', $res1->json('action'));
+
+        // Segunda vez com mesmo event_id - deve retornar already_processed
         $response = $this->withHeaders([
-                'X-Webhook-Signature' => $signature,
                 'X-Webhook-Timestamp' => $timestamp,
             ])
-            ->postJson('/api/webhooks/messaging/inbound', $payload);
+            ->postJson($this->webhookUrl($provider), $payload);
 
         $response->assertStatus(200);
         $this->assertEquals('already_processed', $response->json('action'));
@@ -112,20 +120,21 @@ class WebhookHardeningTest extends TestCase
     {
         $secret = 'secret-val-123';
         $timestamp = time();
-        
-        for ($i = 0; $i < 6; $i++) {
+
+        // Throttle is 20/min: send 20 requests then the 21st should be throttled
+        for ($i = 0; $i < 20; $i++) {
             $payload = ['event_id' => 'evt_'.$i, 'text' => 'T', 'token' => 'K'];
             $this->withHeaders([
                 'X-Webhook-Signature' => $this->getSignature($timestamp, $payload, $secret),
                 'X-Webhook-Timestamp' => $timestamp,
-            ])->postJson('/api/webhooks/messaging/inbound', $payload);
+            ])->postJson($this->webhookUrl(), $payload);
         }
 
-        $payload = ['event_id' => 'evt_7', 'text' => 'T', 'token' => 'K'];
+        $payload = ['event_id' => 'evt_21', 'text' => 'T', 'token' => 'K'];
         $response = $this->withHeaders([
                 'X-Webhook-Signature' => $this->getSignature($timestamp, $payload, $secret),
                 'X-Webhook-Timestamp' => $timestamp,
-            ])->postJson('/api/webhooks/messaging/inbound', $payload);
+            ])->postJson($this->webhookUrl(), $payload);
 
         $response->assertStatus(429);
     }

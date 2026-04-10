@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\SaaS;
 
+use App\DTOs\SaaS\CommercialEventPayload;
 use App\Events\SaaS\SubscriptionActivated;
 use App\Models\Workspace;
 use App\Models\WorkspaceSubscription;
@@ -23,11 +24,13 @@ class CommercialEventTest extends TestCase
 
         // Dispatch standardized event
         event(new SubscriptionActivated(
-            workspaceId: $workspace->id,
-            subscriptionId: $subscription->id,
-            planId: $subscription->plan_id,
-            amount: 99.90,
-            meta: ['test_key' => 'test_value']
+            new CommercialEventPayload(
+                workspaceId: $workspace->id,
+                subscriptionId: $subscription->id,
+                planId: $subscription->plan_id,
+                amount: 99.90,
+                meta: ['test_key' => 'test_value']
+            )
         ));
 
         // Wait (or assert database)
@@ -54,12 +57,14 @@ class CommercialEventTest extends TestCase
         ]);
         
         event(new \App\Events\SaaS\PlanUpgraded(
-            workspaceId: $workspace->id,
-            subscriptionId: $subscription->id,
-            planId: 2,
-            previousPlanId: 1,
-            amount: 150.00,
-            deltaAmount: 50.00
+            new CommercialEventPayload(
+                workspaceId: $workspace->id,
+                subscriptionId: $subscription->id,
+                planId: 2,
+                previousPlanId: 1,
+                amount: 150.00,
+                deltaAmount: 50.00,
+            )
         ));
 
         $this->assertDatabaseHas('workspace_subscription_events', [

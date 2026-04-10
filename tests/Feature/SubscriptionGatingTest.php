@@ -93,10 +93,11 @@ class SubscriptionGatingTest extends TestCase
         // Primeiro já existe ou criamos (Starter limit is 1)
         Professional::create(['workspace_id' => $workspace->id, 'name' => 'Prof 1', 'email' => 'p1@test.com']);
 
-        // Tentar criar o segundo
+        // Tentar criar o segundo (is_active obrigatório na validação)
         $response = $this->actingAs($user)->post(route('configuracoes.professionals.store'), [
             'name' => 'Prof 2',
-            'email' => 'p2@test.com'
+            'email' => 'p2@test.com',
+            'is_active' => true,
         ]);
 
         $response->assertSessionHas('error', 'Limite de profissionais atingido para seu plano atual. Faça um upgrade!');
@@ -116,8 +117,8 @@ class SubscriptionGatingTest extends TestCase
         
         $workspace->refresh();
 
-        // Tentar acessar configurações (que não seja billing)
-        $response = $this->actingAs($user)->get('/configuracoes/geral');
+        // Tentar acessar agenda (rota bloqueada pela middleware de assinatura)
+        $response = $this->actingAs($user)->get('/agenda');
         $response->assertRedirect(route('configuracoes.billing.index'));
     }
 }

@@ -123,12 +123,20 @@ class CRMService
             ->first();
 
         if ($waitlistEntry) {
-            // Notify customer (via specific workspace messaging service)
-            $messaging = \App\Services\IntegrationProviderFactory::messaging($appointment->workspace);
-            $messaging->send(
-                $waitlistEntry->customer->phone,
-                "Olá {$waitlistEntry->customer->name}! Um horário acaba de vagar para o serviço {$appointment->service->name}. Tem interesse? Responda SIM."
-            );
+            try {
+                // Notify customer (via specific workspace messaging service)
+                $messaging = \App\Services\IntegrationProviderFactory::messaging($appointment->workspace);
+                $messaging->send(
+                    $waitlistEntry->customer->phone,
+                    "Olá {$waitlistEntry->customer->name}! Um horário acaba de vagar para o serviço {$appointment->service->name}. Tem interesse? Responda SIM."
+                );
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('CRM: Não foi possível notificar cliente da lista de espera via mensageria.', [
+                    'workspace_id' => $appointment->workspace_id,
+                    'waitlist_entry_id' => $waitlistEntry->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             $waitlistEntry->update(['status' => \App\Enums\WaitlistStatus::Called]);
         }

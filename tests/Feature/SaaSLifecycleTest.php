@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\DTOs\Integration\AsaasPaymentDTO;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\Workspace;
@@ -23,10 +24,13 @@ class SaaSLifecycleTest extends TestCase
         // Mock Asaas Provider for all tests
         $this->mock(AsaasSaasProvider::class, function ($mock) {
             $mock->shouldReceive('getOrCreateCustomer')->andReturn('customer_id_123');
-            $mock->shouldReceive('createPayment')->andReturn([
-                'id' => 'pay_123',
-                'invoiceUrl' => 'http://asaas.com/i/123'
-            ]);
+            $mock->shouldReceive('createPayment')->andReturn(new AsaasPaymentDTO(
+                id: 'pay_123',
+                status: 'PENDING',
+                invoiceUrl: 'http://asaas.com/i/123',
+                dueDate: now()->addDays(3)->format('Y-m-d'),
+                amount: 49.90,
+            ));
         });
     }
 

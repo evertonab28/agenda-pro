@@ -101,16 +101,16 @@ class MessagingWebhookController extends Controller
                 'confirmed_at' => now(),
             ]);
 
-            $this->auditEvent('messaging', $eventId);
+            $this->auditEvent($provider, $eventId);
             return response()->json(['ok' => true, 'action' => 'confirmed']);
         }
 
         if (str_contains($text, 'REAGENDAR')) {
             $appointment->update([
-                'status' => 'rescheduled',
+                'status' => 'canceled',
             ]);
 
-            $this->auditEvent('messaging', $eventId);
+            $this->auditEvent($provider, $eventId);
             return response()->json(['ok' => true, 'action' => 'reschedule_requested']);
         }
 
