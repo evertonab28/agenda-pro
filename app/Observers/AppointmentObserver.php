@@ -12,6 +12,16 @@ class AppointmentObserver
         CacheService::invalidateDashboard();
     }
 
+    public function saving(Appointment $model): void
+    {
+        if ($model->isDirty(['ends_at', 'service_id']) || !$model->exists) {
+            $buffer = $model->service?->buffer_minutes ?? 0;
+            // Ensure ends_at is a Carbon instance before adding minutes
+            $endsAt = \Carbon\Carbon::parse($model->ends_at);
+            $model->buffered_ends_at = $endsAt->copy()->addMinutes($buffer);
+        }
+    }
+
     public function created(Appointment $model): void 
     { 
         $this->invalidateDashboard(); 

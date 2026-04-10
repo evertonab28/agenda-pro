@@ -36,6 +36,7 @@ return $this->belongsTo(Professional::class, 'professional_id');
 protected $casts = [
 'starts_at' => 'datetime',
 'ends_at' => 'datetime',
+'buffered_ends_at' => 'datetime',
 'confirmed_at' => 'datetime',
 ];
 
