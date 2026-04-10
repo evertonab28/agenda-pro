@@ -50,13 +50,11 @@ class SaasBillingWebhookController extends Controller
                     break;
 
                 case 'PAYMENT_OVERDUE':
-                    $invoice->update(['status' => 'overdue']);
-                    // Logic for blocking workspace could be here or in a job
-                    $invoice->workspace->subscription()->first()?->update(['status' => 'overdue']);
+                    $this->billingService->handleOverdue($invoice);
                     break;
 
                 case 'PAYMENT_DELETED':
-                    $invoice->update(['status' => 'canceled']);
+                    $this->billingService->handleCancellation($invoice);
                     break;
             }
 
