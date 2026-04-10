@@ -28,7 +28,7 @@ class SendCommercialNotification implements ShouldQueue
     public function handle(CommercialEvent $event): void
     {
         try {
-            $workspace = Workspace::withoutGlobalScopes()->find($event->workspaceId);
+            $workspace = Workspace::withoutGlobalScopes()->find($event->payload->workspaceId);
             if (!$workspace) return;
 
             $recipient = $workspace->users()->first()?->email ?? "admin@{$workspace->slug}.com";
@@ -36,7 +36,7 @@ class SendCommercialNotification implements ShouldQueue
 
             if ($message) {
                 $this->messagingService->send($recipient, $message, [
-                    'workspace_id' => $event->workspaceId,
+                    'workspace_id' => $event->payload->workspaceId,
                     'event_type'   => $event->getEventType(),
                 ]);
                 
@@ -45,7 +45,7 @@ class SendCommercialNotification implements ShouldQueue
         } catch (\Exception $e) {
             Log::error("Failed to send commercial notification: {$e->getMessage()}", [
                 'event' => get_class($event),
-                'workspace_id' => $event->workspaceId
+                'workspace_id' => $event->payload->workspaceId
             ]);
         }
     }
@@ -54,10 +54,10 @@ class SendCommercialNotification implements ShouldQueue
     {
         return match (true) {
             $event instanceof SubscriptionActivated => "Bem-vindo ao Agenda Pro! Sua assinatura foi ativada com sucesso.",
-            $event instanceof InvoicePaid           => "Obrigado! Recebemos o pagamento da sua fatura no valor de R$ " . number_format($event->amount, 2, ',', '.'),
-            $event instanceof InvoiceGenerated      => "Uma nova fatura foi gerada para o seu workspace. Link para pagamento: " . ($event->meta['payment_link'] ?? 'Painel de Assinatura'),
+            $event instanceof InvoicePaid           => "Obrigado! Recebemos o pagamento da sua fatura no valor de R$ " . number_format($event->payload->amount, 2, ',', '.'),
+            $event instanceof InvoiceGenerated      => "Uma nova fatura foi gerada para o seu workspace. Link para pagamento: " . ($event->payload->meta['payment_link'] ?? 'Painel de Assinatura'),
             $event instanceof InvoiceOverdue        => "Atenção: Sua fatura está vencida. Regularize sua situação para evitar a suspensão dos serviços.",
-            $event instanceof InvoiceReminderSent   => "Lembrete: Você possui uma fatura pendente com vencimento em " . ($event->meta['due_date'] ?? 'breve'),
+            $event instanceof InvoiceReminderSent   => "Lembrete: Você possui uma fatura pendente com vencimento em " . ($event->payload->meta['due_date'] ?? 'breve'),
             default => null,
         };
     }

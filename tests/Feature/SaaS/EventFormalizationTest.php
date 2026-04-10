@@ -11,6 +11,7 @@ use App\Services\Billing\WorkspaceBillingService;
 use App\Services\Messaging\MessagingServiceInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use App\DTOs\SaaS\CommercialEventPayload;
 use Tests\TestCase;
 
 class EventFormalizationTest extends TestCase
@@ -77,12 +78,12 @@ class EventFormalizationTest extends TestCase
         ]);
 
         // We test the listener directly to avoid DB::afterCommit issues in the service test
-        $event = new InvoicePaid(
+        $event = new InvoicePaid(new CommercialEventPayload(
             workspaceId: $this->workspace->id,
             subscriptionId: $subscription->id,
             invoiceId: $this->invoice->id,
             amount: 100.0
-        );
+        ));
 
         $listener = new \App\Listeners\SaaS\LogCommercialEvent();
         $listener->handle($event);
@@ -104,11 +105,11 @@ class EventFormalizationTest extends TestCase
             })
             ->andReturn([]);
 
-        $event = new InvoicePaid(
+        $event = new InvoicePaid(new CommercialEventPayload(
             workspaceId: $this->workspace->id,
             invoiceId: $this->invoice->id,
             amount: 100.0
-        );
+        ));
 
         $listener = new \App\Listeners\SaaS\SendCommercialNotification($mock);
         $listener->handle($event);

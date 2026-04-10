@@ -19,17 +19,17 @@ class LogCommercialEvent implements ShouldQueue
     {
         try {
             WorkspaceSubscriptionEvent::create([
-                'workspace_id'    => $event->workspaceId,
-                'subscription_id' => $event->subscriptionId,
+                'workspace_id'    => $event->payload->workspaceId,
+                'subscription_id' => $event->payload->subscriptionId,
                 'event_type'      => $event->getEventType(),
                 'payload'         => $event->toCommercialPayload(),
             ]);
 
-            Log::info("CommercialEventLogged: {$event->getEventType()} for workspace {$event->workspaceId}");
+            Log::info("CommercialEventLogged: {$event->getEventType()} for workspace {$event->payload->workspaceId}");
         } catch (\Exception $e) {
             Log::error("Failed to log commercial event: {$e->getMessage()}", [
                 'event' => get_class($event),
-                'workspace_id' => $event->workspaceId
+                'workspace_id' => $event->payload->workspaceId
             ]);
         }
     }

@@ -15,6 +15,8 @@ use App\Events\SaaS\SubscriptionReactivated;
 use App\Events\SaaS\PlanUpgraded;
 use App\Events\SaaS\InvoicePaid;
 use App\Events\SaaS\InvoiceOverdue;
+use App\DTOs\SaaS\BillingWorkspaceDTO;
+use App\DTOs\SaaS\CommercialEventPayload;
 
 class WorkspaceBillingService
 {
@@ -31,12 +33,12 @@ class WorkspaceBillingService
             $subscription = $workspace->subscription;
             
             // 1. Ensure Customer exists in Asaas
-            $asaasCustomerId = $this->provider->getOrCreateCustomer([
-                'id' => $workspace->id,
-                'name' => $workspace->name,
-                'slug' => $workspace->slug,
-                'email' => $workspace->users()->first()?->email ?? 'admin@' . $workspace->slug . '.com',
-            ]);
+            $asaasCustomerId = $this->provider->getOrCreateCustomer(new BillingWorkspaceDTO(
+                id: $workspace->id,
+                name: $workspace->name,
+                slug: $workspace->slug,
+                email: $workspace->users()->first()?->email ?? 'admin@' . $workspace->slug . '.com'
+            ));
 
             // 2. Local Invoice record
             $invoice = WorkspaceBillingInvoice::create([
@@ -62,13 +64,13 @@ class WorkspaceBillingService
 
             // 4. Update local invoice with provider data
             $invoice->update([
-                'provider_invoice_id' => $asaasPayment['id'],
-                'provider_payment_link' => $asaasPayment['invoiceUrl'],
+                'provider_invoice_id' => $asaasPayment->id,
+                'provider_payment_link' => $asaasPayment->invoiceUrl,
             ]);
 
             // 5. Log Event
             if ($subscription) {
-                event(new InvoiceGenerated(
+                event(new InvoiceGenerated(new CommercialEventPayload(
                     workspaceId: $workspace->id,
                     subscriptionId: $subscription->id,
                     invoiceId: $invoice->id,
@@ -78,7 +80,7 @@ class WorkspaceBillingService
                         'type' => $type,
                         'payment_link' => $invoice->provider_payment_link
                     ]
-                ));
+                )));
             }
 
             return $invoice;
@@ -118,7 +120,7 @@ class WorkspaceBillingService
 
             Log::info("WorkspaceBillingService: workspace {$invoice->workspace_id} payment confirmed for invoice {$invoice->id}.");
 
-            DB::afterCommit(fn() => event(new InvoicePaid(
+            DB::afterCommit(fn() => event(new InvoicePaid(new CommercialEventPayload(
                 workspaceId: $invoice->workspace_id,
                 subscriptionId: $subscription?->id,
                 invoiceId: $invoice->id,
@@ -128,7 +130,7 @@ class WorkspaceBillingService
                     'paid_at'   => $invoice->paid_at->toDateTimeString(),
                     'plan_slug' => $plan->slug,
                 ]
-            )));
+            ))));
 
             return true;
         });
@@ -152,14 +154,14 @@ class WorkspaceBillingService
                 $subscription->update(['status' => 'overdue']);
             }
             
-            DB::afterCommit(fn() => event(new InvoiceOverdue(
+            DB::afterCommit(fn() => event(new InvoiceOverdue(new CommercialEventPayload(
                 workspaceId: $invoice->workspace_id,
                 subscriptionId: $invoice->subscription_id,
                 invoiceId: $invoice->id,
                 planId: $invoice->plan_id,
                 amount: (float) $invoice->amount,
                 meta: ['due_date' => $invoice->due_date?->toDateString()]
-            )));
+            ))));
         });
     }
 
@@ -196,7 +198,7 @@ class WorkspaceBillingService
             'ends_at'      => $endsAt,
         ]);
 
-        DB::afterCommit(fn() => event(new SubscriptionActivated(
+        DB::afterCommit(fn() => event(new SubscriptionActivated(new CommercialEventPayload(
             workspaceId: $invoice->workspace_id,
             subscriptionId: $subscription->id,
             invoiceId: $invoice->id,
@@ -207,7 +209,7 @@ class WorkspaceBillingService
                 'new_ends_at'     => $endsAt->toDateTimeString(),
                 'plan_slug'       => $plan->slug,
             ]
-        )));
+        ))));
     }
 
     protected function processExistingSubscription(WorkspaceBillingInvoice $invoice, WorkspaceSubscription $subscription, Plan $plan, $endsAt): void
@@ -232,7 +234,7 @@ class WorkspaceBillingService
             default                  => SubscriptionRenewed::class,
         };
 
-        DB::afterCommit(fn() => event(new $eventClass(
+        DB::afterCommit(fn() => event(new $eventClass(new CommercialEventPayload(
             workspaceId: $invoice->workspace_id,
             subscriptionId: $subscription->id,
             invoiceId: $invoice->id,
@@ -243,11 +245,11 @@ class WorkspaceBillingService
                 'new_ends_at'     => $endsAt->toDateTimeString(),
                 'plan_slug'       => $plan->slug,
             ]
-        )));
+        ))));
 
         // Secondary: expansion_mrr event when upgrading
         if ($isPlanChange) {
-            DB::afterCommit(fn() => event(new PlanUpgraded(
+            DB::afterCommit(fn() => event(new PlanUpgraded(new CommercialEventPayload(
                 workspaceId: $invoice->workspace_id,
                 subscriptionId: $subscription->id,
                 invoiceId: $invoice->id,
@@ -259,7 +261,7 @@ class WorkspaceBillingService
                     'mrr_delta'  => (float) $plan->price,
                     'plan_slug'  => $plan->slug,
                 ]
-            )));
+            ))));
         }
     }
 }

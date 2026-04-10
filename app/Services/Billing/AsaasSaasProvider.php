@@ -4,6 +4,8 @@ namespace App\Services\Billing;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\DTOs\SaaS\BillingWorkspaceDTO;
+use App\DTOs\Integration\AsaasPaymentDTO;
 
 class AsaasSaasProvider
 {
@@ -23,17 +25,17 @@ class AsaasSaasProvider
     /**
      * Get or create a customer in Asaas for the workspace.
      */
-    public function getOrCreateCustomer(array $workspaceData): string
+    public function getOrCreateCustomer(BillingWorkspaceDTO $workspaceData): string
     {
         // No SaaS billing, the workspace is the customer.
         $payload = [
-            'name' => $workspaceData['name'],
-            'email' => $workspaceData['email'] ?? 'admin@' . $workspaceData['slug'] . '.com',
-            'externalReference' => (string) $workspaceData['id'],
+            'name' => $workspaceData->name,
+            'email' => $workspaceData->email ?? 'admin@' . $workspaceData->slug . '.com',
+            'externalReference' => (string) $workspaceData->id,
         ];
 
-        if (!empty($workspaceData['document'])) {
-            $payload['cpfCnpj'] = $workspaceData['document'];
+        if (!empty($workspaceData->document)) {
+            $payload['cpfCnpj'] = $workspaceData->document;
         }
 
         $response = Http::withHeaders([
@@ -53,7 +55,7 @@ class AsaasSaasProvider
     /**
      * Create a single payment (charge) for a workspace.
      */
-    public function createPayment(string $customerId, float $amount, string $dueDate, string $description, string $externalReference): array
+    public function createPayment(string $customerId, float $amount, string $dueDate, string $description, string $externalReference): AsaasPaymentDTO
     {
         $payload = [
             'customer' => $customerId,
@@ -73,6 +75,6 @@ class AsaasSaasProvider
             throw new \Exception("Erro ao gerar cobrança no Asaas.");
         }
 
-        return $response->json();
+        return AsaasPaymentDTO::fromAsaasResponse($response->json());
     }
 }

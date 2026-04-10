@@ -6,6 +6,7 @@ use App\Models\WorkspaceBillingInvoice;
 use App\Models\WorkspaceSubscriptionEvent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\DTOs\SaaS\CommercialEventPayload;
 
 class DunningService
 {
@@ -106,7 +107,7 @@ class DunningService
 
     private function recordReminder(WorkspaceBillingInvoice $invoice, string $type): void
     {
-        event(new \App\Events\SaaS\InvoiceReminderSent(
+        event(new \App\Events\SaaS\InvoiceReminderSent(new CommercialEventPayload(
             workspaceId: $invoice->workspace_id,
             subscriptionId: $invoice->subscription_id,
             invoiceId: $invoice->id,
@@ -116,6 +117,6 @@ class DunningService
                 'reminder_type' => $type, // upcoming, due_today, overdue
                 'due_date' => $invoice->due_date?->toDateString(),
             ]
-        ));
+        )));
     }
 }
