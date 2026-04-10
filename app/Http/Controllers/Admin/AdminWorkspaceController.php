@@ -13,7 +13,10 @@ use Inertia\Inertia;
 
 class AdminWorkspaceController extends Controller
 {
-    public function __construct(private SaasMetricsService $metrics) {}
+    public function __construct(
+        private SaasMetricsService $metrics,
+        private \App\Services\Platform\PlatformReadService $platformRead
+    ) {}
 
     public function index(Request $request)
     {
@@ -21,83 +24,27 @@ class AdminWorkspaceController extends Controller
         $status = $request->input('status'); // all|active|trialing|overdue|canceled|none
         $planId = $request->input('plan_id');
 
-        $query = Workspace::withoutGlobalScopes()
-            ->with(['subscription.plan'])
-            ->when($search, fn($q) => $q
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$search}%"))
-            ->when($status && $status !== 'all', function ($q) use ($status) {
-                if ($status === 'none') {
-                    $q->whereDoesntHave('subscriptions');
-                } elseif ($status === 'ending_trial') {
-                    $q->whereHas('subscription', fn($q2) => $q2->where('status', 'trialing')->whereBetween('trial_ends_at', [now(), now()->addDays(7)]));
-                } elseif ($status === 'canceled_recently') {
-                    $q->whereHas('subscription', fn($q2) => $q2->whereNotNull('canceled_at')->whereBetween('canceled_at', [now()->subDays(30), now()]));
-                } elseif ($status === 'winback') {
-                    $q->whereHas('subscription', fn($q2) => $q2->where('winback_candidate', true));
-                } else {
-                    $q->whereHas('subscription', fn($q2) => $q2->where('status', $status));
-                }
-            })
-            ->when($planId, fn($q) => $q->whereHas('subscription', fn($q2) => $q2->where('plan_id', $planId)))
-            ->latest();
+        $filters = [
+            'search'  => $search,
+            'status'  => $status,
+            'plan_id' => $planId,
+        ];
 
-        $paginator = $query->paginate(25);
-        $ids = $paginator->getCollection()->pluck('id');
-
-        // Contagens manuais (bypassa TenantScope)
-        $userCounts     = User::withoutGlobalScopes()->whereIn('workspace_id', $ids)->selectRaw('workspace_id, count(*) as total')->groupBy('workspace_id')->pluck('total', 'workspace_id');
-        $customerCounts = Customer::withoutGlobalScopes()->whereIn('workspace_id', $ids)->selectRaw('workspace_id, count(*) as total')->groupBy('workspace_id')->pluck('total', 'workspace_id');
-
-        // Última invoice por workspace
-        $lastInvoices = WorkspaceBillingInvoice::withoutGlobalScopes()
-            ->whereIn('workspace_id', $ids)
-            ->select('workspace_id', 'status', 'amount', 'due_date')
-            ->orderByDesc('created_at')
-            ->get()
-            ->groupBy('workspace_id')
-            ->map(fn($g) => $g->first());
-
-        $workspaces = $paginator->through(fn($w) => [
-            'id'              => $w->id,
-            'name'            => $w->name,
-            'slug'            => $w->slug,
-            'created_at'      => $w->created_at->toDateString(),
-            'users_count'     => $userCounts->get($w->id, 0),
-            'customers_count' => $customerCounts->get($w->id, 0),
-            'plan'            => $w->subscription?->plan?->name ?? '—',
-            'plan_price'      => (float) ($w->subscription?->plan?->price ?? 0),
-            'status'          => $w->subscription?->status ?? 'none',
-            'ends_at'         => $w->subscription?->ends_at?->toDateString(),
-            'trial_ends_at'   => $w->subscription?->trial_ends_at?->toDateString(),
-            'last_invoice'    => $lastInvoices->has($w->id) ? [
-                'status'   => $lastInvoices[$w->id]->status,
-                'amount'   => (float) $lastInvoices[$w->id]->amount,
-                'due_date' => $lastInvoices[$w->id]->due_date?->toDateString(),
-            ] : null,
-        ]);
+        $workspaces = $this->platformRead->getWorkspacesDataTable($filters, 25);
 
         return Inertia::render('Admin/Workspaces/Index', [
             'workspaces' => $workspaces,
-            'filters'    => [
-                'search'  => $search,
-                'status'  => $status,
-                'plan_id' => $planId,
-            ],
+            'filters'    => $filters,
             'plans' => \App\Models\Plan::orderBy('price')->get(['id', 'name', 'price'])->toArray(),
         ]);
     }
 
     public function show(int $id)
     {
-        $workspace = Workspace::withoutGlobalScopes()->findOrFail($id);
+        $workspace = $this->platformRead->getWorkspaceDetail($id);
         $workspace->load(['subscription.plan']);
 
-        $invoices = WorkspaceBillingInvoice::withoutGlobalScopes()
-            ->where('workspace_id', $workspace->id)
-            ->with('plan:id,name')
-            ->orderByDesc('created_at')
-            ->get()
+        $invoices = $this->platformRead->getInvoicesByWorkspace($workspace->id)
             ->map(fn($i) => [
                 'id'                    => $i->id,
                 'amount'                => (float) $i->amount,
@@ -112,8 +59,8 @@ class AdminWorkspaceController extends Controller
 
         $timeline = $this->metrics->getWorkspaceTimeline($workspace->id);
 
-        $usersCount     = User::withoutGlobalScopes()->where('workspace_id', $workspace->id)->count();
-        $customersCount = Customer::withoutGlobalScopes()->where('workspace_id', $workspace->id)->count();
+        $usersCount     = $this->platformRead->getUserCounts(collect([$workspace->id]))->get($workspace->id, 0);
+        $customersCount = $this->platformRead->getCustomerCounts(collect([$workspace->id]))->get($workspace->id, 0);
 
         return Inertia::render('Admin/Workspaces/Show', [
             'workspace' => [
@@ -153,7 +100,7 @@ class AdminWorkspaceController extends Controller
             'winback_candidate'     => 'boolean',
         ]);
 
-        $workspace = Workspace::withoutGlobalScopes()->findOrFail($id);
+        $workspace = $this->platformRead->getWorkspaceDetail($id);
         $workspace->load(['subscription.plan']);
 
         if ($workspace->subscription) {

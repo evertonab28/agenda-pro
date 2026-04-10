@@ -8,7 +8,11 @@ use Inertia\Inertia;
 
 class AdminDashboardController extends Controller
 {
-    public function index(SaasMetricsService $metricsService, \App\Services\Retention\RevenueOpsService $revenueOpsService)
+    public function index(
+        SaasMetricsService $metricsService, 
+        \App\Services\Retention\RevenueOpsService $revenueOpsService,
+        \App\Services\Platform\PlatformReadService $platformRead
+    )
     {
         $stats = $metricsService->getHealthMetrics();
         $alerts = $metricsService->getOperationalAlerts();
@@ -17,20 +21,8 @@ class AdminDashboardController extends Controller
         $recentEvents = $metricsService->getRecentEvents(15);
         $revenueMovements = $revenueOpsService->getRevenueMovements();
         
-        // Buscando motivos de churn para exibição inicial no dashboard
-        $recentCancellations = \App\Models\WorkspaceSubscription::withoutGlobalScopes()
-            ->with('workspace:id,name,slug')
-            ->whereNotNull('canceled_at')
-            ->latest('canceled_at')
-            ->take(5)
-            ->get()
-            ->map(fn($s) => [
-                'workspace_id' => $s->workspace_id,
-                'workspace_name' => $s->workspace->name ?? '—',
-                'canceled_at' => $s->canceled_at->toDateString(),
-                'category' => $s->cancellation_category ?? 'Não informado',
-                'reason' => $s->cancellation_reason,
-            ]);
+        // Buscando motivos de churn via Camada de Leitura da Plataforma
+        $recentCancellations = $platformRead->getRecentCancellations(5);
 
         return inertia('Admin/Dashboard', [
             'stats'         => $stats,
