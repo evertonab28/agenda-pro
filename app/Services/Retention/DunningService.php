@@ -42,9 +42,9 @@ class DunningService
 
         foreach ($invoices as $invoice) {
             if ($this->hasSentReminder($invoice, 'upcoming')) continue;
-            
+
             $this->recordReminder($invoice, 'upcoming');
-            // TODO: call Notification service
+            // InvoiceReminderSent event dispatched inside recordReminder() → handled by SendCommercialNotification
             $count++;
         }
 
@@ -62,9 +62,9 @@ class DunningService
 
         foreach ($invoices as $invoice) {
             if ($this->hasSentReminder($invoice, 'due_today')) continue;
-            
+
             $this->recordReminder($invoice, 'due_today');
-            // TODO: call Notification service
+            // InvoiceReminderSent event dispatched inside recordReminder() → handled by SendCommercialNotification
             $count++;
         }
 
@@ -85,9 +85,9 @@ class DunningService
             // Em caso de overdue, verificar se já enviamos pelo menos um lembrete overdue
             // (Na vida real poderíamos enviar overdue_1, overdue_2, mas vamos manter básico)
             if ($this->hasSentReminder($invoice, 'overdue')) continue;
-            
+
             $this->recordReminder($invoice, 'overdue');
-            // TODO: call Notification service
+            // InvoiceReminderSent event dispatched inside recordReminder() → handled by SendCommercialNotification
             $count++;
         }
 
