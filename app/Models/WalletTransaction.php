@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class WalletTransaction extends Model
 {
     protected $fillable = [
-        'wallet_id', 
-        'amount', 
-        'type', 
-        'description', 
-        'reference_type', 
-        'reference_id'
+        'wallet_id',
+        'workspace_id',
+        'amount',
+        'type',
+        'description',
+        'reference_type',
+        'reference_id',
     ];
 
     public function wallet(): BelongsTo
