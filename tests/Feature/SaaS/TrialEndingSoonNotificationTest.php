@@ -64,4 +64,30 @@ class TrialEndingSoonNotificationTest extends TestCase
         $this->assertNotNull($message);
         $this->assertStringContainsString('hoje', $message);
     }
+
+    public function test_handle_sends_notification_via_messaging_service()
+    {
+        $ws = Workspace::factory()->create();
+        \App\Models\User::factory()->create([
+            'workspace_id' => $ws->id,
+            'email'        => 'owner@test.com',
+        ]);
+
+        $payload = new CommercialEventPayload(
+            workspaceId: $ws->id,
+            meta: ['days_left' => 3, 'trial_ends_at' => '2026-04-14']
+        );
+
+        \Illuminate\Support\Facades\Log::shouldReceive('info')
+            ->atLeast()->once();
+        \Illuminate\Support\Facades\Log::shouldReceive('error')
+            ->never();
+
+        event(new TrialEndingSoon($payload));
+
+        $this->assertDatabaseHas('workspace_subscription_events', [
+            'workspace_id' => $ws->id,
+            'event_type'   => 'trial_ending_soon',
+        ]);
+    }
 }

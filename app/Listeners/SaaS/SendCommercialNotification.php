@@ -64,10 +64,14 @@ class SendCommercialNotification implements ShouldQueue
         };
     }
 
-    private function trialEndingSoonMessage(TrialEndingSoon $event): string
+    private function trialEndingSoonMessage(TrialEndingSoon $event): ?string
     {
         $daysLeft    = $event->payload->meta['days_left'] ?? null;
         $trialEndsAt = $event->payload->meta['trial_ends_at'] ?? null;
+
+        if (!is_int($daysLeft) || $daysLeft < 0) {
+            return null;
+        }
 
         if ($daysLeft === 0) {
             return "Atenção: seu período de teste termina hoje. Assine agora para manter o acesso ao Agenda Pro.";
