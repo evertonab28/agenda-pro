@@ -21,4 +21,9 @@ class WalletTransaction extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
+
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class);
+    }
 }

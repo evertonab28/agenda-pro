@@ -67,6 +67,20 @@ return new class extends Migration
                 . 'They will be skipped during backfill.');
         }
 
+        // customer_packages whose customer_id points to a missing customer
+        $orphanPackages = DB::table('customer_packages')
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('customers')
+                    ->whereColumn('customers.id', 'customer_packages.customer_id');
+            })
+            ->count();
+
+        if ($orphanPackages > 0) {
+            Log::warning("Migration: {$orphanPackages} customer_package(s) have no matching customer. "
+                . 'They will be skipped during backfill.');
+        }
+
         // ---------------------------------------------------------------
         // Step 3 — Idempotent backfill: wallets via customer_id
         // Uses cross-DB compatible chunked query builder (no MySQL-only JOIN UPDATE).
@@ -76,17 +90,19 @@ return new class extends Migration
             ->whereNull('workspace_id')
             ->whereNotNull('customer_id')
             ->chunkById(500, function ($wallets) {
-                foreach ($wallets as $wallet) {
-                    $customer = DB::table('customers')
-                        ->where('id', $wallet->customer_id)
-                        ->whereNotNull('workspace_id')
-                        ->first(['workspace_id']);
+                $customerIds = $wallets->pluck('customer_id')->unique()->all();
 
-                    if ($customer) {
+                $workspaceMap = DB::table('customers')
+                    ->whereIn('id', $customerIds)
+                    ->whereNotNull('workspace_id')
+                    ->pluck('workspace_id', 'id'); // [customer_id => workspace_id]
+
+                foreach ($wallets as $wallet) {
+                    if (isset($workspaceMap[$wallet->customer_id])) {
                         DB::table('wallets')
                             ->where('id', $wallet->id)
                             ->whereNull('workspace_id')
-                            ->update(['workspace_id' => $customer->workspace_id]);
+                            ->update(['workspace_id' => $workspaceMap[$wallet->customer_id]]);
                     }
                 }
             });
@@ -100,17 +116,19 @@ return new class extends Migration
             ->whereNull('workspace_id')
             ->whereNotNull('wallet_id')
             ->chunkById(500, function ($transactions) {
-                foreach ($transactions as $txn) {
-                    $wallet = DB::table('wallets')
-                        ->where('id', $txn->wallet_id)
-                        ->whereNotNull('workspace_id')
-                        ->first(['workspace_id']);
+                $walletIds = $transactions->pluck('wallet_id')->unique()->all();
 
-                    if ($wallet) {
+                $workspaceMap = DB::table('wallets')
+                    ->whereIn('id', $walletIds)
+                    ->whereNotNull('workspace_id')
+                    ->pluck('workspace_id', 'id'); // [wallet_id => workspace_id]
+
+                foreach ($transactions as $txn) {
+                    if (isset($workspaceMap[$txn->wallet_id])) {
                         DB::table('wallet_transactions')
                             ->where('id', $txn->id)
                             ->whereNull('workspace_id')
-                            ->update(['workspace_id' => $wallet->workspace_id]);
+                            ->update(['workspace_id' => $workspaceMap[$txn->wallet_id]]);
                     }
                 }
             });
@@ -122,17 +140,19 @@ return new class extends Migration
             ->whereNull('workspace_id')
             ->whereNotNull('customer_id')
             ->chunkById(500, function ($packages) {
-                foreach ($packages as $package) {
-                    $customer = DB::table('customers')
-                        ->where('id', $package->customer_id)
-                        ->whereNotNull('workspace_id')
-                        ->first(['workspace_id']);
+                $customerIds = $packages->pluck('customer_id')->unique()->all();
 
-                    if ($customer) {
+                $workspaceMap = DB::table('customers')
+                    ->whereIn('id', $customerIds)
+                    ->whereNotNull('workspace_id')
+                    ->pluck('workspace_id', 'id'); // [customer_id => workspace_id]
+
+                foreach ($packages as $package) {
+                    if (isset($workspaceMap[$package->customer_id])) {
                         DB::table('customer_packages')
                             ->where('id', $package->id)
                             ->whereNull('workspace_id')
-                            ->update(['workspace_id' => $customer->workspace_id]);
+                            ->update(['workspace_id' => $workspaceMap[$package->customer_id]]);
                     }
                 }
             });
@@ -158,6 +178,8 @@ return new class extends Migration
         // Step 7 — FK constraints on MySQL only
         // wallet_transactions intentionally excluded (derived value, not owned)
         // ---------------------------------------------------------------
+        // FK constraints are skipped on SQLite (used in tests) as it does not
+        // enforce foreign key integrity by default and lacks ALTER TABLE support.
         if (config('database.default') !== 'sqlite') {
             Schema::table('wallets', function (Blueprint $table) {
                 $table->foreign('workspace_id', 'wallets_workspace_id_foreign')
