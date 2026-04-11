@@ -63,15 +63,17 @@ class TrialConversionService
     private function recordAlert(WorkspaceSubscription $sub, int $daysLeft): void
     {
         event(new \App\Events\SaaS\TrialEndingSoon(
-            workspaceId: $sub->workspace_id,
-            subscriptionId: $sub->id,
-            planId: $sub->plan_id,
-            meta: [
-                'days_left' => $daysLeft,
-                'trial_ends_at' => $sub->trial_ends_at?->toDateString(),
-            ]
+            new \App\DTOs\SaaS\CommercialEventPayload(
+                workspaceId: $sub->workspace_id,
+                subscriptionId: $sub->id,
+                planId: $sub->plan_id,
+                meta: [
+                    'days_left'     => $daysLeft,
+                    'trial_ends_at' => $sub->trial_ends_at?->toDateString(),
+                ]
+            )
         ));
-        
+
         Log::info("TrialOps: sent {$daysLeft}_days alert for workspace {$sub->workspace_id}");
     }
 }

@@ -33,6 +33,15 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // WARNING (Sprint T4): This down() is incomplete — only wraps the users table, omitting customers, appointments, and charges.
+        // The up() added clinic_id to users, customers, appointments, charges.
+        // Rolling back these columns requires manual intervention — this migration
+        // was committed to production before down() was fully implemented.
+        //
+        // DO NOT use migrate:rollback past this point in any environment with data.
+        // In ephemeral environments (CI/CD), use `migrate:fresh` instead.
+        //
+        // Ref: docs/db/migration-audit.md — "Sprint T4 — Hardening Audit"
         Schema::table('users', function (Blueprint $table) {
             //
         });
