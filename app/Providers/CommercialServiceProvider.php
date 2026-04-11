@@ -37,6 +37,7 @@ class CommercialServiceProvider extends ServiceProvider
             \App\Events\SaaS\InvoicePaid::class,
             \App\Events\SaaS\InvoiceOverdue::class,
             \App\Events\SaaS\InvoiceReminderSent::class,
+            \App\Events\SaaS\TrialEndingSoon::class,
         ], \App\Listeners\SaaS\SendCommercialNotification::class);
     }
 }
