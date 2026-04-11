@@ -7,6 +7,21 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 abstract class TestCase extends BaseTestCase
 {
     /**
+     * Creates the application.
+     *
+     * Overrides the default createApplication() so that when tests run via
+     * a shared vendor (worktree pattern), the app is bootstrapped from
+     * this worktree's bootstrap/app.php rather than the one inferred from
+     * the Composer ClassLoader's registration path.
+     */
+    public function createApplication(): \Illuminate\Foundation\Application
+    {
+        $app = require __DIR__ . '/../bootstrap/app.php';
+        $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        return $app;
+    }
+
+    /**
      * Satisfy CheckOnboarding middleware requirements and ensure
      * the workspace has an active subscription so EnsureWorkspaceSubscription
      * does not gate test requests.
