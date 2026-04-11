@@ -48,6 +48,8 @@ Não editar as migrations antigas. Criar **novas** migrations de correção estr
 
 **Alternativa mais segura (recomendada):** Adicionar uma nota nos docs de que essas migrations NÃO suportam rollback e configurar CI para usar `migrate:fresh` em vez de `migrate:rollback` em ambientes efêmeros. Documentar no `CONTRIBUTING.md`.
 
+**Status T4:** Documentado com comentários de aviso nas migrations.
+
 ---
 
 ### R2 — Remover/documentar a migration vazia
@@ -65,6 +67,8 @@ Essa migration já rodou em todos os ambientes. Não dá para apagar sem rollbac
 // - 2026_04_09_151108_add_cancellation_metadata_to_workspace_subscriptions (recorded_at, canceled_by)
 // NÃO ALTERAR este arquivo — já está registrado no histórico de migrations.
 ```
+
+**Status T4:** Comentário explicativo adicionado.
 
 ---
 
@@ -95,6 +99,8 @@ Schema::table('wallets', function (Blueprint $table) {
 ```
 
 **Risco:** Requer data migration (UPDATE com JOIN). Fazer em horário de baixo tráfego com lock mínimo.
+
+**Status T4:** ✅ IMPLEMENTADO — migration 2026_04_10_000001 criada. workspace_id adicionado com backfill. FKs adicionadas no MySQL.
 
 ---
 
@@ -138,6 +144,8 @@ $table->index(['reference_type', 'reference_id']);
 ```
 
 Necessário para queries de "qual transação originou este appointment/charge".
+
+**Status T4:** ✅ IMPLEMENTADO — índice (reference_type, reference_id) adicionado na migration de workspace_id.
 
 ---
 

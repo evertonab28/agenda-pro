@@ -178,6 +178,27 @@ Registra evento `trial_ending_soon` com `meta.days_left`.
 
 ---
 
+## Notificações Comerciais (SendCommercialNotification)
+
+O listener `SendCommercialNotification` envia mensagem via `MessagingServiceInterface` para os seguintes eventos:
+
+| Evento | Mensagem enviada |
+|--------|-----------------|
+| `SubscriptionActivated` | Boas-vindas à assinatura |
+| `InvoiceGenerated` | Link de nova fatura gerada |
+| `InvoicePaid` | Confirmação de pagamento recebido |
+| `InvoiceOverdue` | Alerta de fatura vencida |
+| `InvoiceReminderSent` | Lembrete de vencimento (dunning) |
+| `TrialEndingSoon` | ✅ **(adicionado Sprint T4)** — alerta de trial expirando em N dias ou hoje |
+
+### TrialEndingSoon — comportamento
+
+- **meta.days_left = 7 ou 3**: mensagem padrão informando quantos dias restam
+- **meta.days_left = 0**: mensagem urgente indicando que o trial termina hoje
+- Disparado por: `TrialConversionService::processTrialAlerts()`
+
+---
+
 ## Eventos Comerciais
 
 Todos os eventos estendem `CommercialEvent` e são persistidos em `workspace_subscription_events` via listener `LogCommercialEvent`.

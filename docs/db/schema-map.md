@@ -272,21 +272,21 @@
 
 **Índice:** `[charge_id, received_at]`
 
-### `wallets`
+### `wallets` *(atualizado Sprint T4)*
 | Coluna | Tipo | Notas |
 |--------|------|-------|
 | id | bigint PK | |
+| workspace_id | bigint FK→workspaces | nullable, cascade — adicionado T4 para isolamento direto |
 | customer_id | bigint FK→customers UNIQUE | 1:1 com customer |
 | balance | decimal(12,2) | default 0 |
 | created_at, updated_at | timestamps | |
 
-**⚠️ Sem workspace_id — escopo indireto via customer.**
-
-### `wallet_transactions`
+### `wallet_transactions` *(atualizado Sprint T4)*
 | Coluna | Tipo | Notas |
 |--------|------|-------|
 | id | bigint PK | |
 | wallet_id | bigint FK→wallets | cascade |
+| workspace_id | bigint FK→workspaces | nullable, cascade — adicionado T4 para isolamento direto |
 | amount | decimal(12,2) | |
 | type | varchar | credit, debit (sem enum) |
 | description | varchar | nullable |
@@ -294,7 +294,8 @@
 | reference_id | bigint | nullable |
 | created_at, updated_at | timestamps | |
 
-**⚠️ Sem workspace_id. Sem índice em reference_id.**
+**Índices:**
+- `[reference_type, reference_id]` — adicionado T4 para polimorfismo |
 
 ### `packages`
 | Coluna | Tipo | Notas |
@@ -310,18 +311,17 @@
 | is_active | boolean | default true |
 | created_at, updated_at | timestamps | |
 
-### `customer_packages`
+### `customer_packages` *(atualizado Sprint T4)*
 | Coluna | Tipo | Notas |
 |--------|------|-------|
 | id | bigint PK | |
 | customer_id | bigint FK→customers | cascade |
+| workspace_id | bigint FK→workspaces | nullable, cascade — adicionado T4 para isolamento direto |
 | package_id | bigint FK→packages | cascade |
 | remaining_sessions | integer | |
 | expires_at | date | nullable |
 | status | varchar | active, expired, exhausted, canceled (sem enum) |
 | created_at, updated_at | timestamps | |
-
-**⚠️ Sem workspace_id — escopo indireto via customer.**
 
 ---
 
@@ -524,14 +524,17 @@ PLATFORM (sem workspace_id)
 
 | Tem workspace_id | Não tem (escopo indireto) | Platform |
 |-----------------|--------------------------|----------|
-| users | wallets | admin_users |
-| customers | wallet_transactions | plans |
-| professionals | customer_packages | personal_access_tokens |
-| services | professional_service (pivot) | sessions |
-| appointments | reminder_logs | webhook_audits |
-| charges | audit_logs (via user) | cache, jobs, etc. |
+| users | professional_service (pivot) | admin_users |
+| customers | reminder_logs | plans |
+| professionals | audit_logs (via user) | personal_access_tokens |
+| services | | sessions |
+| appointments | | webhook_audits |
+| charges | | cache, jobs, etc. |
 | receipts | | |
 | packages | | |
+| wallets | | |
+| wallet_transactions | | |
+| customer_packages | | |
 | professional_schedules | | |
 | holidays | | |
 | settings | | |

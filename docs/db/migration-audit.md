@@ -100,6 +100,12 @@
 | 55 | `2026_04_09_193422_add_current_segment_to_customers_table.php` | current_segment | |
 | 56 | `2026_04_09_210952_add_buffered_ends_at_to_appointments_table.php` | buffered_ends_at | |
 
+### Fase 9 — Sprint T4 Hardening (2 migrations)
+| # | Arquivo | O que adiciona | Notas |
+|---|---------|----------------|-------|
+| 57 | `2026_04_10_000001_add_workspace_id_to_financial_tables.php` | workspace_id → wallets, wallet_transactions, customer_packages | Isolamento direto; backfill com orphan detection |
+| 58 | `2026_04_11_001550_make_subscription_id_nullable_in_workspace_subscription_events.php` | subscription_id nullable → workspace_subscription_events | Suporta TrialEndingSoon sem subscription formal |
+
 ---
 
 ## 2. Problemas Identificados
@@ -273,6 +279,48 @@ _Score = (Impact + Risk) × (6 - Effort)_
 
 ---
 
+## Sprint T4 — Hardening Audit (2026-04-10)
+
+### Migrations com `down()` incompleto (não corrigíveis sem rollback manual)
+
+As seguintes migrations têm `down()` incompleto e **não devem ser revertidas com `migrate:rollback`** em ambientes com dados:
+
+| Migration | Problema | Impacto se revertida |
+|-----------|----------|---------------------|
+| `2026_03_23_231245_add_clinic_id_to_core_tables.php` | `down()` tem corpo vazio — não dropa `clinic_id` de users, customers, appointments, charges | Schema inconsistente |
+| `2026_03_23_231933_add_clinic_id_to_remaining_core_tables.php` | `down()` referencia tabela inexistente `remaining_core_tables` | Erro de schema no rollback |
+| `2026_03_23_233136_add_clinic_id_to_receipts_table.php` | `down()` tem corpo vazio — não dropa `clinic_id` de receipts | Schema inconsistente |
+
+**Ação adotada:** Comentários de aviso foram adicionados diretamente nos arquivos.
+
+**Regra de CI:** Em ambientes efêmeros (CI/CD), usar sempre `php artisan migrate:fresh --seed` em vez de `migrate:rollback`.
+
+---
+
+### Migration vazia (placeholder)
+
+| Migration | Status |
+|-----------|--------|
+| `2026_04_09_145551_add_retention_fields_to_workspace_subscriptions.php` | Placeholder vazio commitado acidentalmente. Campos de retenção foram adicionados nas migrations `_175548` e `_151108`. Comentário explicativo adicionado no arquivo. |
+
+---
+
+### Nova migration adicionada na Sprint T4
+
+| Migration | O que faz |
+|-----------|----------|
+| `2026_04_10_000001_add_workspace_id_to_financial_tables.php` | Adiciona `workspace_id` em `wallets`, `wallet_transactions`, `customer_packages`. Faz backfill com orphan detection. Adiciona índices e FKs (MySQL). Também adiciona índice composto em `wallet_transactions(reference_type, reference_id)`. |
+
+---
+
+### Extra migration adicionada para suportar TrialEndingSoon
+
+| Migration | O que faz |
+|-----------|----------|
+| `2026_04_11_001550_make_subscription_id_nullable_in_workspace_subscription_events.php` | Torna `subscription_id` nullable em `workspace_subscription_events` para suportar eventos de trial que não possuem subscription formal ainda. |
+
+---
+
 ## 5. Resumo de Saúde por Fase
 
 | Fase | Migrations | Estado | Principal risco |
@@ -286,3 +334,4 @@ _Score = (Impact + Risk) × (6 - Effort)_
 | Rename clinic→workspace (F6) | 1 | Saudável | Operação arriscada mas bem implementada |
 | Billing SaaS (F7) | 6 | Aceitável | string() vs enum() |
 | Admin + Retenção (F8) | 7 | Problema | **Migration vazia + nome duplicado** |
+| Sprint T4 Hardening (F9) | 2 | Saudável | ✅ workspace_id adicionado com segurança |

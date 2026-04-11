@@ -132,7 +132,14 @@ WHERE status IN ('active','trialing')
 **Arquivo:** `app/Console/Commands/ProcessRetentionAndDunningOps.php`  
 **Frequência:** manual
 
-Processa lembretes de dunning e alertas de expiração de trial via serviços de retenção.
+Processa lembretes de dunning e alertas de expiração de trial. Executa dois serviços:
+
+| Serviço | O que faz | Eventos disparados |
+|---------|----------|-------------------|
+| `DunningService::processInvoiceReminders()` | Envia lembretes de invoices vencidas/próximas | `InvoiceReminderSent` |
+| `TrialConversionService::processTrialAlerts()` | Envia alertas de trial expirando | `TrialEndingSoon` |
+
+Ambos são idempotentes — registram eventos em `workspace_subscription_events` para evitar duplicatas na mesma execução.
 
 ```bash
 php artisan saas:retention-ops
