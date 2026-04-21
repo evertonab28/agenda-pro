@@ -34,6 +34,7 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
     next: () => void;
     today: () => void;
     getDate: () => Date;
+    changeView: (view: string) => void;
   } | null>(null);
 
   const {
@@ -112,7 +113,7 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
           currentDate={currentDate}
           professionals={professionals}
           visibleProfessionalIds={visibleProfessionalIds}
-          onViewChange={setCurrentView}
+          onViewChange={(v) => { calendarApi?.changeView(v); setCurrentView(v); }}
           onNavigate={handleNavigate}
           onToggleProfessional={toggleProfessional}
           onCreateClick={handleCreateClick}

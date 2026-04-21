@@ -32,7 +32,7 @@ interface AgendaCalendarProps {
   onEventClick: (event: AgendaCalendarEvent) => void;
   onViewChange: (view: string) => void;
   onDateChange: (date: Date) => void;
-  onReady?: (api: { prev: () => void; next: () => void; today: () => void; getDate: () => Date }) => void;
+  onReady?: (api: { prev: () => void; next: () => void; today: () => void; getDate: () => Date; changeView: (view: string) => void }) => void;
 }
 
 const EDITABLE_STATUSES = new Set(['scheduled', 'confirmed']);
@@ -76,16 +76,10 @@ function AgendaCalendarInner({
         next: () => { api.next(); },
         today: () => { api.today(); },
         getDate: () => api.getDate(),
+        changeView: (view: string) => { api.changeView(view); },
       });
     }
   }, []); // eslint-disable-line
-
-  // Sincroniza view sem re-montar o FullCalendar
-  useEffect(() => {
-    const api = calendarRef.current?.getApi();
-    if (!api) return;
-    if (api.view.type !== currentView) api.changeView(currentView);
-  }, [currentView]);
 
   // Sincroniza data sem re-montar o FullCalendar
   useEffect(() => {
@@ -137,6 +131,7 @@ function AgendaCalendarInner({
   return (
     <FullCalendar
       ref={calendarRef}
+      schedulerLicenseKey="CC-Attribution-NonCommercial-NoDerivatives"
       plugins={PLUGINS}
       initialView={currentView}
       resources={resources}
