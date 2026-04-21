@@ -102,10 +102,11 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 6. **Agenda do Workspace**: [http://localhost:8000/agenda](http://localhost:8000/agenda)
    - Mesmas credenciais do item acima.
 
-7. **Agendamento Público (self-service do cliente final)**: [http://localhost:8000/p/workspace-modelo](http://localhost:8000/p/workspace-modelo)
+7. **Portal do cliente (login)**: [http://localhost:8000/p/workspace-modelo/login](http://localhost:8000/p/workspace-modelo/login)
    - Acesso sem senha via **Magic Link** (token de 6 dígitos enviado por WhatsApp/e-mail).
    - O código OTP aparece em `storage/logs/laravel.log` durante o desenvolvimento.
    - Identificador de teste: `test@example.com` ou `11988887777`
+   - **Agendamento público**: [http://localhost:8000/p/workspace-modelo/agendar](http://localhost:8000/p/workspace-modelo/agendar) (não requer login)
 
 8. **Control Plane (admin da plataforma)**: [http://localhost:8000/admin](http://localhost:8000/admin)
    - **E-mail**: `admin@agendapro.com`
