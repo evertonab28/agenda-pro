@@ -20,9 +20,11 @@ export interface Customer {
   phone: string;
 }
 
+export type ChargeStatus = 'pending' | 'partial' | 'paid' | 'overdue' | 'canceled';
+
 export interface AppointmentCharge {
   id: number;
-  status: string;
+  status: ChargeStatus;
   amount: number;
   paid: number;
 }
@@ -58,6 +60,12 @@ export interface AppointmentPayload {
   cancel_reason?: string;
 }
 
+/**
+ * Typed view of a FullCalendar event carrying appointment domain data.
+ * Always read extendedProps from a variable typed as AgendaCalendarEvent,
+ * NOT from FullCalendar runtime objects (EventImpl) — EventInput's index
+ * signature returns `any` and silently bypasses the strong typing here.
+ */
 export interface AgendaCalendarEvent extends EventInput {
   id: string;
   resourceId: string;
