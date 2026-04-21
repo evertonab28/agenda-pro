@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
+import { Toaster } from 'sonner';
 import {
   LayoutDashboard,
   Calendar,
@@ -262,6 +263,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       )}
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 }
