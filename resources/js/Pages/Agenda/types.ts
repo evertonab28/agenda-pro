@@ -82,7 +82,7 @@ export interface AgendaCalendarEvent extends EventInput {
 export interface AgendaResource {
   id: string;
   title: string;
-  color: string;
+  eventColor: string;
 }
 
 export interface UndoOperation {

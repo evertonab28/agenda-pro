@@ -31,7 +31,7 @@ export function toResourceInput(professionals: Professional[]): AgendaResource[]
   return professionals.map((p, index) => ({
     id: String(p.id),
     title: p.name,
-    color: PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length],
+    eventColor: PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length],
   }));
 }
 
@@ -58,5 +58,6 @@ export function toEventInput(events: AppointmentEvent[]): AgendaCalendarEvent[] 
 
 export function professionalColor(professionalId: number, professionals: Professional[]): string {
   const index = professionals.findIndex((p) => p.id === professionalId);
-  return PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length] ?? PROFESSIONAL_COLORS[0];
+  if (index === -1) return PROFESSIONAL_COLORS[0];
+  return PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length];
 }
