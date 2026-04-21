@@ -38,7 +38,7 @@ npm install @fullcalendar/react @fullcalendar/resource-timegrid @fullcalendar/ti
 |---|---|---|
 | `Index.tsx` | Injeta props Laravel, instancia hooks, compõe layout | Estado, HTTP, lógica |
 | `types.ts` | Define interfaces e tipos | Nada além de tipos |
-| `useAppointments.ts` | Lista de eventos, create/update/delete, otimismo, undo stack | UI state |
+| `useAppointments.ts` | Lista de eventos, create/update/delete, otimismo, undo | UI state |
 | `useAgendaUI.ts` | Modal aberto/fechado, view, data atual, profissionais visíveis | HTTP |
 | `AgendaCalendar.tsx` | Config FullCalendar, monta resources/events, dispara callbacks | HTTP, estado próprio |
 | `AgendaToolbar.tsx` | Renderiza controles de nav, seletor de view, ProfessionalFilter | Lógica de negócio |
@@ -46,11 +46,15 @@ npm install @fullcalendar/react @fullcalendar/resource-timegrid @fullcalendar/ti
 | `AppointmentModal.tsx` | Form criar/editar com validação local, onSave/onDelete | HTTP direto |
 | `calendarMappers.ts` | Funções puras de transformação de dados | Estado, side effects |
 
+**Limite de crescimento:** `useAppointments.ts` não deve ultrapassar ~250 linhas. Se ultrapassar, separar em `useAppointments.ts` (state + mutations) e `useAppointmentUndo.ts` (undo helpers).
+
 ---
 
 ## 3. Tipos principais (`types.ts`)
 
 ```typescript
+import type { EventInput } from '@fullcalendar/core';
+
 export interface Professional {
   id: number;
   name: string;
@@ -77,6 +81,13 @@ export interface AppointmentCharge {
   paid: number;
 }
 
+export type AppointmentStatus =
+  | 'scheduled'
+  | 'confirmed'
+  | 'completed'
+  | 'no_show'
+  | 'canceled';
+
 // Formato que chega do Laravel (AgendaService::getAgendaEvents)
 export interface AppointmentEvent {
   id: number;
@@ -91,14 +102,7 @@ export interface AppointmentEvent {
   charge: AppointmentCharge | null;
 }
 
-export type AppointmentStatus =
-  | 'scheduled'
-  | 'confirmed'
-  | 'completed'
-  | 'no_show'
-  | 'canceled';
-
-// Payload para criar/atualizar (enviado ao Laravel)
+// Payload para criar/atualizar (enviado ao backend JSON)
 export interface AppointmentPayload {
   customer_id: number | string;
   service_id: number | string;
@@ -110,13 +114,11 @@ export interface AppointmentPayload {
   cancel_reason?: string;
 }
 
-// Formato do FullCalendar (EventInput com campos extras)
-export interface AgendaCalendarEvent {
-  id: string;              // string por requisito do FullCalendar
+// Estende EventInput do FullCalendar para ter extendedProps tipados.
+// backgroundColor, borderColor, textColor são herdados de EventInput.
+export interface AgendaCalendarEvent extends EventInput {
+  id: string;              // obrigatório como string no FullCalendar
   resourceId: string;      // professional.id como string
-  title: string;
-  start: string;
-  end: string;
   extendedProps: {
     status: AppointmentStatus;
     customer: Customer | null;
@@ -131,13 +133,13 @@ export interface AgendaCalendarEvent {
 export interface AgendaResource {
   id: string;              // professional.id como string
   title: string;
-  color: string;           // cor HEX da coluna
+  eventColor: string;      // cor padrão dos eventos deste profissional
 }
 
-// Estado de uma operação de undo
+// Estado de uma operação de undo pendente
 export interface UndoOperation {
-  id: string;              // appointment id
-  previousEvent: AppointmentCalendarEvent;
+  id: string;                        // appointment id como string
+  previousEvent: AgendaCalendarEvent; // snapshot antes do move
   timeoutId: ReturnType<typeof setTimeout>;
 }
 ```
@@ -156,12 +158,13 @@ interface UseAppointmentsProps {
 interface UseAppointmentsReturn {
   // Estado
   events: AgendaCalendarEvent[];
-  pendingUndo: UndoOperation | null;
+  pendingUndo: UndoOperation | null;  // MVP: 1 undo pendente por vez
 
-  // Ações
+  // CRUD — todos usam endpoints JSON dedicados
   createAppointment: (payload: AppointmentPayload) => Promise<void>;
   updateAppointment: (id: number, payload: AppointmentPayload) => Promise<void>;
   deleteAppointment: (id: number) => Promise<void>;
+  changeStatus: (id: number, status: AppointmentStatus, cancelReason?: string) => Promise<void>;
 
   // Drag-drop — atualiza horário e/ou profissional
   moveAppointment: (params: {
@@ -169,29 +172,28 @@ interface UseAppointmentsReturn {
     newStart: string;
     newEnd: string;
     newProfessionalId: number;
-    revertFn: () => void;   // função do FullCalendar para reverter visualmente
+    revertFn: () => void;   // função do FullCalendar para reverter visualmente em caso de erro
   }) => void;
 
   // Undo
   commitUndo: () => void;   // usuário clicou "desfazer"
-  dismissUndo: () => void;  // timeout expirou ou usuário ignorou
+  dismissUndo: () => void;  // timeout expirou
 }
 
 export function useAppointments({ initialEvents }: UseAppointmentsProps): UseAppointmentsReturn;
 ```
 
 **Notas de implementação:**
-- `events` é um `useState<AgendaCalendarEvent[]>` inicializado via `calendarMappers.toEventInput(initialEvents)`
-- `moveAppointment` atualiza `events` imediatamente (otimista), chama `axios.put`, e em caso de erro chama `revertFn()` + mostra toast de erro
-- Undo funciona via `pendingUndo`: guarda o estado anterior por 4 segundos com `setTimeout`; `commitUndo` restaura o estado e cancela o PUT; `dismissUndo` limpa sem reverter
-- Todos os métodos usam `axios` diretamente (não Inertia) para evitar reload de página
+- `events` é `useState<AgendaCalendarEvent[]>` inicializado via `calendarMappers.toEventInput(initialEvents)`
+- Todos os métodos usam `axios` diretamente contra os endpoints JSON (ver Seção 9)
+- Nenhum `router.reload()` — o estado local é a fonte da verdade após o carregamento inicial
 
 ### `useAgendaUI.ts`
 
 ```typescript
 interface UseAgendaUIProps {
   professionals: Professional[];
-  defaultView?: 'resourceTimeGridDay' | 'resourceTimeGridWeek' | 'dayGridMonth' | 'listWeek';
+  defaultView?: string;
 }
 
 interface UseAgendaUIReturn {
@@ -201,10 +203,10 @@ interface UseAgendaUIReturn {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
 
-  // Profissionais visíveis
+  // Profissionais visíveis (máximo 5 lado a lado; acima disso scroll horizontal)
   visibleProfessionalIds: number[];
   toggleProfessional: (id: number) => void;
-  visibleProfessionals: Professional[];   // derivado — só os visíveis
+  visibleProfessionals: Professional[];   // useMemo — só os visíveis
 
   // Modal
   modalOpen: boolean;
@@ -221,8 +223,8 @@ export function useAgendaUI({ professionals, defaultView }: UseAgendaUIProps): U
 
 **Notas de implementação:**
 - `defaultView` detecta mobile: `window.innerWidth < 768 ? 'listWeek' : 'resourceTimeGridWeek'`
-- `visibleProfessionalIds` inicia com todos os IDs; máximo visual de 5 lado a lado (acima disso o scroll horizontal do FullCalendar entra)
-- `visibleProfessionals` é `useMemo` para evitar re-render desnecessário
+- `visibleProfessionalIds` inicia com todos os IDs
+- `visibleProfessionals` é `useMemo` — recalcula só quando `visibleProfessionalIds` muda
 
 ---
 
@@ -233,7 +235,7 @@ export function useAgendaUI({ professionals, defaultView }: UseAgendaUIProps): U
 ```typescript
 interface AgendaCalendarProps {
   events: AgendaCalendarEvent[];
-  resources: AgendaResource[];          // toResourceInput(visibleProfessionals)
+  resources: AgendaResource[];
   currentView: string;
   currentDate: Date;
   onEventDrop: (params: {
@@ -249,7 +251,7 @@ interface AgendaCalendarProps {
     newEnd: string;
     revertFn: () => void;
   }) => void;
-  onDateClick: (slot: { start: string; end: string; professionalId: number }) => void;
+  onSelect: (slot: { start: string; end: string; professionalId: number }) => void;
   onEventClick: (event: AgendaCalendarEvent) => void;
   onViewChange: (view: string) => void;
   onDateChange: (date: Date) => void;
@@ -257,9 +259,11 @@ interface AgendaCalendarProps {
 ```
 
 **Notas:**
-- Usa `useRef` para a instância do FullCalendar (`calendarRef`)
-- Sincroniza `currentDate` e `currentView` via `useEffect` chamando `calendarRef.current.getApi().changeView()` e `.gotoDate()`
+- `selectable: true` e handler `select` para criação por intervalo (mais preciso que `dateClick`)
 - `headerToolbar: false` — a toolbar nativa é desativada; `AgendaToolbar` cuida disso
+- `editable: false` para eventos com status `completed`, `canceled`, `no_show` (via `eventAllow`)
+- Sincroniza `currentDate` e `currentView` via `calendarRef.current.getApi()` em `useEffect`, nunca via prop `initialDate` (evita re-mount do FullCalendar)
+- `React.memo` para evitar re-render ao abrir/fechar modal
 
 ### `AgendaToolbar.tsx`
 
@@ -287,9 +291,9 @@ interface ProfessionalFilterProps {
 ```
 
 **Notas:**
-- Cada profissional tem um botão/pill com a cor do resource
-- `opacity-40` quando oculto, cor sólida quando visível
-- Cores são as mesmas de `PROFESSIONAL_COLORS` em `calendarMappers.ts`
+- Pill com cor sólida = visível; `opacity-40` = oculto
+- Cores idênticas às de `PROFESSIONAL_COLORS` em `calendarMappers.ts`
+- No mobile, vira `<select>` de profissional único (ver Seção 10)
 
 ### `AppointmentModal.tsx`
 
@@ -297,7 +301,7 @@ interface ProfessionalFilterProps {
 interface AppointmentModalProps {
   open: boolean;
   mode: 'create' | 'edit';
-  event: AgendaCalendarEvent | null;           // null no modo create
+  event: AgendaCalendarEvent | null;
   initialSlot: { start: string; end: string; professionalId: number } | null;
   professionals: Professional[];
   services: Service[];
@@ -310,9 +314,10 @@ interface AppointmentModalProps {
 ```
 
 **Notas:**
-- No modo `create`, preenche `professional_id` e `starts_at`/`ends_at` a partir de `initialSlot`
-- `ends_at` é calculado automaticamente com base na duração do serviço selecionado
-- Botão "Finalizar e Cobrar" aparece apenas no modo `edit` com status `scheduled` ou `confirmed`
+- No modo `create`: `professional_id` e `starts_at` pré-preenchidos do `initialSlot`
+- `ends_at` recalculado automaticamente ao trocar o serviço (`starts_at + duration_minutes`)
+- Botão "Finalizar e Cobrar" só aparece no modo `edit` com status `scheduled` ou `confirmed`
+- Campos `status` `completed`, `canceled`, `no_show` abrem campo `cancel_reason` quando aplicável
 
 ---
 
@@ -325,94 +330,95 @@ Usuário arrasta evento
 FullCalendar dispara eventDrop(info)
         │
         ▼
-AgendaCalendar.onEventDrop → extrai id, newStart, newEnd, newResourceId, info.revert
+AgendaCalendar extrai id, newStart, newEnd, newResourceId, info.revert
         │
         ▼
 useAppointments.moveAppointment(params)
         │
-        ├─► Atualiza events[] imediatamente (otimista)
+        ├─► [1] Se já existe pendingUndo: fecha o undo anterior (dismissUndo)
         │
-        ├─► Guarda UndoOperation { previousEvent, timeoutId: setTimeout(dismissUndo, 4000) }
+        ├─► [2] Atualiza events[] imediatamente (otimista)
         │
-        ├─► Mostra toast "Agendamento movido  [Desfazer]"
+        ├─► [3] Guarda UndoOperation { id, previousEvent, timeoutId: setTimeout(dismissUndo, 6000) }
         │
-        ├─► axios.put('/api/agenda/{id}', payload)
+        ├─► [4] Mostra toast "Agendamento movido  [Desfazer]" (6 segundos)
+        │
+        ├─► [5] axios.put('/api/agenda/{id}', payload)
         │       │
-        │       ├─ SUCESSO: nada, o estado otimista já é correto
+        │       ├─ SUCESSO → nada; estado otimista já está correto
         │       │
-        │       └─ ERRO: revertFn() + restaura events[] + toast de erro
+        │       └─ ERRO → revertFn() + restaura events[] para previousEvent
+        │                + fecha undo + mostra toast de erro
         │
-        └─► Se usuário clicar "Desfazer" (dentro de 4s):
+        └─► [6] Se usuário clicar "Desfazer" (dentro de 6s):
                 ├─► clearTimeout(undoOperation.timeoutId)
-                ├─► restaura events[] para previousEvent
-                └─► NÃO envia PUT (o primeiro PUT ainda não foi confirmado)
-                    └─► axios.put com os valores originais para sincronizar backend
+                ├─► Restaura events[] para previousEvent (UI imediata)
+                ├─► axios.put('/api/agenda/{id}', valoresOriginais)  ← operação compensatória
+                └─► Fecha pendingUndo
 ```
 
-**Detalhe importante:** se o undo acontece antes do PUT original retornar, cancela o PUT com `AbortController` e envia um novo PUT com os valores originais.
+**Política de undo (MVP):**
+- **1 undo pendente por vez.** Nova ação fecha o undo anterior sem reverter.
+- Undo é uma **operação compensatória independente** — não depende de cancelar o PUT original.
+- `AbortController` pode ser usado como otimização se o PUT original ainda não foi enviado, mas nunca como fundamento de consistência.
+- Se o PUT compensatório falhar: mostra toast de erro, estado local pode ficar dessincronizado — usuário precisa recarregar. Raro mas documentado.
 
 ---
 
-## 7. Fluxo de criação/edição de agendamento
+## 7. Fluxo de criação e edição de agendamento
 
-**Criação (clique em slot vazio):**
+**Criação (seleção de slot):**
 ```
-Usuário clica em slot vazio na coluna de um profissional
+Usuário seleciona intervalo de tempo numa coluna de profissional
         │
         ▼
-FullCalendar dispara select(info) ou dateClick(info)
-        │
-        ▼
-AgendaCalendar.onDateClick → extrai start, end, resourceId
+FullCalendar dispara select(info)  ← selectable: true
+  info.start, info.end, info.resource.id
         │
         ▼
 useAgendaUI.openCreateModal({ start, end, professionalId })
         │
         ▼
-AppointmentModal abre no modo 'create'
-  - professional_id pré-preenchido
+AppointmentModal abre (mode='create')
+  - professional_id pré-selecionado
   - starts_at pré-preenchido
   - ends_at calculado ao selecionar serviço
         │
         ▼
-Usuário preenche e confirma → onSave(payload)
+Usuário confirma → onSave(payload)
         │
         ▼
 useAppointments.createAppointment(payload)
-  → axios.post('/agenda') — Inertia route retorna redirect
-  → Em vez de redirect, usar axios + router.reload({ only: ['events'] })
+  → POST /api/agenda → retorna appointment normalizado
+  → adiciona evento em events[] sem reload
 ```
 
 **Edição (clique em evento):**
 ```
-Usuário clica em evento existente
+Usuário clica em evento
         │
         ▼
-AgendaCalendar.onEventClick → extrai AgendaCalendarEvent da extendedProps
+AgendaCalendar.onEventClick → extrai AgendaCalendarEvent de info.event
         │
         ▼
 useAgendaUI.openEditModal(event)
         │
         ▼
-AppointmentModal abre no modo 'edit' com dados preenchidos
-  - Mostra botões: Salvar, Excluir, Mudar Status, Finalizar e Cobrar
-        │
-        ▼
-onSave → useAppointments.updateAppointment
-onDelete → useAppointments.deleteAppointment
-onStatusChange → axios.put('/agenda/{id}/status')
+AppointmentModal abre (mode='edit') com dados preenchidos
+  Ações disponíveis:
+  - Salvar        → onSave       → PUT /api/agenda/{id}
+  - Excluir       → onDelete     → DELETE /api/agenda/{id}
+  - Mudar Status  → onStatusChange → PUT /api/agenda/{id}/status
+  - Finalizar     → redirect para /agenda/{id}/finalizar (fluxo Inertia existente)
 ```
-
-**Nota sobre rotas:** o controller atual retorna `redirect()` (Inertia). Para o modal funcionar sem reload completo, adicionar rotas API puras em `routes/api.php` que retornam JSON, ou usar `router.reload({ only: ['events'] })` após a operação.
 
 ---
 
-## 8. Mapeamento Laravel props → FullCalendar events/resources
+## 8. Mapeamento Laravel props → FullCalendar events/resources (`calendarMappers.ts`)
 
 ```typescript
-// utils/calendarMappers.ts
+import type { AgendaCalendarEvent, AgendaResource, AppointmentEvent, AppointmentStatus, Professional } from '../types';
 
-// Paleta de cores — um por profissional, ciclica
 export const PROFESSIONAL_COLORS = [
   '#6366f1', // indigo
   '#10b981', // emerald
@@ -422,11 +428,19 @@ export const PROFESSIONAL_COLORS = [
   '#06b6d4', // cyan
 ];
 
+export const STATUS_COLORS: Record<AppointmentStatus, { bg: string; border: string; text: string }> = {
+  scheduled: { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af' },
+  confirmed:  { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
+  completed:  { bg: '#f3f4f6', border: '#d1d5db', text: '#374151' },
+  no_show:    { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
+  canceled:   { bg: '#ffedd5', border: '#fdba74', text: '#9a3412' },
+};
+
 export function toResourceInput(professionals: Professional[]): AgendaResource[] {
   return professionals.map((p, index) => ({
     id: String(p.id),
     title: p.name,
-    color: PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length],
+    eventColor: PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length],
   }));
 }
 
@@ -437,10 +451,9 @@ export function toEventInput(events: AppointmentEvent[]): AgendaCalendarEvent[] 
     title: event.title,
     start: event.start,
     end: event.end,
-    // Cor por status (sobrepõe a cor do resource)
-    backgroundColor: STATUS_COLORS[event.status]?.bg ?? '#6366f1',
-    borderColor: STATUS_COLORS[event.status]?.border ?? '#4f46e5',
-    textColor: STATUS_COLORS[event.status]?.text ?? '#ffffff',
+    backgroundColor: STATUS_COLORS[event.status]?.bg,
+    borderColor: STATUS_COLORS[event.status]?.border,
+    textColor: STATUS_COLORS[event.status]?.text,
     extendedProps: {
       status: event.status,
       customer: event.customer,
@@ -451,72 +464,105 @@ export function toEventInput(events: AppointmentEvent[]): AgendaCalendarEvent[] 
     },
   }));
 }
-
-export const STATUS_COLORS: Record<AppointmentStatus, { bg: string; border: string; text: string }> = {
-  scheduled: { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af' },
-  confirmed:  { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
-  completed:  { bg: '#f3f4f6', border: '#d1d5db', text: '#374151' },
-  no_show:    { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
-  canceled:   { bg: '#ffedd5', border: '#fdba74', text: '#9a3412' },
-};
 ```
-
-**AgendaController — adicionar `professional_id` ao evento** (necessário para o `resourceId`):
-O `getAgendaEvents` já retorna `professional`, então `event.professional?.id` funciona. Não é necessário alterar o backend.
 
 ---
 
-## 9. Recomendações para evitar re-render desnecessário
+## 9. Estratégia de backend — endpoints JSON dedicados
+
+A leitura atual do backend (`AgendaController@index`) atende a renderização inicial sem alterações.
+
+Para UX fluida em CRUD e drag-drop, **é necessário** expor endpoints JSON dedicados em `routes/api.php`. Misturar `axios` com `router.reload()` cria dois modelos inconsistentes dentro da mesma feature.
+
+**Endpoints a adicionar:**
+
+| Método | Rota | Ação | Resposta |
+|---|---|---|---|
+| `POST` | `/api/agenda` | Criar agendamento | `{ appointment: AppointmentEvent }` |
+| `PUT` | `/api/agenda/{id}` | Atualizar agendamento | `{ appointment: AppointmentEvent }` |
+| `PUT` | `/api/agenda/{id}/status` | Mudar status | `{ appointment: AppointmentEvent }` |
+| `DELETE` | `/api/agenda/{id}` | Excluir agendamento | `{ ok: true }` |
+
+**Contrato de resposta:** todos os endpoints retornam o appointment normalizado no mesmo formato de `AppointmentEvent` para que o frontend possa atualizar `events[]` diretamente sem mapeamento adicional.
+
+**Reutilização:** os controllers existentes (`AgendaController@store`, `@update`, `@status`, `@destroy`) contêm a lógica de validação e autorização. Os novos endpoints JSON podem delegando para os mesmos services sem duplicar regras.
+
+---
+
+## 10. Regras de negócio do calendário
+
+### Arrastabilidade
+- `editable: true` apenas para status `scheduled` e `confirmed`
+- Status `completed`, `canceled`, `no_show` → `editable: false` (via `eventAllow` ou `eventDidMount`)
+- Resize recalcula `ends_at`, nunca `starts_at`
+- Mudança de profissional via drag só é válida para profissionais visíveis e ativos
+
+### Conflitos e sobreposição
+- Sem overlap no mesmo profissional (validado no backend via `AgendaService::isAvailable`)
+- Frontend não bloqueia visualmente overlap (complexidade alta, baixo valor) — confia na validação do backend
+- Se o PUT retornar erro de conflito: `revertFn()` + toast com a mensagem do servidor
+
+### Horários
+- Drag fora do expediente do profissional é permitido no frontend; validado no backend
+- Se fora do expediente, backend retorna erro → `revertFn()` + toast
+
+---
+
+## 11. Responsividade mobile
+
+| Contexto | Comportamento |
+|---|---|
+| Desktop (≥768px) | `resourceTimeGridWeek` padrão; até 5 profissionais lado a lado |
+| Mobile (<768px) | `listWeek` padrão; view `resourceTimeGridDay` disponível com 1 profissional por vez |
+| Mobile — troca de profissional | `ProfessionalFilter` vira `<select>` de profissional único |
+| Mobile — views disponíveis | `listWeek`, `resourceTimeGridDay`, `dayGridMonth` |
+| Desktop — views disponíveis | `resourceTimeGridWeek`, `resourceTimeGridDay`, `dayGridMonth`, `listWeek` |
+
+---
+
+## 12. Recomendações para evitar re-render desnecessário
 
 | Problema potencial | Solução |
 |---|---|
 | `events` e `resources` recalculados a cada render | `useMemo` em `Index.tsx` para `calendarEvents` e `calendarResources` |
-| `AgendaCalendar` re-renderiza ao abrir modal | `React.memo` em `AgendaCalendar` — o modal não altera `events` |
-| Callbacks inline recriados a cada render | `useCallback` em todos os handlers do `Index.tsx` |
+| `AgendaCalendar` re-renderiza ao abrir modal | `React.memo` em `AgendaCalendar` |
+| Callbacks inline recriados a cada render | `useCallback` em todos os handlers passados ao `AgendaCalendar` |
 | `visibleProfessionals` calculado inline | `useMemo` dentro de `useAgendaUI` |
-| FullCalendar re-monta ao mudar `currentDate` | Sincronizar via `calendarRef.current.getApi()`, não via prop `initialDate` |
-| Toast de undo causa re-render em cascata | Estado `pendingUndo` isolado em `useAppointments`, não em `Index.tsx` |
+| FullCalendar re-monta ao mudar `currentDate` | Sincronizar via `calendarRef.current.getApi().gotoDate()`, não via prop `initialDate` |
+| Toast de undo causa re-render em cascata | `pendingUndo` isolado em `useAppointments`, não sobe para `Index.tsx` |
 
 ---
 
-## 10. Ordem de implementação (etapas pequenas)
+## 13. Ordem de implementação (6 etapas)
 
-### Etapa 1 — Fundação (sem quebrar nada)
+### Etapa 1 — Fundação
 1. Instalar pacotes FullCalendar
 2. Criar `types.ts` com todas as interfaces
-3. Criar `utils/calendarMappers.ts` com `toEventInput` e `toResourceInput`
-4. Criar `AgendaCalendar.tsx` mínimo: FullCalendar com `resourceTimeGridWeek`, sem drag, sem callbacks — só renderizar eventos
+3. Criar `utils/calendarMappers.ts`
+4. Criar `AgendaCalendar.tsx` mínimo: renderiza eventos sem drag, sem callbacks
 
 ### Etapa 2 — Hooks e estado
 5. Criar `useAgendaUI.ts`
-6. Criar `useAppointments.ts` sem undo (só CRUD básico)
+6. Criar `useAppointments.ts` sem undo (CRUD básico)
 7. Refatorar `Index.tsx` para usar os dois hooks
-8. Verificar que a agenda renderiza igual ao estado atual
+8. Verificar que a agenda renderiza corretamente
 
 ### Etapa 3 — Toolbar e filtros
 9. Criar `ProfessionalFilter.tsx`
-10. Criar `AgendaToolbar.tsx` com nav, views e filtro
+10. Criar `AgendaToolbar.tsx`
 11. Conectar toolbar ao FullCalendar via `calendarRef`
 
-### Etapa 4 — Modal
-12. Extrair `AppointmentModal.tsx` do `Index.tsx` atual
-13. Conectar `onDateClick` (criar) e `onEventClick` (editar)
-14. Testar criação e edição sem reload
+### Etapa 4 — Endpoints JSON + Modal
+12. Adicionar endpoints JSON em `routes/api.php` + controllers
+13. Extrair `AppointmentModal.tsx` do `Index.tsx` atual
+14. Conectar `onSelect` (criar) e `onEventClick` (editar) usando os novos endpoints
 
 ### Etapa 5 — Drag-drop e undo
-15. Adicionar plugin `@fullcalendar/interaction`
+15. Ativar `editable: true` e `selectable: true` no FullCalendar
 16. Implementar `eventDrop` e `eventResize` em `AgendaCalendar`
-17. Implementar `moveAppointment` com otimismo em `useAppointments`
-18. Adicionar toast com "Desfazer" (4 segundos)
+17. Implementar `moveAppointment` com otimismo e undo (6s) em `useAppointments`
+18. Adicionar toast com "Desfazer"
 
 ### Etapa 6 — Responsividade mobile
-19. Detectar mobile e ajustar `defaultView`
+19. Detectar mobile e ajustar `defaultView` e `ProfessionalFilter`
 20. Testar e ajustar layout em viewport < 768px
-
----
-
-## Dependências de backend
-
-Nenhuma mudança no Laravel é obrigatória para a implementação. O `AgendaController` e o `AgendaService` existentes servem tudo que é necessário.
-
-**Melhoria opcional** (etapa 4): adicionar rotas API JSON puras em `routes/api.php` para create/update/delete de agendamentos, evitando `router.reload()` a cada operação. Isso torna o UX mais fluido mas não é bloqueante.
