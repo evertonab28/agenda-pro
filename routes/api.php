@@ -30,6 +30,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('workspace-integrations', WorkspaceIntegrationController::class)->only(['index', 'store'])->names('api.workspace-integrations');
     Route::post('workspace-integrations/{integration}/test-connection', [WorkspaceIntegrationController::class, 'testConnection']);
     Route::post('charges/{charge}/generate-link', [WorkspaceIntegrationController::class, 'generateLink']);
+
+    // Agenda JSON API (para FullCalendar — sem redirect Inertia)
+    Route::post('agenda', [\App\Http\Controllers\AgendaApiController::class, 'store']);
+    Route::put('agenda/{appointment}', [\App\Http\Controllers\AgendaApiController::class, 'update']);
+    Route::put('agenda/{appointment}/status', [\App\Http\Controllers\AgendaApiController::class, 'status']);
+    Route::delete('agenda/{appointment}', [\App\Http\Controllers\AgendaApiController::class, 'destroy']);
 });
 
 
