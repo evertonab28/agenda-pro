@@ -94,14 +94,23 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
    - Terminal 1: `php artisan serve`
    - Terminal 2: `npm run dev`
 
-5. **Acesso**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
+5. **Acesso — SaaS (workspace cliente)**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
    - **E-mail**: `admin@agendapro.com.br`
    - **Senha**: `AgendaPro@2026`
    - **Workspace Modelo (Slug)**: `workspace-modelo`
 
-6. **Portal do Cliente (Self-Service)**: [http://localhost:8000/p/workspace-modelo/login](http://localhost:8000/p/workspace-modelo/login)
-   - **Identificador**: `test@example.com` ou `11988887777`
-   - **Acesso**: Magic Link (O código OTP será exibido no log: `storage/logs/laravel.log`)
+6. **Agenda do Workspace**: [http://localhost:8000/agenda](http://localhost:8000/agenda)
+   - Mesmas credenciais do item acima.
+
+7. **Agendamento Público (self-service do cliente final)**: [http://localhost:8000/p/workspace-modelo](http://localhost:8000/p/workspace-modelo)
+   - Acesso sem senha via **Magic Link** (token de 6 dígitos enviado por WhatsApp/e-mail).
+   - O código OTP aparece em `storage/logs/laravel.log` durante o desenvolvimento.
+   - Identificador de teste: `test@example.com` ou `11988887777`
+
+8. **Control Plane (admin da plataforma)**: [http://localhost:8000/admin](http://localhost:8000/admin)
+   - **E-mail**: `admin@agendapro.com`
+   - **Senha**: `password`
+   - Permite gerenciar workspaces, assinaturas e trocar planos de clientes.
 
 ---
 
