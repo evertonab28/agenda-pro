@@ -7,12 +7,9 @@ interface UseAgendaUIProps {
 }
 
 export function useAgendaUI({ professionals }: UseAgendaUIProps) {
-  const defaultView =
-    typeof window !== 'undefined' && window.innerWidth < 768
-      ? 'listWeek'
-      : 'resourceTimeGridWeek';
-
-  const [currentView, setCurrentView] = useState(defaultView);
+  const [currentView, setCurrentView] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 768 ? 'listWeek' : 'resourceTimeGridWeek'
+  );
   const [currentDate, setCurrentDate] = useState(new Date());
   const [visibleProfessionalIds, setVisibleProfessionalIds] = useState<number[]>(
     () => professionals.map((p) => p.id)
@@ -57,6 +54,7 @@ export function useAgendaUI({ professionals }: UseAgendaUIProps) {
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
+    setModalMode('create');
     setSelectedEvent(null);
     setSelectedSlot(null);
   }, []);
