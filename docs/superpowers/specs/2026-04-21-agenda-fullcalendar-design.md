@@ -129,11 +129,13 @@ export interface AgendaCalendarEvent extends EventInput {
   };
 }
 
-// Entrada de recurso para resourceTimeGrid
+// Entrada de recurso para resourceTimeGrid.
+// `color` é a cor visual da coluna/header do profissional.
+// Cor dos eventos é controlada por status em toEventInput(), não pelo resource.
 export interface AgendaResource {
-  id: string;              // professional.id como string
+  id: string;    // professional.id como string
   title: string;
-  eventColor: string;      // cor padrão dos eventos deste profissional
+  color: string;
 }
 
 // Estado de uma operação de undo pendente
@@ -166,13 +168,21 @@ interface UseAppointmentsReturn {
   deleteAppointment: (id: number) => Promise<void>;
   changeStatus: (id: number, status: AppointmentStatus, cancelReason?: string) => Promise<void>;
 
-  // Drag-drop — atualiza horário e/ou profissional
+  // Drag — atualiza horário e/ou profissional
   moveAppointment: (params: {
     id: number;
     newStart: string;
     newEnd: string;
     newProfessionalId: number;
-    revertFn: () => void;   // função do FullCalendar para reverter visualmente em caso de erro
+    revertFn: () => void;
+  }) => void;
+
+  // Resize — recalcula ends_at mantendo starts_at fixo
+  resizeAppointment: (params: {
+    id: number;
+    newStart: string;
+    newEnd: string;
+    revertFn: () => void;
   }) => void;
 
   // Undo
@@ -440,7 +450,7 @@ export function toResourceInput(professionals: Professional[]): AgendaResource[]
   return professionals.map((p, index) => ({
     id: String(p.id),
     title: p.name,
-    eventColor: PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length],
+    color: PROFESSIONAL_COLORS[index % PROFESSIONAL_COLORS.length],
   }));
 }
 
@@ -485,7 +495,7 @@ Para UX fluida em CRUD e drag-drop, **é necessário** expor endpoints JSON dedi
 
 **Contrato de resposta:** todos os endpoints retornam o appointment normalizado no mesmo formato de `AppointmentEvent` para que o frontend possa atualizar `events[]` diretamente sem mapeamento adicional.
 
-**Reutilização:** os controllers existentes (`AgendaController@store`, `@update`, `@status`, `@destroy`) contêm a lógica de validação e autorização. Os novos endpoints JSON podem delegando para os mesmos services sem duplicar regras.
+**Reutilização:** os controllers existentes (`AgendaController@store`, `@update`, `@status`, `@destroy`) contêm a lógica de validação e autorização. Os novos endpoints JSON podem delegar para os mesmos services sem duplicar regras.
 
 ---
 
@@ -493,17 +503,29 @@ Para UX fluida em CRUD e drag-drop, **é necessário** expor endpoints JSON dedi
 
 ### Arrastabilidade
 - `editable: true` apenas para status `scheduled` e `confirmed`
-- Status `completed`, `canceled`, `no_show` → `editable: false` (via `eventAllow` ou `eventDidMount`)
+- Status `completed`, `canceled`, `no_show` → `editable: false` (via `eventAllow`)
 - Resize recalcula `ends_at`, nunca `starts_at`
-- Mudança de profissional via drag só é válida para profissionais visíveis e ativos
+- Resize mínimo: 5 minutos (slot mínimo do FullCalendar)
+- Mudança de profissional via drag permitida; compatibilidade de serviço não validada no frontend (backend valida disponibilidade)
+- Profissional oculto no filtro: seus eventos permanecem editáveis via modal se já existirem; não podem receber novos eventos via drag
+
+### Criação
+- Não é permitido criar agendamento sem profissional selecionado
+- Não é permitido criar agendamento em horário passado (validado no modal antes do POST)
+- `ends_at` calculado automaticamente com base na `duration_minutes` do serviço selecionado
+
+### Reabertura de status
+- Eventos `canceled`, `completed`, `no_show` não são arrastáveis
+- Podem ser reabertos apenas via modal (botão "Mudar Status") — nunca por drag
 
 ### Conflitos e sobreposição
 - Sem overlap no mesmo profissional (validado no backend via `AgendaService::isAvailable`)
-- Frontend não bloqueia visualmente overlap (complexidade alta, baixo valor) — confia na validação do backend
+- **MVP:** frontend não bloqueia overlap visualmente — confia inteiramente na validação do backend
 - Se o PUT retornar erro de conflito: `revertFn()` + toast com a mensagem do servidor
+- **Dívida conhecida (pós-MVP):** bloquear ou sinalizar visualmente conflito antes do PUT, checando `events[]` local por sobreposição no mesmo `resourceId`
 
-### Horários
-- Drag fora do expediente do profissional é permitido no frontend; validado no backend
+### Horários fora do expediente
+- Drag fora do expediente é permitido no frontend; validado no backend
 - Se fora do expediente, backend retorna erro → `revertFn()` + toast
 
 ---
