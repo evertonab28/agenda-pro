@@ -37,6 +37,24 @@ interface AgendaCalendarProps {
 
 const EDITABLE_STATUSES = new Set(['scheduled', 'confirmed']);
 
+// Module-level constants — never recreated, prevents FullCalendar infinite update loop
+const PLUGINS = [
+  resourceTimeGridPlugin,
+  resourceDayGridPlugin,
+  dayGridPlugin,
+  listPlugin,
+  interactionPlugin,
+];
+
+const resourceLabelContent = (arg: { resource: { title: string } }) => (
+  <span className="text-xs font-semibold">{arg.resource.title}</span>
+);
+
+const eventAllow = (_dropInfo: unknown, draggedEvent: { extendedProps?: { status?: string } } | null) => {
+  const status = draggedEvent?.extendedProps?.status;
+  return EDITABLE_STATUSES.has(status ?? '');
+};
+
 function AgendaCalendarInner({
   events,
   resources,
@@ -122,13 +140,7 @@ function AgendaCalendarInner({
   return (
     <FullCalendar
       ref={calendarRef}
-      plugins={[
-        resourceTimeGridPlugin,
-        resourceDayGridPlugin,
-        dayGridPlugin,
-        listPlugin,
-        interactionPlugin,
-      ]}
+      plugins={PLUGINS}
       initialView={currentView}
       resources={resources}
       events={events}
@@ -141,18 +153,13 @@ function AgendaCalendarInner({
       allDaySlot={false}
       locale="pt-br"
       height="calc(100vh - 120px)"
-      eventAllow={(dropInfo, draggedEvent) => {
-        const status = draggedEvent?.extendedProps?.status;
-        return EDITABLE_STATUSES.has(status);
-      }}
+      eventAllow={eventAllow}
       eventDrop={handleEventDrop}
       eventResize={handleEventResize}
       select={handleSelect}
       eventClick={handleEventClick}
       datesSet={handleDatesSet}
-      resourceLabelContent={(arg) => (
-        <span className="text-xs font-semibold">{arg.resource.title}</span>
-      )}
+      resourceLabelContent={resourceLabelContent}
     />
   );
 }
