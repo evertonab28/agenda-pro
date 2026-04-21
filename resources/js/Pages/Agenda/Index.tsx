@@ -125,7 +125,6 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
           events={visibleEvents}
           resources={resources}
           currentView={currentView}
-          currentDate={currentDate}
           onEventDrop={moveAppointment}
           onEventResize={resizeAppointment}
           onSelect={openCreateModal}

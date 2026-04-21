@@ -14,7 +14,6 @@ interface AgendaCalendarProps {
   events: AgendaCalendarEvent[];
   resources: AgendaResource[];
   currentView: string;
-  currentDate: Date;
   onEventDrop: (params: {
     id: number;
     newStart: string;
@@ -56,7 +55,6 @@ function AgendaCalendarInner({
   events,
   resources,
   currentView,
-  currentDate,
   onEventDrop,
   onEventResize,
   onSelect,
@@ -80,13 +78,6 @@ function AgendaCalendarInner({
       });
     }
   }, []); // eslint-disable-line
-
-  // Sincroniza data sem re-montar o FullCalendar
-  useEffect(() => {
-    const api = calendarRef.current?.getApi();
-    if (!api) return;
-    api.gotoDate(currentDate);
-  }, [currentDate]);
 
   const handleEventDrop = (info: EventDropArg) => {
     const status = info.event.extendedProps?.status;
@@ -123,9 +114,9 @@ function AgendaCalendarInner({
     onEventClick(info.event as unknown as AgendaCalendarEvent);
   };
 
-  const handleDatesSet = (arg: { view: { type: string }; start: Date }) => {
+  const handleDatesSet = (arg: { view: { type: string; currentStart: Date } }) => {
     onViewChange(arg.view.type);
-    onDateChange(arg.start);
+    onDateChange(arg.view.currentStart);
   };
 
   return (
