@@ -46,9 +46,6 @@ const PLUGINS = [
   interactionPlugin,
 ];
 
-const resourceLabelContent = (arg: { resource: { title: string } }) => (
-  <span className="text-xs font-semibold">{arg.resource.title}</span>
-);
 
 const eventAllow = (_dropInfo: unknown, draggedEvent: { extendedProps?: { status?: string } } | null) => {
   const status = draggedEvent?.extendedProps?.status;
@@ -159,7 +156,6 @@ function AgendaCalendarInner({
       select={handleSelect}
       eventClick={handleEventClick}
       datesSet={handleDatesSet}
-      resourceLabelContent={resourceLabelContent}
     />
   );
 }
