@@ -3,6 +3,7 @@
 namespace Tests\Feature\Portal;
 
 use App\Models\Appointment;
+use App\Models\Holiday;
 use App\Models\ProfessionalSchedule;
 use App\Models\Workspace;
 use App\Models\Customer;
@@ -121,5 +122,85 @@ class PortalAppointmentTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(['ok' => false]);
         $this->assertStringContainsString('disponível', $response->json('message'));
+    }
+
+    public function test_customer_cannot_reschedule_to_slot_blocked_by_buffer(): void
+    {
+        // Serviço com 30 min de buffer
+        $serviceWithBuffer = Service::factory()->create([
+            'workspace_id'     => $this->workspace->id,
+            'duration_minutes' => 60,
+            'buffer_minutes'   => 30,
+        ]);
+
+        // Appointment existente: terça 14:00–15:00, buffered_ends_at = 15:30
+        $otherCustomer = Customer::factory()->create(['workspace_id' => $this->workspace->id]);
+        Appointment::create([
+            'workspace_id'    => $this->workspace->id,
+            'customer_id'     => $otherCustomer->id,
+            'professional_id' => $this->professional->id,
+            'service_id'      => $serviceWithBuffer->id,
+            'starts_at'       => Carbon::parse('next tuesday 14:00'),
+            'ends_at'         => Carbon::parse('next tuesday 15:00'),
+            'status'          => 'scheduled',
+        ]);
+
+        // Tentar reagendar para terça 15:10 — dentro do buffer (15:30)
+        $response = $this->actingAs($this->customer, 'customer')
+            ->put(route('portal.appointments.reschedule', [$this->workspace->slug, $this->appointment->id]), [
+                'start_time' => Carbon::parse('next tuesday 15:10')->format('Y-m-d H:i'),
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['ok' => false]);
+    }
+
+    public function test_customer_cannot_reschedule_to_holiday(): void
+    {
+        $tuesday = Carbon::parse('next tuesday')->format('Y-m-d');
+
+        Holiday::create([
+            'workspace_id'    => $this->workspace->id,
+            'name'            => 'Feriado Teste',
+            'date'            => $tuesday,
+            'professional_id' => null,
+            'repeats_yearly'  => false,
+        ]);
+
+        $response = $this->actingAs($this->customer, 'customer')
+            ->put(route('portal.appointments.reschedule', [$this->workspace->slug, $this->appointment->id]), [
+                'start_time' => Carbon::parse('next tuesday 10:00')->format('Y-m-d H:i'),
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['ok' => false]);
+    }
+
+    public function test_customer_cannot_reschedule_outside_working_hours(): void
+    {
+        // Terça às 07:00 — antes das 08:00 do schedule
+        $response = $this->actingAs($this->customer, 'customer')
+            ->put(route('portal.appointments.reschedule', [$this->workspace->slug, $this->appointment->id]), [
+                'start_time' => Carbon::parse('next tuesday 07:00')->format('Y-m-d H:i'),
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['ok' => false]);
+    }
+
+    public function test_customer_cannot_reschedule_during_break(): void
+    {
+        // Adicionar break ao schedule de terça
+        ProfessionalSchedule::where('professional_id', $this->professional->id)
+            ->where('weekday', Carbon::parse('next tuesday')->dayOfWeek)
+            ->update(['break_start' => '12:00', 'break_end' => '13:00']);
+
+        $response = $this->actingAs($this->customer, 'customer')
+            ->put(route('portal.appointments.reschedule', [$this->workspace->slug, $this->appointment->id]), [
+                'start_time' => Carbon::parse('next tuesday 12:00')->format('Y-m-d H:i'),
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['ok' => false]);
     }
 }
