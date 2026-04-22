@@ -34,6 +34,8 @@ const routes: Record<string, string> = {
     'configuracoes.billing.activate': '/configuracoes/assinatura/ativar',
     'configuracoes.billing.cancel': '/configuracoes/assinatura/cancelar',
     'configuracoes.integrations.index': '/configuracoes/integrações',
+    'api.workspace-integrations.store': '/api/workspace-integrations',
+    'api.workspace-integrations.index': '/api/workspace-integrations',
     'agenda.checkout.store': '/agenda/:id/checkout',
     'waitlist.index': '/lista-espera',
     'waitlist.store': '/lista-espera',

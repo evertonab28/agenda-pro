@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
 import ConfigLayout from '../Layout';
-import { 
-    CreditCard, 
-    MessageSquare, 
-    CheckCircle2, 
-    XCircle, 
+import {
+    CreditCard,
+    MessageSquare,
+    CheckCircle2,
+    XCircle,
     AlertCircle,
     Loader2,
     RefreshCw,
@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { route } from '@/utils/route';
 import axios from 'axios';
 
 interface Integration {
@@ -32,51 +31,47 @@ interface Props {
 
 export default function Index({ integrations }: Props) {
     const [testingId, setTestingId] = useState<number | null>(null);
-    const [testResults, setTestResults] = useState<Record<number, { ok: boolean, message?: string }>>({});
+    const [testResults, setTestResults] = useState<Record<number, { ok: boolean; message?: string }>>({});
+    const [savingProvider, setSavingProvider] = useState<string | null>(null);
+    const [saveResults, setSaveResults] = useState<Record<string, { ok: boolean; message?: string }>>({});
 
-    // Encontrar integrações existentes ou fakes iniciais
     const asaas = integrations.find(i => i.provider === 'asaas');
     const evolution = integrations.find(i => i.provider === 'evolution');
 
-    const asaasForm = useForm({
-        type: 'payment',
-        provider: 'asaas',
-        credentials: {
-            api_key: asaas?.credentials?.api_key === '********' ? '' : '',
-        }
-    });
+    const [asaasKey, setAsaasKey] = useState('');
+    const [evoUrl, setEvoUrl] = useState('');
+    const [evoInstance, setEvoInstance] = useState('');
+    const [evoKey, setEvoKey] = useState('');
 
-    const evolutionForm = useForm({
-        type: 'messaging',
-        provider: 'evolution',
-        credentials: {
-            api_key: evolution?.credentials?.api_key === '********' ? '' : '',
-            instance_name: evolution?.credentials?.instance_name === '********' ? '' : '',
-            base_url: evolution?.credentials?.base_url === '********' ? '' : '',
+    const handleSave = async (payload: object, provider: string) => {
+        setSavingProvider(provider);
+        setSaveResults(prev => ({ ...prev, [provider]: undefined as any }));
+        try {
+            await axios.post('/api/workspace-integrations', payload);
+            setSaveResults(prev => ({ ...prev, [provider]: { ok: true } }));
+            router.reload({ only: ['integrations'] });
+        } catch (error: any) {
+            setSaveResults(prev => ({
+                ...prev,
+                [provider]: { ok: false, message: error.response?.data?.message || 'Erro ao salvar' },
+            }));
+        } finally {
+            setSavingProvider(null);
         }
-    });
-
-    const handleSave = (form: any) => {
-        form.post(route('api.workspace-integrations.store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Notificar sucesso (Inertia Flash costuma lidar com isso)
-            }
-        });
     };
 
     const testConnection = async (integrationId: number) => {
         setTestingId(integrationId);
         try {
-            const response = await axios.post(`/api/workspace-integrations/${integrationId}/test-connection`);
+            await axios.post(`/api/workspace-integrations/${integrationId}/test-connection`);
             setTestResults(prev => ({ ...prev, [integrationId]: { ok: true } }));
         } catch (error: any) {
-            setTestResults(prev => ({ 
-                ...prev, 
-                [integrationId]: { 
-                    ok: false, 
-                    message: error.response?.data?.message || 'Falha na conexão' 
-                } 
+            setTestResults(prev => ({
+                ...prev,
+                [integrationId]: {
+                    ok: false,
+                    message: error.response?.data?.message || 'Falha na conexão',
+                },
             }));
         } finally {
             setTestingId(null);
@@ -87,13 +82,13 @@ export default function Index({ integrations }: Props) {
         const styles = {
             active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
             error: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-            pending: 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-400'
+            pending: 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-400',
         };
 
         const config = {
             active: { label: 'Ativo', icon: CheckCircle2 },
             error: { label: 'Erro', icon: XCircle },
-            pending: { label: 'Pendente', icon: AlertCircle }
+            pending: { label: 'Pendente', icon: AlertCircle },
         };
 
         const { label, icon: Icon } = config[status as keyof typeof config] || config.pending;
@@ -127,34 +122,30 @@ export default function Index({ integrations }: Props) {
                     </div>
 
                     <div className="p-6 space-y-6">
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="asaas_api_key">API Key (Produção ou Sandbox)</Label>
-                                <Input 
-                                    id="asaas_api_key"
-                                    type="password"
-                                    placeholder={asaas ? 'Manter chave existente' : 'Insira sua chave do Asaas'}
-                                    value={asaasForm.data.credentials.api_key}
-                                    onChange={e => asaasForm.setData('credentials', { ...asaasForm.data.credentials, api_key: e.target.value })}
-                                />
-                                {asaasForm.errors['credentials.api_key'] && (
-                                    <p className="text-xs text-red-500">{asaasForm.errors['credentials.api_key']}</p>
-                                )}
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="asaas_api_key">API Key (Produção ou Sandbox)</Label>
+                            <Input
+                                id="asaas_api_key"
+                                type="password"
+                                placeholder={asaas ? 'Manter chave existente' : 'Insira sua chave do Asaas'}
+                                value={asaasKey}
+                                onChange={e => setAsaasKey(e.target.value)}
+                            />
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Button 
-                                className="flex-1" 
-                                onClick={() => handleSave(asaasForm)}
-                                disabled={asaasForm.processing}
+                            <Button
+                                className="flex-1"
+                                onClick={() => handleSave({ type: 'payment', provider: 'asaas', credentials: { api_key: asaasKey } }, 'asaas')}
+                                disabled={savingProvider === 'asaas' || !asaasKey}
                             >
+                                {savingProvider === 'asaas' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                 {asaas ? 'Atualizar' : 'Configurar'}
                             </Button>
-                            
+
                             {asaas && (
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     size="icon"
                                     onClick={() => testConnection(asaas.id)}
                                     disabled={testingId === asaas.id}
@@ -169,23 +160,24 @@ export default function Index({ integrations }: Props) {
                             )}
                         </div>
 
-                        {testResults[asaas?.id || 0] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${
-                                testResults[asaas!.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'
-                            }`}>
-                                {testResults[asaas!.id].ok ? (
-                                    <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                    <AlertCircle className="w-4 h-4" />
-                                )}
-                                {testResults[asaas!.id].ok ? 'Conexão estabelecida com sucesso!' : testResults[asaas!.id].message}
+                        {saveResults['asaas'] && (
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['asaas'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
+                                {saveResults['asaas'].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                                {saveResults['asaas'].ok ? 'Configuração salva!' : saveResults['asaas'].message}
                             </div>
                         )}
-                        
+
+                        {asaas && testResults[asaas.id] && (
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${testResults[asaas.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
+                                {testResults[asaas.id].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                                {testResults[asaas.id].ok ? 'Conexão estabelecida com sucesso!' : testResults[asaas.id].message}
+                            </div>
+                        )}
+
                         <div className="p-4 bg-zinc-50 dark:bg-zinc-800/20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-                             <a href="https://www.asaas.com" target="_blank" className="text-[10px] text-gray-500 flex items-center gap-1 hover:text-primary transition-colors">
+                            <a href="https://www.asaas.com" target="_blank" className="text-[10px] text-gray-500 flex items-center gap-1 hover:text-primary transition-colors">
                                 Pegar chaves no painel do Asaas <ExternalLink className="w-3 h-3" />
-                             </a>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -209,57 +201,49 @@ export default function Index({ integrations }: Props) {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="evo_url">URL da API</Label>
-                                <Input 
+                                <Input
                                     id="evo_url"
                                     placeholder="https://api.seuservidor.com"
-                                    value={evolutionForm.data.credentials.base_url}
-                                    onChange={e => evolutionForm.setData('credentials', { ...evolutionForm.data.credentials, base_url: e.target.value })}
+                                    value={evoUrl}
+                                    onChange={e => setEvoUrl(e.target.value)}
                                 />
-                                {evolutionForm.errors['credentials.base_url'] && (
-                                    <p className="text-xs text-red-500">{evolutionForm.errors['credentials.base_url']}</p>
-                                )}
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="evo_instance">Nome da Instância</Label>
-                                <Input 
+                                <Input
                                     id="evo_instance"
                                     placeholder="ex: agendapro_01"
-                                    value={evolutionForm.data.credentials.instance_name}
-                                    onChange={e => evolutionForm.setData('credentials', { ...evolutionForm.data.credentials, instance_name: e.target.value })}
+                                    value={evoInstance}
+                                    onChange={e => setEvoInstance(e.target.value)}
                                 />
-                                {evolutionForm.errors['credentials.instance_name'] && (
-                                    <p className="text-xs text-red-500">{evolutionForm.errors['credentials.instance_name']}</p>
-                                )}
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="evo_key">API Global Key</Label>
-                                <Input 
+                                <Input
                                     id="evo_key"
                                     type="password"
                                     placeholder={evolution ? 'Manter chave existente' : 'Insira o Global Token'}
-                                    value={evolutionForm.data.credentials.api_key}
-                                    onChange={e => evolutionForm.setData('credentials', { ...evolutionForm.data.credentials, api_key: e.target.value })}
+                                    value={evoKey}
+                                    onChange={e => setEvoKey(e.target.value)}
                                 />
-                                {evolutionForm.errors['credentials.api_key'] && (
-                                    <p className="text-xs text-red-500">{evolutionForm.errors['credentials.api_key']}</p>
-                                )}
                             </div>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Button 
-                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white" 
-                                onClick={() => handleSave(evolutionForm)}
-                                disabled={evolutionForm.processing}
+                            <Button
+                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                onClick={() => handleSave({ type: 'messaging', provider: 'evolution', credentials: { api_key: evoKey, instance_name: evoInstance, base_url: evoUrl } }, 'evolution')}
+                                disabled={savingProvider === 'evolution' || (!evoKey && !evoUrl && !evoInstance)}
                             >
+                                {savingProvider === 'evolution' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                 {evolution ? 'Atualizar' : 'Configurar'}
                             </Button>
-                            
+
                             {evolution && (
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     size="icon"
                                     onClick={() => testConnection(evolution.id)}
                                     disabled={testingId === evolution.id}
@@ -274,16 +258,17 @@ export default function Index({ integrations }: Props) {
                             )}
                         </div>
 
-                        {testResults[evolution?.id || 0] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${
-                                testResults[evolution!.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'
-                            }`}>
-                                {testResults[evolution!.id].ok ? (
-                                    <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                    <AlertCircle className="w-4 h-4" />
-                                )}
-                                {testResults[evolution!.id].ok ? 'WhatsApp conectado!' : testResults[evolution!.id].message}
+                        {saveResults['evolution'] && (
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['evolution'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
+                                {saveResults['evolution'].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                                {saveResults['evolution'].ok ? 'Configuração salva!' : saveResults['evolution'].message}
+                            </div>
+                        )}
+
+                        {evolution && testResults[evolution.id] && (
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${testResults[evolution.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
+                                {testResults[evolution.id].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                                {testResults[evolution.id].ok ? 'WhatsApp conectado!' : testResults[evolution.id].message}
                             </div>
                         )}
                     </div>

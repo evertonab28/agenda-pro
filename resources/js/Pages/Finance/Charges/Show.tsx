@@ -1,7 +1,8 @@
-import React from 'react';
+import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { FileText, ArrowLeft, Calendar, DollarSign, CheckCircle, CreditCard, Clock, Activity, AlertCircle } from 'lucide-react';
+import { FileText, ArrowLeft, Calendar, DollarSign, CheckCircle, CreditCard, Clock, Activity, AlertCircle, ExternalLink, Loader2, Copy } from 'lucide-react';
+import axios from 'axios';
 import { Charge } from '@/types';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -28,6 +29,31 @@ interface Props {
 }
 
 export default function ChargeShow({ charge }: Props) {
+    const [generatingLink, setGeneratingLink] = useState(false);
+    const [paymentLink, setPaymentLink] = useState<string | null>(null);
+    const [linkError, setLinkError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+
+    const handleGenerateLink = async () => {
+        setGeneratingLink(true);
+        setLinkError(null);
+        try {
+            const response = await axios.post(`/api/charges/${charge.id}/generate-link`);
+            setPaymentLink(response.data.url);
+        } catch (error: any) {
+            setLinkError(error.response?.data?.message || 'Erro ao gerar link de pagamento.');
+        } finally {
+            setGeneratingLink(false);
+        }
+    };
+
+    const handleCopy = () => {
+        if (!paymentLink) return;
+        navigator.clipboard.writeText(paymentLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     };
@@ -89,9 +115,52 @@ export default function ChargeShow({ charge }: Props) {
                                 </div>
                             </div>
                             
-                            <div className="mt-4 sm:mt-0 text-left sm:text-right bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                <p className="text-sm font-medium text-gray-500 mb-1">Valor Total da Cobrança</p>
-                                <p className="text-3xl font-bold text-gray-900">{formatCurrency(charge.amount)}</p>
+                            <div className="mt-4 sm:mt-0 flex flex-col items-end gap-3">
+                                <div className="text-left sm:text-right bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <p className="text-sm font-medium text-gray-500 mb-1">Valor Total da Cobrança</p>
+                                    <p className="text-3xl font-bold text-gray-900">{formatCurrency(charge.amount)}</p>
+                                </div>
+
+                                {charge.status !== 'paid' && charge.status !== 'canceled' && (
+                                    <div className="flex flex-col items-end gap-2 w-full">
+                                        <button
+                                            onClick={handleGenerateLink}
+                                            disabled={generatingLink}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 disabled:opacity-60 transition-colors"
+                                        >
+                                            {generatingLink ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <ExternalLink className="w-4 h-4" />
+                                            )}
+                                            Gerar Link de Pagamento
+                                        </button>
+
+                                        {linkError && (
+                                            <div className="text-xs text-red-600 flex flex-col gap-1 max-w-xs">
+                                                <p className="flex items-start gap-1">
+                                                    <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" /> {linkError}
+                                                </p>
+                                                {linkError.includes('CPF/CNPJ') && charge.customer_id && (
+                                                    <Link href={route('customers.edit', charge.customer_id)} className="underline text-red-700 hover:text-red-900 ml-4">
+                                                        Editar cliente →
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {paymentLink && (
+                                            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 max-w-xs w-full">
+                                                <a href={paymentLink} target="_blank" className="text-xs text-emerald-700 truncate flex-1 hover:underline">
+                                                    {paymentLink}
+                                                </a>
+                                                <button onClick={handleCopy} className="text-emerald-600 hover:text-emerald-800 shrink-0" title="Copiar link">
+                                                    {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

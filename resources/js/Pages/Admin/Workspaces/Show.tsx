@@ -2,7 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import {
     ArrowLeft, Building2, CreditCard, Activity, Users,
-    CheckCircle2, AlertTriangle, XCircle, Clock, ExternalLink, ShieldAlert, BellRing
+    CheckCircle2, AlertTriangle, XCircle, Clock, ExternalLink, ShieldAlert, BellRing, RefreshCw
 } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
@@ -59,6 +59,10 @@ interface InvoiceData {
     reference_period: string; plan_name: string;
     provider_payment_link: string | null; created_at: string;
 }
+interface PlanOption {
+    id: number; name: string; price: number;
+}
+
 interface TimelineItem {
     date: string; source: 'event' | 'invoice';
     event_type: string; payload: Record<string, any>;
@@ -67,12 +71,13 @@ interface TimelineItem {
 
 /* ─── Component ───────────────────────────────────────────────────────── */
 export default function WorkspaceShow({
-    workspace, subscription, invoices, timeline,
+    workspace, subscription, invoices, timeline, plans,
 }: {
     workspace: WorkspaceData;
     subscription: SubscriptionData | null;
     invoices: InvoiceData[];
     timeline: TimelineItem[];
+    plans: PlanOption[];
 }) {
     const fmt = (val: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -86,6 +91,15 @@ export default function WorkspaceShow({
     const submitRetention: FormEventHandler = (e) => {
         e.preventDefault();
         put(`/admin/workspaces/${workspace.id}/retention`);
+    };
+
+    const planForm = useForm({
+        plan_id: subscription ? String(plans.find(p => p.name === subscription.plan.name)?.id ?? '') : '',
+    });
+
+    const submitPlanChange: FormEventHandler = (e) => {
+        e.preventDefault();
+        planForm.put(`/admin/workspaces/${workspace.id}/plan`);
     };
 
     return (
@@ -166,6 +180,43 @@ export default function WorkspaceShow({
                         <p className="text-zinc-500 text-sm">Sem assinatura registrada.</p>
                     )}
                 </div>
+
+                {/* Troca de Plano */}
+                {subscription && (
+                    <form onSubmit={submitPlanChange} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                            <RefreshCw className="w-4 h-4 text-violet-400" />
+                            <h2 className="text-sm font-semibold text-white">Trocar Plano</h2>
+                        </div>
+                        <div className="flex items-end gap-3">
+                            <div className="flex-1">
+                                <label className="block text-xs text-zinc-500 mb-1">Plano</label>
+                                <select
+                                    className="w-full bg-zinc-950 border border-zinc-800 text-sm text-white rounded-lg px-3 py-2"
+                                    value={planForm.data.plan_id}
+                                    onChange={e => planForm.setData('plan_id', e.target.value)}
+                                >
+                                    <option value="">Selecione um plano...</option>
+                                    {plans.map(p => (
+                                        <option key={p.id} value={String(p.id)}>
+                                            {p.name} — R$ {Number(p.price).toFixed(2).replace('.', ',')}
+                                        </option>
+                                    ))}
+                                </select>
+                                {planForm.errors.plan_id && (
+                                    <p className="text-red-400 text-xs mt-1">{planForm.errors.plan_id}</p>
+                                )}
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={planForm.processing || !planForm.data.plan_id}
+                                className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
+                            >
+                                Confirmar Troca
+                            </button>
+                        </div>
+                    </form>
+                )}
 
                 {/* Retenção e Win-back Action Block */}
                 {subscription && (subscription.status === 'canceled' || subscription.status === 'overdue') && (

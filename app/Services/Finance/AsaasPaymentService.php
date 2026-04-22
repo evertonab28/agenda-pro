@@ -88,16 +88,17 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
         // O ideal é guardar na tabela customers ou em workspace_integrations (metadata)
         // Para a sprint vamos buscar por CPF/Email genérico ou criar um adhoc
         
+        if (empty($customer->document)) {
+            throw new \Exception("O cliente \"{$customer->name}\" não possui CPF/CNPJ cadastrado. Edite o cliente e adicione o documento antes de gerar o link.");
+        }
+
         $payload = [
             'name' => $customer->name,
             'email' => $customer->email ?? 'cliente@'.$charge->workspace->slug.'.com',
             'phone' => $customer->phone,
+            'cpfCnpj' => $customer->document,
             'externalReference' => (string) $customer->id,
         ];
-
-        if (!empty($customer->document)) {
-            $payload['cpfCnpj'] = $customer->document;
-        }
 
         $response = Http::timeout(10)
             ->retry(2, 500)

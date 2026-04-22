@@ -8,7 +8,17 @@
       "Bash(php -r ':*)",
       "Bash(npx tsc:*)",
       "Bash(node_modules/.bin/tsc --noEmit)",
-      "Bash(cmd /c \"node_modules\\\\.bin\\\\tsc --noEmit 2>&1\")"
+      "Bash(cmd /c \"node_modules\\\\.bin\\\\tsc --noEmit 2>&1\")",
+      "Bash(curl -s -X POST -H 'access_token: __TRACKED_VAR__' -H 'Content-Type: application/json' https://sandbox.asaas.com/api/v3/payments/pay_0g2vwmsd42nlbc82/simulatePayment)",
+      "Bash(curl -sv -X POST -H 'access_token: __TRACKED_VAR__' https://sandbox.asaas.com/api/v3/payments/pay_0g2vwmsd42nlbc82/simulatePayment)",
+      "Bash(npm install *)",
+      "Bash(awk -F: '{print $1}')",
+      "Bash(node -e ' *)",
+      "Bash(git -C /d/saas/agenda-pro add resources/js/Pages/Agenda/components/AgendaCalendar.tsx)",
+      "Bash(git -C /d/saas/agenda-pro commit -m \"feat\\(agenda\\): adiciona AgendaCalendar \\(FullCalendar com resourceTimeGrid\\)\")",
+      "Bash(git -C /d/saas/agenda-pro add resources/js/Pages/Agenda/components/AppointmentModal.tsx)",
+      "Bash(git -C /d/saas/agenda-pro commit -m \"feat\\(agenda\\): adiciona AppointmentModal com criação, edição, status e exclusão\")",
+      "Bash(npm run *)"
     ]
   }
 }

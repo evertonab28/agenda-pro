@@ -89,7 +89,48 @@ class AdminWorkspaceController extends Controller
             ] : null,
             'invoices' => $invoices,
             'timeline' => $timeline,
+            'plans' => \App\Models\Plan::orderBy('price')->get(['id', 'name', 'price'])->toArray(),
         ]);
+    }
+
+    public function changePlan(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+        ]);
+
+        $workspace = $this->platformRead->getWorkspaceDetail($id);
+        $workspace->load('subscription');
+
+        if (!$workspace->subscription) {
+            return redirect()->back()->with('error', 'Workspace sem assinatura ativa.');
+        }
+
+        $oldPlanId = $workspace->subscription->plan_id;
+        $newPlan = \App\Models\Plan::findOrFail($validated['plan_id']);
+
+        if ($oldPlanId === $newPlan->id) {
+            return redirect()->back()->with('error', 'O workspace já está neste plano.');
+        }
+
+        $workspace->subscription->update(['plan_id' => $newPlan->id]);
+
+        $oldPlan = \App\Models\Plan::find($oldPlanId);
+
+        event(new \App\Events\SaaS\PlanChanged(
+            new \App\DTOs\SaaS\CommercialEventPayload(
+                workspaceId: $workspace->id,
+                subscriptionId: $workspace->subscription->id,
+                planId: $newPlan->id,
+                previousPlanId: $oldPlanId,
+                amount: (float) $newPlan->price,
+                previousAmount: (float) ($oldPlan?->price ?? 0),
+                deltaAmount: (float) $newPlan->price - (float) ($oldPlan?->price ?? 0),
+                meta: ['changed_by' => 'admin']
+            )
+        ));
+
+        return redirect()->back()->with('success', "Plano alterado para {$newPlan->name} com sucesso.");
     }
 
     public function updateRetention(Request $request, int $id)

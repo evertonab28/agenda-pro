@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('workspace_subscriptions', function (Blueprint $table) {
-            $table->timestamp('cancellation_recorded_at')->nullable()->after('cancellation_reason');
-            $table->string('canceled_by')->nullable()->after('cancellation_recorded_at')->comment('customer, admin, system');
+            $table->timestamp('cancellation_recorded_at')->nullable();
+            $table->string('canceled_by')->nullable()->comment('customer, admin, system');
         });
     }
 
