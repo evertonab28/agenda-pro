@@ -164,6 +164,7 @@ class PublicBookingValidationTest extends TestCase
 
         $response->assertStatus(409);
         $response->assertJson(['ok' => false, 'code' => 'overlap_detected']);
+        $this->assertEquals(1, Appointment::count()); // only the existing appointment, none created
     }
 
     public function test_public_store_rejects_slot_in_break(): void
