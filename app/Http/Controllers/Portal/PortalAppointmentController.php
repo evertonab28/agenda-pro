@@ -65,13 +65,9 @@ class PortalAppointmentController extends Controller
         );
 
         if (!$availability['available']) {
-            $message = ($availability['code'] ?? '') === 'overlap_detected'
-                ? 'Desculpe, este horário acabou de ser ocupado. Por favor, escolha outro.'
-                : 'Desculpe, este horário não está disponível. Por favor, escolha outro.';
-
             return response()->json([
                 'ok'      => false,
-                'message' => $message,
+                'message' => 'Desculpe, este horário não está disponível. Por favor, escolha outro.',
             ]);
         }
 

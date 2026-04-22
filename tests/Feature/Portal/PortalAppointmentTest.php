@@ -120,6 +120,6 @@ class PortalAppointmentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['ok' => false]);
-        $this->assertStringContainsString('ocupado', $response->json('message'));
+        $this->assertStringContainsString('disponível', $response->json('message'));
     }
 }
