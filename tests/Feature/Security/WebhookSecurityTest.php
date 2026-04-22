@@ -98,4 +98,131 @@ class WebhookSecurityTest extends TestCase
         $response2->assertStatus(200);
         $response2->assertJson(['action' => 'already_processed']);
     }
+
+    /** @test */
+    public function it_rejects_payment_webhook_without_timestamp()
+    {
+        $workspace = Workspace::factory()->create();
+        $workspace->integrations()->create([
+            'type' => 'payment',
+            'provider' => 'asaas',
+            'credentials' => ['api_key' => 'fake_asaas_key'],
+            'meta' => ['webhook_secret' => 'secret'],
+        ]);
+
+        $payload = [
+            'event_id' => 'evt_missing_timestamp',
+            'status' => 'paid',
+            'id' => 'ext_missing_timestamp',
+        ];
+
+        $response = $this->postJson("/api/webhooks/{$workspace->slug}/asaas/payment", $payload);
+
+        $response->assertStatus(401);
+    }
+
+    /** @test */
+    public function it_keeps_static_signature_fallback_for_payment_webhook_compatibility()
+    {
+        $workspace = Workspace::factory()->create();
+        $workspace->integrations()->create([
+            'type' => 'payment',
+            'provider' => 'asaas',
+            'credentials' => ['api_key' => 'fake_asaas_key'],
+            'meta' => ['webhook_secret' => 'secret'],
+        ]);
+
+        $charge = Charge::factory()->create([
+            'workspace_id' => $workspace->id,
+            'payment_provider_id' => 'ext_static_signature',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->withHeaders([
+            'X-Webhook-Signature' => 'secret',
+            'X-Webhook-Timestamp' => time(),
+        ])->postJson("/api/webhooks/{$workspace->slug}/asaas/payment", [
+            'event_id' => 'evt_static_signature',
+            'status' => 'paid',
+            'id' => 'ext_static_signature',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['action' => 'payment_recorded']);
+        $this->assertEquals('paid', $charge->fresh()->status);
+    }
+
+    /** @test */
+    public function payment_webhook_idempotency_is_scoped_by_workspace_provider_type_and_event_id()
+    {
+        $firstWorkspace = Workspace::factory()->create();
+        $secondWorkspace = Workspace::factory()->create();
+
+        foreach ([$firstWorkspace, $secondWorkspace] as $workspace) {
+            $workspace->integrations()->create([
+                'type' => 'payment',
+                'provider' => 'asaas',
+                'credentials' => ['api_key' => 'fake_asaas_key'],
+                'meta' => ['webhook_secret' => 'secret'],
+            ]);
+        }
+
+        $firstCharge = Charge::factory()->create([
+            'workspace_id' => $firstWorkspace->id,
+            'payment_provider_id' => 'ext_first',
+            'status' => 'pending',
+        ]);
+        $secondCharge = Charge::factory()->create([
+            'workspace_id' => $secondWorkspace->id,
+            'payment_provider_id' => 'ext_second',
+            'status' => 'pending',
+        ]);
+
+        $this->sendPaymentWebhook($firstWorkspace, [
+            'event_id' => 'evt_shared',
+            'status' => 'paid',
+            'id' => 'ext_first',
+        ])->assertStatus(200)->assertJson(['action' => 'payment_recorded']);
+
+        $this->sendPaymentWebhook($secondWorkspace, [
+            'event_id' => 'evt_shared',
+            'status' => 'paid',
+            'id' => 'ext_second',
+        ])->assertStatus(200)->assertJson(['action' => 'payment_recorded']);
+
+        $this->assertEquals('paid', $firstCharge->fresh()->status);
+        $this->assertEquals('paid', $secondCharge->fresh()->status);
+        $this->assertDatabaseCount('webhook_audits', 2);
+        $this->assertDatabaseHas('webhook_audits', [
+            'workspace_id' => $firstWorkspace->id,
+            'provider' => 'asaas',
+            'type' => 'payment',
+            'event_id' => 'evt_shared',
+        ]);
+        $this->assertDatabaseHas('webhook_audits', [
+            'workspace_id' => $secondWorkspace->id,
+            'provider' => 'asaas',
+            'type' => 'payment',
+            'event_id' => 'evt_shared',
+        ]);
+    }
+
+    private function sendPaymentWebhook(Workspace $workspace, array $payload)
+    {
+        $json = json_encode($payload);
+        $timestamp = time();
+        $signature = hash_hmac('sha256', $timestamp . '.' . $json, 'secret');
+
+        return $this->call(
+            'POST',
+            "/api/webhooks/{$workspace->slug}/asaas/payment",
+            [], [], [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_X_WEBHOOK_SIGNATURE' => $signature,
+                'HTTP_X_WEBHOOK_TIMESTAMP' => $timestamp,
+            ],
+            $json
+        );
+    }
 }

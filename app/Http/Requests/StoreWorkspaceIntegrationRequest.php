@@ -8,7 +8,7 @@ class StoreWorkspaceIntegrationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('manage-settings');
+        return $this->user()->can('manage-integrations');
     }
 
     public function rules(): array

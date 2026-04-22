@@ -12,7 +12,7 @@ class WorkspaceIntegrationController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('manage-settings'); // Assuming manage-settings is bound for admin
+        Gate::authorize('manage-integrations');
         
         $integrations = WorkspaceIntegration::where('workspace_id', $request->user()->workspace_id)
             ->get(['id', 'type', 'provider', 'status', 'last_check_at']);
@@ -22,6 +22,8 @@ class WorkspaceIntegrationController extends Controller
 
     public function store(StoreWorkspaceIntegrationRequest $request)
     {
+        Gate::authorize('manage-integrations');
+
         $workspaceId = $request->user()->workspace_id;
 
         $integration = WorkspaceIntegration::updateOrCreate(
@@ -42,6 +44,8 @@ class WorkspaceIntegrationController extends Controller
 
     public function generateLink(Request $request, \App\Models\Charge $charge)
     {
+        Gate::authorize('generate-payment-link');
+
         if ($charge->workspace_id !== $request->user()->workspace_id) {
             abort(403);
         }
@@ -61,6 +65,8 @@ class WorkspaceIntegrationController extends Controller
 
     public function testConnection(Request $request, WorkspaceIntegration $integration)
     {
+        Gate::authorize('manage-integrations');
+
         if ($integration->workspace_id !== $request->user()->workspace_id) {
             abort(403);
         }

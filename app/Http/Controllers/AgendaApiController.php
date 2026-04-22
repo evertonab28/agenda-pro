@@ -96,6 +96,14 @@ class AgendaApiController extends Controller
 
         if ($requestedStatus && $requestedStatus !== $appointment->fresh()->status) {
             try {
+                if (in_array($requestedStatus, [
+                    AppointmentStatus::Canceled->value,
+                    AppointmentStatus::Completed->value,
+                    AppointmentStatus::NoShow->value,
+                ], true)) {
+                    $this->authorize('transition-appointment-critical');
+                }
+
                 match ($requestedStatus) {
                     AppointmentStatus::Confirmed->value => $lifecycleService->confirm($appointment, $request->user()),
                     AppointmentStatus::Canceled->value => $lifecycleService->cancel($appointment, null, $request->user()),
@@ -121,6 +129,14 @@ class AgendaApiController extends Controller
             'status'        => 'required|string|in:' . implode(',', AppointmentStatus::values()),
             'cancel_reason' => 'nullable|string|max:255',
         ]);
+
+        if (in_array($request->status, [
+            AppointmentStatus::Canceled->value,
+            AppointmentStatus::Completed->value,
+            AppointmentStatus::NoShow->value,
+        ], true)) {
+            $this->authorize('transition-appointment-critical');
+        }
 
         try {
             match ($request->status) {

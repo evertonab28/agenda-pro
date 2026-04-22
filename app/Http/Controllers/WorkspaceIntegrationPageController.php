@@ -11,7 +11,7 @@ class WorkspaceIntegrationPageController extends Controller
 {
     public function index(Request $request): Response
     {
-        $this->authorize('manage-settings');
+        $this->authorize('manage-integrations');
 
         $integrations = WorkspaceIntegration::where('workspace_id', $request->user()->workspace_id)
             ->get()

@@ -116,6 +116,27 @@ class WebhookHardeningTest extends TestCase
     }
 
     /** @test */
+    public function evolution_webhook_without_signature_is_blocked_outside_local_and_testing()
+    {
+        $this->app['env'] = 'production';
+        $timestamp = time();
+
+        $response = $this->withHeaders([
+                'X-Webhook-Timestamp' => $timestamp,
+            ])
+            ->postJson($this->webhookUrl('evolution'), [
+                'event_id' => 'evt_evolution_prod',
+                'text' => 'CONFIRMAR',
+                'token' => 'valid-token-123',
+            ]);
+
+        $response->assertStatus(401);
+        $this->assertSame('scheduled', $this->appointment->fresh()->status);
+
+        $this->app['env'] = 'testing';
+    }
+
+    /** @test */
     public function it_throttles_excessive_requests()
     {
         $secret = 'secret-val-123';

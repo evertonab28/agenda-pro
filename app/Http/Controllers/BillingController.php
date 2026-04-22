@@ -14,7 +14,7 @@ class BillingController extends Controller
 {
     public function index(Request $request): Response
     {
-        $this->authorize('manage-settings');
+        $this->authorize('manage-billing');
 
         $workspace = $request->user()->workspace;
         $subscription = $workspace->subscription()->with('plan')->first();
@@ -53,7 +53,7 @@ class BillingController extends Controller
      */
     public function activate(Request $request, WorkspaceBillingService $billingService)
     {
-        $this->authorize('manage-settings');
+        $this->authorize('manage-billing');
 
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
@@ -87,7 +87,7 @@ class BillingController extends Controller
      */
     public function upgrade(Request $request, WorkspaceBillingService $billingService)
     {
-        $this->authorize('manage-settings');
+        $this->authorize('manage-billing');
 
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
@@ -118,7 +118,7 @@ class BillingController extends Controller
 
     public function cancel(Request $request)
     {
-        $this->authorize('manage-settings');
+        $this->authorize('manage-billing');
 
         $workspace    = $request->user()->workspace;
         $subscription = $workspace->subscription()->first();

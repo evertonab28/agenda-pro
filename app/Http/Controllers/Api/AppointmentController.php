@@ -75,6 +75,10 @@ class AppointmentController extends Controller
         $this->authorize('update', $appointment);
         $status = $request->validated()['status'];
 
+        if (in_array($status, ['canceled', 'completed', 'no_show'], true)) {
+            $this->authorize('transition-appointment-critical');
+        }
+
         try {
             $appointment = match ($status) {
                 'confirmed' => $this->lifecycleService->confirm($appointment, $request->user()),

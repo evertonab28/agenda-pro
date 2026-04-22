@@ -154,6 +154,7 @@ class CustomerController extends Controller
      */
     public function addCredit(Request $request, Customer $customer, \App\Services\WalletService $walletService)
     {
+        $this->authorize('manage-wallet-credit');
         $this->authorize('addCredit', $customer);
         $this->authorize('update', $customer);
 

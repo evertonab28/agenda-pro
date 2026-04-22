@@ -47,5 +47,29 @@ class GateServiceProvider extends ServiceProvider
         Gate::define('manage-settings', function (\App\Models\User $user) {
             return $user->role === 'admin';
         });
+
+        Gate::define('manage-integrations', function (\App\Models\User $user) {
+            return $user->role === 'admin';
+        });
+
+        Gate::define('generate-payment-link', function (\App\Models\User $user) {
+            return in_array($user->role, ['admin', 'manager'], true);
+        });
+
+        Gate::define('receive-payment', function (\App\Models\User $user) {
+            return in_array($user->role, ['admin', 'manager', 'operator'], true);
+        });
+
+        Gate::define('manage-billing', function (\App\Models\User $user) {
+            return $user->role === 'admin';
+        });
+
+        Gate::define('manage-wallet-credit', function (\App\Models\User $user) {
+            return in_array($user->role, ['admin', 'manager'], true);
+        });
+
+        Gate::define('transition-appointment-critical', function (\App\Models\User $user) {
+            return in_array($user->role, ['admin', 'manager'], true);
+        });
     }
 }

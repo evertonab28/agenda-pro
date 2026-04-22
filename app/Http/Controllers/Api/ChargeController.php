@@ -12,7 +12,12 @@ class ChargeController extends Controller
 {
     public function markPaid(MarkChargePaidRequest $request, Charge $charge, FinanceService $financeService)
     {
-        $this->authorize('update', $charge);
+        $this->authorize('receive-payment');
+
+        if ($charge->workspace_id !== $request->user()->workspace_id) {
+            abort(403);
+        }
+
         $data = $request->validated();
 
         $financeService->markChargePaid($charge, [

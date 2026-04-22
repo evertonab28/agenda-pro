@@ -161,6 +161,7 @@ class ChargeController extends Controller
 
     public function receive(Request $request, Charge $charge)
     {
+        $this->authorize('receive-payment');
         $this->authorize('receive', $charge);
 
         $charge->loadSum('receipts', 'amount_received');
