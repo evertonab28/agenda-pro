@@ -89,13 +89,6 @@ class AgendaService
         $date = $start->toDateString();
         $weekday = $start->dayOfWeek;
 
-        // Get the professional's workspace
-        $professional = \App\Models\Professional::find($professionalId);
-        if (!$professional) {
-            return ['available' => false, 'code' => 'professional_not_found', 'message' => 'Profissional não encontrado.'];
-        }
-        $workspaceId = $professional->workspace_id;
-
         $serviceBuffer = 0;
         if ($serviceId) {
             $serviceBuffer = Service::where('id', $serviceId)->value('buffer_minutes') ?? 0;
@@ -107,28 +100,21 @@ class AgendaService
         }
 
         // 2. Check Holidays/Blocked dates
-        $isHoliday = \App\Models\Holiday::where(function ($q) use ($date, $professionalId, $workspaceId, $start) {
-                // Either a specific date holiday or a yearly repeating holiday
-                $q->where(function ($sq) use ($date, $professionalId, $workspaceId) {
-                    // Specific date holiday (workspace-scoped)
-                    $sq->where('workspace_id', $workspaceId)
-                        ->where('date', $date)
-                        ->where(function ($sqs) use ($professionalId) {
-                            $sqs->whereNull('professional_id')
-                                ->orWhere('professional_id', $professionalId);
-                        });
-                })
-                ->orWhere(function ($sq) use ($start, $professionalId, $workspaceId) {
-                    // Yearly repeating holiday (workspace-scoped)
-                    $sq->where('workspace_id', $workspaceId)
-                        ->where('repeats_yearly', true)
-                        ->whereMonth('date', $start->month)
-                        ->whereDay('date', $start->day)
-                        ->where(function ($sqs) use ($professionalId) {
-                            $sqs->whereNull('professional_id')
-                                ->orWhere('professional_id', $professionalId);
-                        });
-                });
+        $isHoliday = \App\Models\Holiday::where(function ($q) use ($date, $professionalId) {
+                $q->where('date', $date)
+                    ->where(function ($sq) use ($professionalId) {
+                        $sq->whereNull('professional_id')
+                            ->orWhere('professional_id', $professionalId);
+                    });
+            })
+            ->orWhere(function ($q) use ($start, $professionalId) {
+                $q->where('repeats_yearly', true)
+                    ->whereMonth('date', $start->month)
+                    ->whereDay('date', $start->day)
+                    ->where(function ($sq) use ($professionalId) {
+                        $sq->whereNull('professional_id')
+                            ->orWhere('professional_id', $professionalId);
+                    });
             })
             ->exists();
 
