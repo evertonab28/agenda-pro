@@ -50,7 +50,7 @@ export default function Appointments({ workspace, appointments }: AppointmentsPr
                     router.reload();
                 }
             })
-            .catch(() => toast.error('Erro ao cancelar agendamento'))
+            .catch((err: any) => toast.error(err.response?.data?.message || 'Não foi possível concluir a ação. Tente novamente.'))
             .finally(() => setLoading(false));
     };
 
@@ -94,7 +94,7 @@ export default function Appointments({ workspace, appointments }: AppointmentsPr
                 setRescheduling(null);
                 router.reload();
             }
-        }).catch(() => toast.error('Erro ao reagendar'))
+        }).catch((err: any) => toast.error(err.response?.data?.message || 'Não foi possível concluir a ação. Tente novamente.'))
           .finally(() => setLoading(false));
     };
 
@@ -126,7 +126,7 @@ export default function Appointments({ workspace, appointments }: AppointmentsPr
                 ) : (
                     <div className="grid grid-cols-1 gap-4">
                         {appointments.map((apt) => (
-                            <Card key={apt.id} className={`overflow-hidden border-l-4 ${apt.status === 'cancelled' ? 'border-l-slate-300 opacity-60' : 'border-l-indigo-600'}`}>
+                            <Card key={apt.id} className={`overflow-hidden border-l-4 ${apt.status === 'canceled' ? 'border-l-slate-300 opacity-60' : 'border-l-indigo-600'}`}>
                                 <CardContent className="p-0">
                                     <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                         <div className="space-y-3">
@@ -144,16 +144,16 @@ export default function Appointments({ workspace, appointments }: AppointmentsPr
                                             <div className="flex items-center gap-2">
                                                 <Badge className={
                                                     apt.status === 'confirmed' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
-                                                    apt.status === 'cancelled' ? 'bg-red-100 text-red-700 hover:bg-red-100' :
+                                                    apt.status === 'canceled' ? 'bg-red-100 text-red-700 hover:bg-red-100' :
                                                     'bg-slate-100 text-slate-700 hover:bg-slate-100'
                                                 }>
                                                     {apt.status === 'confirmed' ? 'Confirmado' :
-                                                     apt.status === 'cancelled' ? 'Cancelado' : 'Agendado'}
+                                                     apt.status === 'canceled' ? 'Cancelado' : 'Agendado'}
                                                 </Badge>
                                             </div>
                                         </div>
 
-                                        {new Date(apt.starts_at) > new Date() && apt.status !== 'cancelled' && (
+                                        {new Date(apt.starts_at) > new Date() && apt.status !== 'canceled' && (
                                             <div className="flex items-center space-x-2 w-full md:w-auto">
                                                 <button
                                                     disabled={loading}

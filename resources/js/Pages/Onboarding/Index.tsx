@@ -1,94 +1,150 @@
+import { useState } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link } from '@inertiajs/react';
-import { 
-    CheckCircle2, 
-    Circle, 
+import {
+    CheckCircle2,
     ChevronRight,
     Settings,
     Users,
     Calendar,
-    ArrowRight
+    ArrowRight,
+    Link as LinkIcon,
+    Copy,
+    ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface ActivationItem {
+    id: string;
+    title: string;
+    description: string;
+    completed: boolean;
+    route?: string;
+}
 
 interface OnboardingProps {
     step: number;
     hasSettings: boolean;
     hasServices: boolean;
     hasProfessionals: boolean;
+    hasServiceProfessionalLink: boolean;
     hasSchedules: boolean;
+    hasAvailableSlot: boolean;
+    isActivationReady: boolean;
+    publicBookingPath: string;
+    publicBookingUrl: string;
+    portalCurrentPath: string;
+    portalOfficialPath: string;
+    activationWindowDays: number;
+    firstAvailableSlot: {
+        date: string;
+        time: string;
+        service: string;
+        professional: string;
+    } | null;
 }
 
-export default function Index({ step, hasSettings, hasServices, hasProfessionals, hasSchedules }: OnboardingProps) {
-    const steps = [
+export default function Index({
+    step,
+    hasSettings,
+    hasServices,
+    hasProfessionals,
+    hasServiceProfessionalLink,
+    hasSchedules,
+    hasAvailableSlot,
+    isActivationReady,
+    publicBookingPath,
+    publicBookingUrl,
+    portalCurrentPath,
+    portalOfficialPath,
+    activationWindowDays,
+    firstAvailableSlot,
+}: OnboardingProps) {
+    const [copied, setCopied] = useState(false);
+
+    const items: ActivationItem[] = [
         {
-            id: 1,
-            title: 'Configurações',
-            description: 'Nome da empresa, fuso horário e moeda.',
-            icon: <Settings className="w-5 h-5" />,
+            id: 'settings',
+            title: 'Empresa configurada',
+            description: 'Nome da empresa e dados básicos preenchidos.',
+            completed: hasSettings,
             route: route('configuracoes.general.index'),
-            completed: hasSettings
         },
         {
-            id: 2,
-            title: 'Serviços',
-            description: 'Cadastre os serviços que sua empresa oferece.',
-            icon: <Settings className="w-5 h-5" />,
+            id: 'services',
+            title: 'Serviço ativo',
+            description: 'Pelo menos um serviço disponível para agendamento.',
+            completed: hasServices,
             route: route('configuracoes.services.create'),
-            completed: hasServices
         },
         {
-            id: 3,
-            title: 'Profissionais',
-            description: 'Adicione os profissionais que realizam os serviços.',
-            icon: <Users className="w-5 h-5" />,
+            id: 'professionals',
+            title: 'Profissional ativo',
+            description: 'Pelo menos um profissional cadastrado e ativo.',
+            completed: hasProfessionals,
             route: route('configuracoes.professionals.create'),
-            completed: hasProfessionals
         },
         {
-            id: 4,
-            title: 'Horários',
-            description: 'Defina a agenda de trabalho de cada profissional.',
-            icon: <Calendar className="w-5 h-5" />,
+            id: 'link',
+            title: 'Serviço vinculado a profissional',
+            description: 'O serviço precisa estar associado a quem pode atendê-lo.',
+            completed: hasServiceProfessionalLink,
+            route: route('configuracoes.professionals.index'),
+        },
+        {
+            id: 'schedules',
+            title: 'Horário ativo',
+            description: 'Pelo menos um dia de atendimento ativo na escala semanal.',
+            completed: hasSchedules,
             route: route('configuracoes.schedules.index'),
-            completed: hasSchedules
-        }
+        },
+        {
+            id: 'slot',
+            title: 'Slot público disponível',
+            description: `Encontrar um horário futuro nos próximos ${activationWindowDays} dias corridos.`,
+            completed: hasAvailableSlot,
+            route: route('configuracoes.schedules.index'),
+        },
     ];
+
+    const nextItem = items.find((item) => !item.completed);
+
+    const copyPublicLink = async () => {
+        await navigator.clipboard.writeText(publicBookingUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+    };
 
     return (
         <GuestLayout>
-            <Head title="Bem-vindo ao Agenda Pro" />
+            <Head title="Ativação do AgendaNexo" />
 
             <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Vamos configurar seu sistema</h1>
-                <p className="text-muted-foreground mt-2">Siga os passos abaixo para começar a usar o Agenda Pro.</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Deixe seu link pronto para receber agendamentos</h1>
+                <p className="text-muted-foreground mt-2">
+                    O primeiro valor é ter um link público com pelo menos um horário realmente disponível.
+                </p>
             </div>
 
-            <div className="space-y-4">
-                {steps.map((s) => (
-                    <Card key={s.id} className={`${s.id === step ? 'border-primary ring-1 ring-primary/20' : 'opacity-70'} transition-all`}>
+            <div className="space-y-3">
+                {items.map((item, index) => (
+                    <Card key={item.id} className={`${item.completed ? 'border-emerald-200' : index + 1 === step || item.id === nextItem?.id ? 'border-primary ring-1 ring-primary/20' : 'opacity-80'} transition-all`}>
                         <CardHeader className="p-4 flex flex-row items-center gap-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${s.completed ? 'bg-emerald-100 text-emerald-600' : (s.id === step ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400')}`}>
-                                {s.completed ? <CheckCircle2 className="w-6 h-6" /> : s.icon}
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.completed ? 'bg-emerald-100 text-emerald-600' : 'bg-primary/10 text-primary'}`}>
+                                {item.completed ? <CheckCircle2 className="w-6 h-6" /> : item.id === 'professionals' || item.id === 'link' ? <Users className="w-5 h-5" /> : item.id === 'schedules' || item.id === 'slot' ? <Calendar className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
                             </div>
                             <div className="flex-1">
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    Passo {s.id}: {s.title}
-                                    {s.completed && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                                <CardTitle className="text-base flex items-center gap-2">
+                                    {item.title}
+                                    {item.completed && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                                 </CardTitle>
-                                <CardDescription>{s.description}</CardDescription>
+                                <CardDescription>{item.description}</CardDescription>
                             </div>
-                            {s.completed ? (
-                                <Link href={s.route}>
-                                    <Button size="sm" variant="outline" className="flex items-center gap-1 border-emerald-200 hover:bg-emerald-50 text-emerald-700">
-                                        Revisar <ChevronRight className="w-4 h-4 text-emerald-500" />
-                                    </Button>
-                                </Link>
-                            ) : s.id === step && (
-                                <Link href={s.route}>
-                                    <Button size="sm" className="flex items-center gap-1">
-                                        Começar <ChevronRight className="w-4 h-4" />
+                            {item.route && (
+                                <Link href={item.route}>
+                                    <Button size="sm" variant={item.completed ? 'outline' : 'default'} className="flex items-center gap-1">
+                                        {item.completed ? 'Revisar' : 'Resolver'} <ChevronRight className="w-4 h-4" />
                                     </Button>
                                 </Link>
                             )}
@@ -97,24 +153,46 @@ export default function Index({ step, hasSettings, hasServices, hasProfessionals
                 ))}
             </div>
 
-            <div className="mt-8 p-4 bg-primary/5 rounded-xl border border-primary/10 text-center">
-                <p className="text-sm text-primary font-medium">
-                    {step === 1 ? 'Primeiro, configure os dados da sua empresa.' : 
-                     step === 2 ? 'Ótimo! Agora adicione os serviços oferecidos.' : 
-                     step === 3 ? 'Perfeito! Cadastre pelo menos um profissional.' : 
-                     'Quase lá! Defina os horários de trabalho.'}
+            <div className={`mt-6 p-4 rounded-xl border ${isActivationReady ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-primary/5 border-primary/10 text-primary'}`}>
+                <p className="text-sm font-medium">
+                    {isActivationReady
+                        ? 'Tudo pronto para receber agendamentos. Seu link público já pode ser compartilhado.'
+                        : nextItem
+                            ? `Próximo passo: ${nextItem.title.toLowerCase()}.`
+                            : 'Confira os dados antes de compartilhar seu link público.'}
                 </p>
+                {firstAvailableSlot && (
+                    <p className="text-xs mt-2 opacity-80">
+                        Primeiro horário encontrado: {firstAvailableSlot.date} às {firstAvailableSlot.time}, {firstAvailableSlot.service} com {firstAvailableSlot.professional}.
+                    </p>
+                )}
             </div>
 
-            {hasSettings && hasServices && hasProfessionals && hasSchedules && (
-                <div className="mt-8">
-                    <Link href={route('dashboard')}>
-                        <Button className="w-full h-12 text-lg font-bold flex items-center justify-center gap-2">
-                            Tudo pronto! Ir para o Dashboard <ArrowRight className="w-5 h-5" />
+            <div className="mt-6 p-4 rounded-xl border bg-white dark:bg-zinc-900 space-y-3">
+                <div className="flex items-start gap-3">
+                    <LinkIcon className="w-5 h-5 text-primary mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">Link público oficial</p>
+                        <p className="text-sm text-muted-foreground break-all">{publicBookingUrl}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Marketing: agendanexo.com.br. App: app.agendanexo.com.br. Portal atual: {portalCurrentPath}; padrão oficial futuro documentado: {portalOfficialPath}.
+                        </p>
+                    </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <Button type="button" variant="outline" className="gap-2" onClick={copyPublicLink}>
+                        <Copy className="w-4 h-4" /> {copied ? 'Link copiado' : 'Copiar link público'}
+                    </Button>
+                    <Button type="button" variant="outline" className="gap-2" onClick={() => window.open(publicBookingPath, '_blank')}>
+                        <ExternalLink className="w-4 h-4" /> Abrir página pública
+                    </Button>
+                    <Link href={route('agenda')}>
+                        <Button className="gap-2 w-full sm:w-auto">
+                            Abrir agenda interna <ArrowRight className="w-4 h-4" />
                         </Button>
                     </Link>
                 </div>
-            )}
+            </div>
         </GuestLayout>
     );
 }

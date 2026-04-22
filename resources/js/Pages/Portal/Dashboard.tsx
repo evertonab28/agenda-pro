@@ -4,13 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CreditCard, User, ArrowRight } from "lucide-react";
 import { route } from "@/utils/route";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Dashboard({
     workspace,
     customer,
+    nextAppointment,
 }: {
     workspace: any;
     customer: any;
+    nextAppointment?: any;
 }) {
     const [chargesCount, setChargesCount] = useState(0);
 
@@ -59,6 +63,25 @@ export default function Dashboard({
                         O que você deseja fazer hoje?
                     </p>
                 </div>
+
+                {nextAppointment && (
+                    <div className="bg-white rounded-2xl border border-indigo-100 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-wide text-indigo-600">Próximo agendamento</p>
+                            <h3 className="text-lg font-bold text-slate-900 mt-1">{nextAppointment.service?.name}</h3>
+                            <p className="text-sm text-slate-500">
+                                {format(new Date(nextAppointment.starts_at), "eeee, d 'de' MMMM 'às' HH:mm", { locale: ptBR })}
+                                {nextAppointment.professional?.name ? ` com ${nextAppointment.professional.name}` : ''}
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => (window.location.href = route("portal.appointments", workspace.slug))}
+                        >
+                            Ver detalhes
+                        </Button>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card

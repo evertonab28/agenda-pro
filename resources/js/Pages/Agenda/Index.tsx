@@ -1,6 +1,7 @@
 // resources/js/Pages/Agenda/Index.tsx
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
+import { toast } from 'sonner';
 import AppLayout from '@/Layouts/AppLayout';
 import { AgendaCalendar } from './components/AgendaCalendar';
 import { AgendaToolbar } from './components/AgendaToolbar';
@@ -97,12 +98,22 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
   );
 
   const handleCreateClick = useCallback(() => {
+    if (services.length === 0) {
+      toast.error('Cadastre pelo menos um serviço ativo antes de criar agendamentos.');
+      return;
+    }
+
+    if (visibleProfessionals.length === 0) {
+      toast.error('Selecione ou cadastre um profissional ativo antes de criar agendamentos.');
+      return;
+    }
+
     openCreateModal({
       start: new Date().toISOString(),
       end: new Date(Date.now() + 3600000).toISOString(),
       professionalId: visibleProfessionals[0]?.id ?? 0,
     });
-  }, [visibleProfessionals, openCreateModal]);
+  }, [services.length, visibleProfessionals, openCreateModal]);
 
   return (
     <AppLayout>

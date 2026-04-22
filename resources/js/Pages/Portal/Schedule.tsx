@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { toast, Toaster } from 'sonner';
 
 export default function Schedule({ workspace, customer }: { workspace: any, customer?: any }) {
-    const [step, setStep] = useState(1); // 1: Service, 2: Prof/Date, 3: Info, 4: Success
+    const [step, setStep] = useState(1);
     const [services, setServices] = useState<any[]>([]);
     const [selectedService, setSelectedService] = useState<any>(null);
     const [professionals, setProfessionals] = useState<any[]>([]);
@@ -26,46 +26,51 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
         phone: customer?.phone || '',
     });
 
-    // Fetch Services on Step 1
+    const loadAvailability = () => {
+        if (!selectedProfessional || !selectedService) return;
+
+        setLoading(true);
+        setSelectedSlot(null);
+        (window as any).axios.get(`/p/${workspace.slug}/scheduling/availability`, {
+            params: {
+                professional_id: selectedProfessional.id,
+                service_id: selectedService.id,
+                date: format(selectedDate, 'yyyy-MM-dd')
+            }
+        }).then((res: any) => {
+            setAvailableSlots(res.data);
+        }).catch(() => {
+            toast.error('Erro ao carregar horários. Tente novamente.');
+        }).finally(() => setLoading(false));
+    };
+
     useEffect(() => {
         if (step === 1) {
             (window as any).axios.get(`/p/${workspace.slug}/scheduling/services`)
                 .then((res: any) => setServices(res.data))
-                .catch(() => toast.error('Erro ao carregar serviços'));
+                .catch(() => toast.error('Erro ao carregar serviços. Tente novamente.'));
         }
     }, [step, workspace.slug]);
 
-    // Fetch Professionals when service is selected
     useEffect(() => {
         if (selectedService && step === 2) {
+            setSelectedProfessional(null);
+            setSelectedSlot(null);
+            setAvailableSlots([]);
             (window as any).axios.get(`/p/${workspace.slug}/scheduling/services/${selectedService.id}/professionals`)
                 .then((res: any) => {
                     setProfessionals(res.data);
                     if (res.data.length > 0) setSelectedProfessional(res.data[0]);
                 })
-                .catch(() => toast.error('Erro ao carregar profissionais'));
+                .catch(() => toast.error('Erro ao carregar profissionais. Tente novamente.'));
         }
     }, [selectedService, step, workspace.slug]);
 
-    // Fetch Availability when prof/date changes
     useEffect(() => {
         if (selectedProfessional && selectedDate && step === 2) {
-            setLoading(true);
-            (window as any).axios.get(`/p/${workspace.slug}/scheduling/availability`, {
-                params: {
-                    professional_id: selectedProfessional.id,
-                    service_id: selectedService?.id,
-                    date: format(selectedDate, 'yyyy-MM-dd')
-                }
-            }).then((res: any) => {
-                setAvailableSlots(res.data);
-                setLoading(false);
-            }).catch(() => {
-                toast.error('Erro ao carregar horários');
-                setLoading(false);
-            });
+            loadAvailability();
         }
-    }, [selectedProfessional, selectedDate, selectedService, step, workspace.slug]);
+    }, [selectedProfessional, selectedDate, selectedService, step]);
 
     const handleBooking = (e: React.FormEvent) => {
         e.preventDefault();
@@ -80,11 +85,15 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
             if (res.data.ok) {
                 setStep(4);
             }
-            setLoading(false);
         }).catch((err: any) => {
-            toast.error(err.response?.data?.message || 'Erro ao realizar agendamento');
-            setLoading(false);
-        });
+            if (err.response?.status === 409) {
+                toast.error('Esse horário acabou de ficar indisponível. Atualizamos a lista para você escolher outro.');
+                loadAvailability();
+                return;
+            }
+
+            toast.error(err.response?.data?.message || 'Não foi possível concluir o agendamento. Verifique os dados e tente novamente.');
+        }).finally(() => setLoading(false));
     };
 
     const nextDays = Array.from({ length: 14 }, (_, i) => addDays(startOfToday(), i));
@@ -113,7 +122,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                             <p className="text-slate-600">Selecione uma das opções abaixo para começar.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {services.map(s => (
+                            {services.length > 0 ? services.map(s => (
                                 <Card
                                     key={s.id}
                                     className={`cursor-pointer transition-all hover:border-indigo-400 hover:shadow-md ${selectedService?.id === s.id ? 'ring-2 ring-indigo-600 border-indigo-600' : ''}`}
@@ -127,7 +136,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                                             {s.name}
                                             <span className="text-sm font-normal text-slate-500">{s.duration_minutes} min</span>
                                         </CardTitle>
-                                        <CardDescription>{s.description || 'Serviço profissional de alta qualidade.'}</CardDescription>
+                                        <CardDescription>{s.description || 'Atendimento profissional.'}</CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-xl font-bold text-indigo-600">
@@ -135,7 +144,11 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))}
+                            )) : (
+                                <div className="md:col-span-2 p-8 bg-white rounded-xl border border-dashed text-center text-slate-500">
+                                    Nenhum serviço disponível para agendamento no momento.
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -146,7 +159,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                             <Button variant="ghost" onClick={() => setStep(1)} className="mb-4">
                                 &larr; Voltar para serviços
                             </Button>
-                            <h2 className="text-2xl font-bold text-slate-900">Escolha o Profissional e Horário</h2>
+                            <h2 className="text-2xl font-bold text-slate-900">Escolha o profissional e horário</h2>
                             <p className="text-slate-600">{selectedService?.name}</p>
                         </div>
 
@@ -170,7 +183,11 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
 
                                 <section>
                                     <label className="block text-sm font-semibold text-slate-700 mb-3">Horários disponíveis</label>
-                                    {loading ? (
+                                    {professionals.length === 0 ? (
+                                        <div className="p-8 bg-slate-100 rounded-xl text-center text-slate-500">
+                                            Este serviço ainda não possui profissionais disponíveis.
+                                        </div>
+                                    ) : loading ? (
                                         <div className="flex justify-center p-8">
                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                                         </div>
@@ -188,7 +205,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                                         </div>
                                     ) : (
                                         <div className="p-8 bg-slate-100 rounded-xl text-center text-slate-500">
-                                            Não há horários disponíveis para este dia.
+                                            Nenhum horário disponível para esta data. Escolha outro dia ou profissional.
                                         </div>
                                     )}
                                 </section>
@@ -218,7 +235,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
 
                                 <Button
                                     className="w-full h-12 text-lg shadow-lg shadow-indigo-200"
-                                    disabled={!selectedSlot}
+                                    disabled={!selectedSlot || professionals.length === 0}
                                     onClick={() => setStep(3)}
                                 >
                                     Continuar para dados
@@ -235,7 +252,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                         </Button>
                         <Card className="shadow-xl">
                             <CardHeader>
-                                <CardTitle>Seus Dados</CardTitle>
+                                <CardTitle>Seus dados</CardTitle>
                                 <CardDescription>
                                     {customer
                                         ? `Olá ${customer.name}, confirme seus dados abaixo para o agendamento.`
@@ -245,7 +262,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                             <CardContent>
                                 <form onSubmit={handleBooking} className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Nome Completo</Label>
+                                        <Label htmlFor="name">Nome completo</Label>
                                         <Input
                                             id="name"
                                             required
@@ -282,7 +299,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                                         <div className="text-sm space-y-1 text-indigo-800">
                                             <div className="flex justify-between">
                                                 <span>{selectedService?.name}</span>
-                                                <span className="font-bold">R$ {selectedService?.price}</span>
+                                                <span className="font-bold">R$ {parseFloat(selectedService?.price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                                             </div>
                                             <div>{selectedProfessional?.name}</div>
                                             <div className="flex items-center space-x-1">
@@ -295,7 +312,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                                     </div>
 
                                     <Button type="submit" className="w-full h-12 text-lg mt-6" disabled={loading}>
-                                        {loading ? 'Processando...' : 'Confirmar Agendamento'}
+                                        {loading ? 'Processando...' : 'Confirmar agendamento'}
                                     </Button>
                                 </form>
                             </CardContent>
@@ -311,8 +328,8 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-3xl font-extrabold text-slate-900">Agendado com Sucesso!</h2>
-                            <p className="text-slate-600 mt-2">Enviamos a confirmação para seu email e WhatsApp.</p>
+                            <h2 className="text-3xl font-extrabold text-slate-900">Agendamento realizado com sucesso</h2>
+                            <p className="text-slate-600 mt-2">Guarde os dados abaixo para referência.</p>
                         </div>
                         <Card className="max-w-md mx-auto">
                             <CardContent className="pt-6">
@@ -341,7 +358,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
                                     window.location.href = `/p/${workspace.slug}/login?identifier=${formData.phone || formData.email}`;
                                 }
                             }}>
-                                Acessar Minha Área
+                                Acessar minha área
                             </Button>
                             <Button onClick={() => window.location.reload()}>
                                 Fazer novo agendamento
@@ -352,7 +369,7 @@ export default function Schedule({ workspace, customer }: { workspace: any, cust
             </main>
 
             <footer className="p-8 text-center text-slate-400 text-sm">
-                &copy; {new Date().getFullYear()} Agenda Pro - Todos os direitos reservados.
+                &copy; {new Date().getFullYear()} AgendaNexo
             </footer>
         </div>
     );

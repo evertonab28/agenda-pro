@@ -30,11 +30,14 @@ class CheckOnboarding
         // Only for admin/manager
         if ($request->user() && in_array($request->user()->role, ['admin', 'manager'])) {
             $hasSettings = \App\Models\Setting::where('key', 'company_name')->exists();
-            $hasServices = Service::exists();
-            $hasProfessionals = Professional::exists();
-            $hasSchedules = ProfessionalSchedule::exists();
+            $hasServices = Service::where('is_active', true)->exists();
+            $hasProfessionals = Professional::where('is_active', true)->exists();
+            $hasServiceProfessionalLink = Service::where('is_active', true)
+                ->whereHas('professionals', fn ($query) => $query->where('is_active', true))
+                ->exists();
+            $hasSchedules = ProfessionalSchedule::where('is_active', true)->exists();
 
-            if (!$hasSettings || !$hasServices || !$hasProfessionals || !$hasSchedules) {
+            if (!$hasSettings || !$hasServices || !$hasProfessionals || !$hasServiceProfessionalLink || !$hasSchedules) {
                 return redirect()->route('onboarding.index');
             }
         }

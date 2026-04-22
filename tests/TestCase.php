@@ -17,6 +17,7 @@ abstract class TestCase extends BaseTestCase
 
         $service = \App\Models\Service::factory()->create(['workspace_id' => $workspaceId]);
         $prof = \App\Models\Professional::factory()->create(['workspace_id' => $workspaceId]);
+        $prof->services()->attach($service->id);
 
         \App\Models\ProfessionalSchedule::create([
             'workspace_id' => $workspaceId,

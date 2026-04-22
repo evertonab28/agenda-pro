@@ -113,7 +113,7 @@ class PublicSchedulingController extends Controller
             return response()->json([
                 'ok'      => false,
                 'code'    => $availability['code'],
-                'message' => 'Esse horário não está mais disponível. Escolha outro horário.',
+                'message' => 'Esse horário acabou de ficar indisponível. Atualizamos a lista para você escolher outro.',
             ], 409);
         }
 
@@ -157,7 +157,7 @@ class PublicSchedulingController extends Controller
 
         return response()->json([
             'ok' => true,
-            'message' => 'Agendamento realizado com sucesso!',
+            'message' => 'Agendamento realizado com sucesso. Guarde os dados para referência.',
             'appointment_id' => $appointment->id
         ]);
     }

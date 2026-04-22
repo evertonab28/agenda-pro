@@ -122,6 +122,10 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
 
 // --- PORTAL DO CLIENTE ---
 Route::prefix('p/{workspace}')->name('portal.')->group(function () {
+    Route::get('/', function (\App\Models\Workspace $workspace) {
+        return redirect()->route('portal.schedule', $workspace->slug);
+    })->name('public');
+
     Route::get('/login', function (\App\Models\Workspace $workspace) {
         return Inertia::render('Portal/Login', [
             'workspace' => $workspace,
@@ -138,9 +142,17 @@ Route::prefix('p/{workspace}')->name('portal.')->group(function () {
 
     Route::middleware(['auth:customer', 'customer.workspace'])->group(function () {
         Route::get('/dashboard', function (\App\Models\Workspace $workspace) {
+            $customer = Auth::guard('customer')->user();
+
             return Inertia::render('Portal/Dashboard', [
                 'workspace' => $workspace,
-                'customer' => Auth::guard('customer')->user()
+                'customer' => $customer,
+                'nextAppointment' => $customer->appointments()
+                    ->with(['service', 'professional'])
+                    ->whereIn('status', ['scheduled', 'confirmed'])
+                    ->where('starts_at', '>=', now())
+                    ->orderBy('starts_at')
+                    ->first(),
             ]);
         })->name('dashboard');
 

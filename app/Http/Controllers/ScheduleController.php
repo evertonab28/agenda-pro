@@ -76,8 +76,11 @@ class ScheduleController extends Controller
 
         AuditService::log(auth()->user(), 'professional_schedules.bulk_updated', null, ['professional_id' => $request->professional_id]);
 
-        if (Service::exists() && Professional::exists() && ProfessionalSchedule::exists() && \App\Models\Setting::where('key', 'company_name')->exists()) {
-            return redirect()->route('dashboard')->with('success', 'Sistema configurado com sucesso! Bem-vindo ao Agenda Pro.');
+        if (Service::where('is_active', true)->exists()
+            && Professional::where('is_active', true)->exists()
+            && ProfessionalSchedule::where('is_active', true)->exists()
+            && \App\Models\Setting::where('key', 'company_name')->exists()) {
+            return redirect()->route('onboarding.index')->with('success', 'Horários atualizados. Confira se seu link público já pode receber agendamentos.');
         }
 
         return $this->redirectOnboarding('configuracoes.schedules.index', 'Horários atualizados com sucesso.');

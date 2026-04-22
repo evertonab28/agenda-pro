@@ -58,6 +58,7 @@ export function AppointmentModal({
   const [endsAt, setEndsAt] = useState('');
   const [notes, setNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
+  const [pendingCriticalStatus, setPendingCriticalStatus] = useState<AppointmentStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -72,6 +73,7 @@ export function AppointmentModal({
       setEndsAt(initialSlot.end.slice(0, 16));
       setNotes('');
       setCancelReason('');
+      setPendingCriticalStatus(null);
       setError('');
     } else if (mode === 'edit' && event) {
       setCustomerId(String(ep?.customer?.id ?? ''));
@@ -81,6 +83,7 @@ export function AppointmentModal({
       setEndsAt((event.end as string)?.slice(0, 16) ?? '');
       setNotes(ep?.notes ?? '');
       setCancelReason('');
+      setPendingCriticalStatus(null);
       setError('');
     }
   }, [open, mode]);
@@ -117,7 +120,7 @@ export function AppointmentModal({
       });
       onClose();
     } catch (e: any) {
-      setError(e.response?.data?.message ?? 'Erro ao salvar.');
+      setError(resolveApiError(e, 'Não foi possível salvar o agendamento. Verifique os dados e tente novamente.'));
     } finally {
       setLoading(false);
     }
@@ -130,7 +133,7 @@ export function AppointmentModal({
       await onDelete(Number(event.id));
       onClose();
     } catch {
-      setError('Erro ao excluir.');
+      setError('Não foi possível excluir o agendamento. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -139,11 +142,17 @@ export function AppointmentModal({
   const handleStatusChange = async (status: AppointmentStatus) => {
     if (!event) return;
     setLoading(true);
+    if ((status === 'canceled' || status === 'no_show') && pendingCriticalStatus !== status) {
+      setPendingCriticalStatus(status);
+      setCancelReason('');
+      return;
+    }
+
     try {
       await onStatusChange(Number(event.id), status, cancelReason || undefined);
       onClose();
-    } catch {
-      setError('Erro ao mudar status.');
+    } catch (e: any) {
+      setError(resolveApiError(e, 'Não foi possível mudar o status. Tente novamente.'));
     } finally {
       setLoading(false);
     }
@@ -151,6 +160,8 @@ export function AppointmentModal({
 
   const currentStatus = ep?.status;
   const isEditable = currentStatus === 'scheduled' || currentStatus === 'confirmed';
+  const simpleStatuses = (['scheduled', 'confirmed'] as AppointmentStatus[]).filter((s) => s !== currentStatus);
+  const criticalStatuses = (['completed', 'no_show', 'canceled'] as AppointmentStatus[]).filter((s) => s !== currentStatus);
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -234,9 +245,7 @@ export function AppointmentModal({
                 Mudar status
               </Label>
               <div className="flex flex-wrap gap-2">
-                {(['scheduled', 'confirmed', 'completed', 'no_show', 'canceled'] as AppointmentStatus[])
-                  .filter((s) => s !== currentStatus)
-                  .map((s) => (
+                {simpleStatuses.map((s) => (
                     <Button
                       key={s}
                       variant="outline"
@@ -246,14 +255,38 @@ export function AppointmentModal({
                     >
                       {STATUS_LABELS[s]}
                     </Button>
-                  ))}
+                ))}
               </div>
-              {(currentStatus === 'canceled' || currentStatus === 'no_show') && (
-                <Input
-                  placeholder="Motivo (opcional)"
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                />
+              <div className="pt-2 space-y-2">
+                <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+                  Ações críticas
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {criticalStatuses.map((s) => (
+                    <Button
+                      key={s}
+                      variant={s === 'canceled' ? 'destructive' : 'outline'}
+                      size="sm"
+                      onClick={() => handleStatusChange(s)}
+                      disabled={loading}
+                    >
+                      {STATUS_LABELS[s]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              {(pendingCriticalStatus === 'canceled' || pendingCriticalStatus === 'no_show') && (
+                <div className="space-y-2 rounded-md border bg-amber-50 p-3">
+                  <Label>Motivo para {STATUS_LABELS[pendingCriticalStatus].toLowerCase()} (opcional)</Label>
+                  <Input
+                    placeholder="Ex: cliente solicitou cancelamento"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                  />
+                  <Button size="sm" onClick={() => handleStatusChange(pendingCriticalStatus)} disabled={loading}>
+                    Confirmar {STATUS_LABELS[pendingCriticalStatus]}
+                  </Button>
+                </div>
               )}
             </div>
           )}
@@ -275,4 +308,17 @@ export function AppointmentModal({
       </DialogContent>
     </Dialog>
   );
+}
+
+function resolveApiError(error: any, fallback: string): string {
+  const data = error.response?.data;
+
+  if (data?.message) return data.message;
+
+  if (data?.errors) {
+    const firstError = Object.values(data.errors).flat()[0];
+    if (typeof firstError === 'string') return firstError;
+  }
+
+  return fallback;
 }

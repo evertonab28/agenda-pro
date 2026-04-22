@@ -127,14 +127,14 @@ export function useAppointments({ initialEvents }: UseAppointmentsProps) {
           starts_at: newStart,
           ends_at: newEnd,
         })
-        .catch((err) => {
+      .catch((err) => {
           revertFn();
           setEvents((prev) =>
             prev.map((e) => (e.id === strId ? previousEvent : e))
           );
           clearTimeout(timeoutId);
           setPendingUndo(null);
-          const msg = err.response?.data?.message ?? 'Erro ao mover agendamento.';
+          const msg = resolveApiError(err, 'Não foi possível mover o agendamento. Verifique os dados e tente novamente.');
           toast.error(msg);
         });
     },
@@ -178,14 +178,14 @@ export function useAppointments({ initialEvents }: UseAppointmentsProps) {
 
       axios
         .put(`/api/agenda/${id}`, { starts_at: newStart, ends_at: newEnd })
-        .catch((err) => {
+      .catch((err) => {
           revertFn();
           setEvents((prev) =>
             prev.map((e) => (e.id === strId ? previousEvent : e))
           );
           clearTimeout(timeoutId);
           setPendingUndo(null);
-          toast.error(err.response?.data?.message ?? 'Erro ao redimensionar.');
+          toast.error(resolveApiError(err, 'Não foi possível alterar a duração. Verifique os dados e tente novamente.'));
         });
     },
     [events, pendingUndo, dismissUndo, commitUndo]
@@ -203,4 +203,17 @@ export function useAppointments({ initialEvents }: UseAppointmentsProps) {
     commitUndo,
     dismissUndo,
   };
+}
+
+function resolveApiError(err: any, fallback: string): string {
+  const data = err.response?.data;
+
+  if (data?.message) return data.message;
+
+  if (data?.errors) {
+    const firstError = Object.values(data.errors).flat()[0];
+    if (typeof firstError === 'string') return firstError;
+  }
+
+  return fallback;
 }

@@ -37,6 +37,7 @@ class PublicBookingValidationTest extends TestCase
             'buffer_minutes'   => 0,
             'is_active'        => true,
         ]);
+        $this->professional->services()->attach($this->service->id);
 
         // Schedule: segunda a sexta, 08:00–18:00, sem break
         foreach ([1, 2, 3, 4, 5] as $weekday) {
@@ -97,6 +98,19 @@ class PublicBookingValidationTest extends TestCase
         $this->assertEquals(0, Appointment::count());
     }
 
+    public function test_public_professionals_returns_empty_when_service_has_no_professional(): void
+    {
+        $unlinkedService = Service::factory()->create([
+            'workspace_id' => $this->workspace->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson(route('portal.scheduling.professionals', [$this->workspace->slug, $unlinkedService->id]));
+
+        $response->assertStatus(200);
+        $response->assertExactJson([]);
+    }
+
     public function test_public_store_rejects_slot_outside_working_hours(): void
     {
         $response = $this->postJson(
@@ -131,6 +145,9 @@ class PublicBookingValidationTest extends TestCase
 
         $response->assertStatus(409);
         $response->assertJson(['ok' => false, 'code' => 'overlap_detected']);
+        $response->assertJson([
+            'message' => 'Esse horário acabou de ficar indisponível. Atualizamos a lista para você escolher outro.',
+        ]);
         $this->assertEquals(1, Appointment::count()); // só o original
     }
 

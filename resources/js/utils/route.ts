@@ -123,6 +123,7 @@ export function route(name: string, params?: any): string {
     if (name === 'users.status') return `/usuarios/${params?.id || params}/status`;
 
     // Portal (cliente) routes - params is the workspace slug
+    if (name === 'portal.public') return `/p/${params}`;
     if (name === 'portal.login') return `/p/${params}/login`;
     if (name === 'portal.schedule') return `/p/${params}/agendar`;
     if (name === 'portal.dashboard') return `/p/${params}/dashboard`;
