@@ -42,7 +42,7 @@ class CRMAutomationTest extends TestCase
             'status' => 'scheduled'
         ]);
 
-        $appointment->update(['status' => 'canceled']);
+        app(\App\Services\AppointmentLifecycleService::class)->cancel($appointment);
 
         $this->assertEquals(WaitlistStatus::Called, $waitlistEntry->fresh()->status);
     }

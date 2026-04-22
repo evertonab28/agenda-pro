@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ChargeStatus;
 use App\Models\Charge;
 use App\Models\Receipt;
 use Illuminate\Support\Carbon;
@@ -112,6 +113,7 @@ class FinanceService
     public function receivePayment(Charge $charge, array $data, $user = null): Receipt
     {
         return DB::transaction(function () use ($charge, $data, $user) {
+            $charge = Charge::whereKey($charge->id)->lockForUpdate()->firstOrFail();
             $charge->loadSum('receipts', 'amount_received');
             $amountReceivedSoFar = $charge->receipts_sum_amount_received ?? 0;
             
@@ -134,17 +136,70 @@ class FinanceService
             
             if ($newReceivedSum >= $charge->amount) {
                 $charge->update([
-                    'status' => 'paid',
+                    'status' => ChargeStatus::Paid->value,
                     'paid_at' => Carbon::parse($data['received_at']),
                 ]);
             } else {
-                $charge->update(['status' => 'partial']);
+                $charge->update(['status' => ChargeStatus::Partial->value]);
             }
 
             if ($user) {
                 AuditService::log($user, 'charge.receipt_registered', $charge, [
                     'amount' => $data['amount_received'],
                     'method' => $data['method'],
+                ]);
+            }
+
+            return $receipt;
+        });
+    }
+
+    /**
+     * Mark a charge as paid through the same logical payment path used by checkout.
+     * Creates a synthetic receipt for the open balance, and is idempotent when already paid.
+     */
+    public function markChargePaid(Charge $charge, array $context = [], $user = null): ?Receipt
+    {
+        return DB::transaction(function () use ($charge, $context, $user) {
+            $charge = Charge::whereKey($charge->id)->lockForUpdate()->firstOrFail();
+
+            if ($charge->status === ChargeStatus::Paid->value) {
+                return null;
+            }
+
+            $paidAt = Carbon::parse($context['paid_at'] ?? now());
+            $method = $context['method'] ?? $context['payment_method'] ?? 'external';
+
+            $charge->loadSum('receipts', 'amount_received');
+            $received = round((float) ($charge->receipts_sum_amount_received ?? 0), 2);
+            $openBalance = max(0, round((float) $charge->amount - $received, 2));
+
+            $receipt = null;
+            if ($openBalance > 0) {
+                $receipt = Receipt::create([
+                    'workspace_id' => $charge->workspace_id,
+                    'charge_id' => $charge->id,
+                    'amount_received' => $openBalance,
+                    'fee_amount' => $context['fee_amount'] ?? 0,
+                    'net_amount' => $openBalance - ($context['fee_amount'] ?? 0),
+                    'method' => $method,
+                    'received_at' => $paidAt,
+                    'notes' => $context['notes'] ?? 'Recebimento sintetico para conciliacao de pagamento.',
+                ]);
+            }
+
+            $charge->update([
+                'status' => ChargeStatus::Paid->value,
+                'paid_at' => $paidAt,
+                'payment_method' => in_array($method, ['pix', 'cash', 'card', 'transfer'], true)
+                    ? $method
+                    : $charge->payment_method,
+            ]);
+
+            if ($user) {
+                AuditService::log($user, 'charge.marked_paid', $charge, [
+                    'method' => $method,
+                    'synthetic_receipt_id' => $receipt?->id,
                 ]);
             }
 

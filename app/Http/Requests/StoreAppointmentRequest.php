@@ -25,9 +25,10 @@ class StoreAppointmentRequest extends FormRequest
         return [
             'customer_id' => ['required', 'exists:customers,id'],
             'service_id' => ['required', 'exists:services,id'],
+            'professional_id' => ['required', 'exists:professionals,id'],
             'starts_at' => ['required', 'date', 'after:now'],
             'ends_at' => ['required', 'date', 'after:starts_at'],
-            'status' => ['nullable', 'string', 'in:scheduled,confirmed,no_show,completed,canceled,rescheduled'],
+            'status' => ['nullable', 'string', 'in:scheduled,confirmed,no_show,completed,canceled'],
             'source' => ['nullable', 'string', 'in:admin,public_link'],
             'notes' => ['nullable', 'string'],
         ];

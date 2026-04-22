@@ -55,13 +55,14 @@ class AgendaApiController extends Controller
             return response()->json(['message' => $availability['message']], 422);
         }
 
+        $data['status'] = AppointmentStatus::Scheduled->value;
         $appointment = Appointment::create($data);
         AuditService::log(auth()->user(), 'appointment.created', $appointment);
 
         return response()->json(['appointment' => $this->formatAppointment($appointment)], 201);
     }
 
-    public function update(Request $request, Appointment $appointment)
+    public function update(Request $request, Appointment $appointment, \App\Services\AppointmentLifecycleService $lifecycleService)
     {
         $this->authorize('update', $appointment);
 
@@ -88,13 +89,31 @@ class AgendaApiController extends Controller
             return response()->json(['message' => $availability['message']], 422);
         }
 
+        $requestedStatus = $data['status'] ?? null;
+        unset($data['status']);
+
         $appointment->update($data);
+
+        if ($requestedStatus && $requestedStatus !== $appointment->fresh()->status) {
+            try {
+                match ($requestedStatus) {
+                    AppointmentStatus::Confirmed->value => $lifecycleService->confirm($appointment, $request->user()),
+                    AppointmentStatus::Canceled->value => $lifecycleService->cancel($appointment, null, $request->user()),
+                    AppointmentStatus::Completed->value => $lifecycleService->complete($appointment, $request->user()),
+                    AppointmentStatus::NoShow->value => $lifecycleService->markNoShow($appointment, $request->user()),
+                    default => null,
+                };
+            } catch (\DomainException $e) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+        }
+
         AuditService::log(auth()->user(), 'appointment.updated', $appointment);
 
-        return response()->json(['appointment' => $this->formatAppointment($appointment)]);
+        return response()->json(['appointment' => $this->formatAppointment($appointment->fresh())]);
     }
 
-    public function status(Request $request, Appointment $appointment)
+    public function status(Request $request, Appointment $appointment, \App\Services\AppointmentLifecycleService $lifecycleService)
     {
         $this->authorize('update', $appointment);
 
@@ -103,14 +122,17 @@ class AgendaApiController extends Controller
             'cancel_reason' => 'nullable|string|max:255',
         ]);
 
-        $appointment->update([
-            'status'        => $request->status,
-            'cancel_reason' => $request->cancel_reason,
-        ]);
-
-        AuditService::log(auth()->user(), 'appointment.status_changed', $appointment, [
-            'status' => $request->status,
-        ]);
+        try {
+            match ($request->status) {
+                AppointmentStatus::Confirmed->value => $lifecycleService->confirm($appointment, $request->user()),
+                AppointmentStatus::Canceled->value => $lifecycleService->cancel($appointment, $request->cancel_reason, $request->user()),
+                AppointmentStatus::Completed->value => $lifecycleService->complete($appointment, $request->user()),
+                AppointmentStatus::NoShow->value => $lifecycleService->markNoShow($appointment, $request->user()),
+                default => $appointment->update(['status' => $request->status]),
+            };
+        } catch (\DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json(['appointment' => $this->formatAppointment($appointment)]);
     }

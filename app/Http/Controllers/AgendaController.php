@@ -59,13 +59,14 @@ class AgendaController extends Controller
             return back()->withErrors(['starts_at' => $availability['message']]);
         }
 
+        $data['status'] = AppointmentStatus::Scheduled->value;
         $appointment = Appointment::create($data);
         AuditService::log(auth()->user(), 'appointment.created', $appointment);
 
         return redirect()->route('agenda')->with('success', 'Agendamento criado com sucesso.');
     }
 
-    public function update(AgendaStoreRequest $request, Appointment $appointment)
+    public function update(AgendaStoreRequest $request, Appointment $appointment, \App\Services\AppointmentLifecycleService $lifecycleService)
     {
         $this->authorize('update', $appointment);
 
@@ -82,13 +83,31 @@ class AgendaController extends Controller
             return back()->withErrors(['starts_at' => $availability['message']]);
         }
 
+        $requestedStatus = $data['status'] ?? null;
+        unset($data['status']);
+
         $appointment->update($data);
+
+        if ($requestedStatus && $requestedStatus !== $appointment->fresh()->status) {
+            try {
+                match ($requestedStatus) {
+                    AppointmentStatus::Confirmed->value => $lifecycleService->confirm($appointment, $request->user()),
+                    AppointmentStatus::Canceled->value => $lifecycleService->cancel($appointment, null, $request->user()),
+                    AppointmentStatus::Completed->value => $lifecycleService->complete($appointment, $request->user()),
+                    AppointmentStatus::NoShow->value => $lifecycleService->markNoShow($appointment, $request->user()),
+                    default => null,
+                };
+            } catch (\DomainException $e) {
+                return back()->withErrors(['status' => $e->getMessage()]);
+            }
+        }
+
         AuditService::log(auth()->user(), 'appointment.updated', $appointment);
 
         return redirect()->route('agenda')->with('success', 'Agendamento atualizado com sucesso.');
     }
 
-    public function status(Request $request, Appointment $appointment, \App\Services\CheckoutService $checkoutService)
+    public function status(Request $request, Appointment $appointment, \App\Services\AppointmentLifecycleService $lifecycleService)
     {
         $this->authorize('update', $appointment);
 
@@ -97,21 +116,18 @@ class AgendaController extends Controller
             'cancel_reason' => 'nullable|string|max:255',
         ]);
 
-        $updateData = ['status' => $request->status];
-        if ($request->has('cancel_reason')) {
-            $updateData['cancel_reason'] = $request->cancel_reason;
+        try {
+            match ($request->status) {
+                AppointmentStatus::Confirmed->value => $lifecycleService->confirm($appointment, $request->user()),
+                AppointmentStatus::Canceled->value => $lifecycleService->cancel($appointment, $request->cancel_reason, $request->user()),
+                AppointmentStatus::Completed->value => $lifecycleService->complete($appointment, $request->user()),
+                AppointmentStatus::NoShow->value => $lifecycleService->markNoShow($appointment, $request->user()),
+                default => $appointment->update(['status' => $request->status]),
+            };
+        } catch (\DomainException $e) {
+            return back()->withErrors(['status' => $e->getMessage()]);
         }
 
-        $appointment->update($updateData);
-
-        if ($request->status === \App\Enums\AppointmentStatus::NoShow->value) {
-            $checkoutService->generateNoShowFee($appointment);
-        }
-
-        AuditService::log(auth()->user(), 'appointment.status_changed', $appointment, [
-            'status' => $request->status,
-            'reason' => $request->cancel_reason
-        ]);
         return redirect()->route('agenda')->with('success', 'Status atualizado.');
     }
 
@@ -125,17 +141,12 @@ class AgendaController extends Controller
         return redirect()->route('agenda')->with('success', 'Agendamento excluído.');
     }
 
-    public function finalizeAndCheckout(Appointment $appointment, \App\Services\CheckoutService $checkoutService)
+    public function finalizeAndCheckout(Appointment $appointment, \App\Services\AppointmentLifecycleService $lifecycleService)
     {
         $this->authorize('update', $appointment);
 
-        // 1. Mark as completed
-        $checkoutService->finalizeAppointment($appointment);
+        $lifecycleService->complete($appointment, auth()->user());
 
-        // 2. Ensure a charge exists
-        $checkoutService->ensureChargeForAppointment($appointment);
-
-        // 3. Redirect to checkout
         return redirect()->route('agenda.checkout.show', $appointment->id);
     }
 }

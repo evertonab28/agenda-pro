@@ -56,9 +56,10 @@ class RealPaymentProviderService implements PaymentLinkServiceInterface
         }
 
         if ($payload['status'] === 'paid' && $charge->status !== 'paid') {
-            $charge->update([
-                'status' => 'paid',
+            app(\App\Services\FinanceService::class)->markChargePaid($charge, [
+                'method' => 'external',
                 'paid_at' => now(),
+                'notes' => "Recebimento sintetico via webhook provider ({$externalId}).",
             ]);
 
             Log::info("RealPaymentProvider: Charge {$charge->id} marked as paid via callback.");

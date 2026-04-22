@@ -132,9 +132,10 @@ class AsaasPaymentService implements PaymentLinkServiceInterface
             ->first();
             
         if ($charge && $charge->status !== 'paid') {
-            $charge->update([
-                'status' => 'paid',
+            app(\App\Services\FinanceService::class)->markChargePaid($charge, [
+                'method' => 'external',
                 'paid_at' => now(),
+                'notes' => "Recebimento sintetico via webhook Asaas ({$externalId}).",
             ]);
             Log::info("AsaasPaymentService: Transação {$charge->id} processada com sucessso pelo Worker local", ['external' => $externalId]);
             return true;

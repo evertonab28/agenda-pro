@@ -30,7 +30,7 @@ class MarkChargesOverdue extends Command
         $today = Carbon::today()->format('Y-m-d');
         
         $count = Charge::whereIn('status', ['pending', 'partial'])
-            ->where('due_date', '<', $today)
+            ->whereDate('due_date', '<', $today)
             ->update(['status' => 'overdue']);
             
         $this->info("{$count} charge(s) marked as overdue.");

@@ -94,21 +94,17 @@ class MessagingWebhookController extends Controller
         }
 
         $text = mb_strtoupper(trim($data['text'] ?? ''));
+        $lifecycleService = app(\App\Services\AppointmentLifecycleService::class);
 
         if (str_contains($text, 'CONFIRMAR')) {
-            $appointment->update([
-                'status' => 'confirmed',
-                'confirmed_at' => now(),
-            ]);
+            $lifecycleService->confirm($appointment);
 
             $this->auditEvent($provider, $eventId);
             return response()->json(['ok' => true, 'action' => 'confirmed']);
         }
 
         if (str_contains($text, 'REAGENDAR')) {
-            $appointment->update([
-                'status' => 'canceled',
-            ]);
+            $lifecycleService->cancel($appointment);
 
             $this->auditEvent($provider, $eventId);
             return response()->json(['ok' => true, 'action' => 'reschedule_requested']);

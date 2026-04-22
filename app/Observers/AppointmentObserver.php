@@ -36,9 +36,6 @@ class AppointmentObserver
             \App\Jobs\CRM\UpdateCustomerSegmentJob::dispatch($model->customer);
         }
 
-        if ($model->isDirty('status') && $model->status === 'canceled') {
-            app(\App\Services\CRMService::class)->triggerAppointmentCanceled($model);
-        }
     }
 
     public function deleted(Appointment $model): void 

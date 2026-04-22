@@ -23,7 +23,7 @@ class UpdateAppointmentStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'string', 'in:scheduled,confirmed,no_show,completed,canceled,rescheduled'],
+            'status' => ['required', 'string', 'in:scheduled,confirmed,no_show,completed,canceled'],
         ];
     }
 }

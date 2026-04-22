@@ -34,7 +34,11 @@ class FakePaymentLinkService implements PaymentLinkServiceInterface
         if (($payload['status'] ?? '') === 'paid') {
             $charge = Charge::where('payment_provider_id', $payload['id'] ?? '')->first();
             if ($charge) {
-                $charge->update(['status' => 'paid', 'paid_at' => now()]);
+                app(\App\Services\FinanceService::class)->markChargePaid($charge, [
+                    'method' => 'external',
+                    'paid_at' => now(),
+                    'notes' => 'Recebimento sintetico via webhook fake.',
+                ]);
                 return true;
             }
         }

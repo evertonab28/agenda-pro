@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Workspace;
 use App\Services\AgendaService;
+use App\Services\AppointmentLifecycleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class PortalAppointmentController extends Controller
 {
-    public function __construct(private AgendaService $agendaService) {}
+    public function __construct(
+        private AgendaService $agendaService,
+        private AppointmentLifecycleService $lifecycleService,
+    ) {}
 
     /**
      * Cancel an appointment
@@ -29,7 +33,7 @@ class PortalAppointmentController extends Controller
             return response()->json(['ok' => false, 'message' => 'Este agendamento já está cancelado.']);
         }
 
-        $appointment->update(['status' => 'canceled']);
+        $this->lifecycleService->cancel($appointment, null);
 
         return response()->json([
             'ok' => true,
@@ -71,11 +75,14 @@ class PortalAppointmentController extends Controller
             ]);
         }
 
-        $appointment->update([
-            'starts_at' => $startTime,
-            'ends_at'   => $endTime,
-            'status'    => 'scheduled',
-        ]);
+        try {
+            $this->lifecycleService->reschedule($appointment, $startTime);
+        } catch (\DomainException $e) {
+            return response()->json([
+                'ok' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'ok'      => true,

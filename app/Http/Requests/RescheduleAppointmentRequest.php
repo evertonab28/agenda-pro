@@ -25,7 +25,7 @@ class RescheduleAppointmentRequest extends FormRequest
         return [
             'starts_at' => ['required', 'date', 'after:now'],
             'notes' => ['nullable', 'string'],
-            'ends_at' => ['required', 'date', 'after:starts_at'],
+            'ends_at' => ['nullable', 'date', 'after:starts_at'],
         ];
     }
 }
