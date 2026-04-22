@@ -96,7 +96,7 @@ class AgendaService
 
         // 1. Check existing conflicts (including buffers)
         if ($this->hasConflict($professionalId, $startsAt, $endsAt, $excludeId, $serviceBuffer)) {
-            return ['available' => false, 'message' => 'O horário (incluindo o intervalo de limpeza/buffer) coincide com outro agendamento.'];
+            return ['available' => false, 'code' => 'overlap_detected', 'message' => 'O horário (incluindo o intervalo de limpeza/buffer) coincide com outro agendamento.'];
         }
 
         // 2. Check Holidays/Blocked dates
@@ -119,7 +119,7 @@ class AgendaService
             ->exists();
 
         if ($isHoliday) {
-            return ['available' => false, 'message' => 'Data bloqueada ou feriado.'];
+            return ['available' => false, 'code' => 'holiday', 'message' => 'Data bloqueada ou feriado.'];
         }
 
         // 3. Check Weekly Schedule
@@ -129,14 +129,14 @@ class AgendaService
             ->first();
 
         if (!$schedule) {
-            return ['available' => false, 'message' => 'O profissional não atende neste dia.'];
+            return ['available' => false, 'code' => 'no_schedule', 'message' => 'O profissional não atende neste dia.'];
         }
 
         $open = Carbon::parse($date . ' ' . $schedule->start_time);
         $close = Carbon::parse($date . ' ' . $schedule->end_time);
 
         if ($start->lt($open) || $end->gt($close)) {
-            return ['available' => false, 'message' => "Fora do horário de expediente ({$schedule->start_time} - {$schedule->end_time})."];
+            return ['available' => false, 'code' => 'outside_working_hours', 'message' => "Fora do horário de expediente ({$schedule->start_time} - {$schedule->end_time})."];
         }
 
         // 4. Check Breaks
@@ -145,7 +145,7 @@ class AgendaService
             $breakEnd = Carbon::parse($date . ' ' . $schedule->break_end);
 
             if ($start->lt($breakEnd) && $end->gt($breakStart)) {
-                return ['available' => false, 'message' => "Horário coincide com o intervalo ({$schedule->break_start} - {$schedule->break_end})."];
+                return ['available' => false, 'code' => 'break_conflict', 'message' => "Horário coincide com o intervalo ({$schedule->break_start} - {$schedule->break_end})."];
             }
         }
 
