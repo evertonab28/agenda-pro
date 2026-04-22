@@ -8,11 +8,13 @@ use App\Models\Professional;
 use App\Models\Service;
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Services\AgendaService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class PublicSchedulingController extends Controller
 {
+    public function __construct(private AgendaService $agendaService) {}
     public function getServices(Workspace $workspace)
     {
         $services = $workspace->services()->where('is_active', true)->get();
@@ -111,6 +113,25 @@ class PublicSchedulingController extends Controller
         $service = $workspace->services()->findOrFail($request->service_id);
         $professional = $workspace->professionals()->findOrFail($request->professional_id);
 
+        $startTime = Carbon::parse($request->start_time);
+        $endTime = $startTime->copy()->addMinutes($service->duration_minutes);
+
+        $availability = $this->agendaService->isAvailable(
+            $professional->id,
+            $startTime->toDateTimeString(),
+            $endTime->toDateTimeString(),
+            null,
+            $service->id
+        );
+
+        if (!$availability['available']) {
+            return response()->json([
+                'ok'      => false,
+                'code'    => $availability['code'],
+                'message' => 'Esse horário não está mais disponível. Escolha outro horário.',
+            ], 409);
+        }
+
         $phoneDigits = preg_replace('/\D/', '', $request->phone);
 
         $customer = Customer::where('workspace_id', $workspace->id)
@@ -138,9 +159,6 @@ class PublicSchedulingController extends Controller
                 'is_active' => true,
             ]);
         }
-
-        $startTime = Carbon::parse($request->start_time);
-        $endTime = $startTime->copy()->addMinutes($service->duration_minutes);
 
         $appointment = Appointment::create([
             'workspace_id' => $workspace->id,
