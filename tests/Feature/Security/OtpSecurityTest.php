@@ -58,4 +58,40 @@ class OtpSecurityTest extends TestCase
         $response->assertStatus(401);
         $this->assertFalse(Auth::guard('customer')->check());
     }
+
+    public function test_resend_invalidates_previous_token(): void
+    {
+        // Primeiro envio — T1 criado
+        $this->postJson(
+            route('portal.auth.send-token', $this->workspaceA->slug),
+            ['identifier' => $this->customerA->phone]
+        )->assertStatus(200);
+
+        $t1Value = CustomerAuthToken::where('customer_id', $this->customerA->id)
+            ->latest()
+            ->value('token');
+
+        $this->assertNotNull($t1Value);
+
+        // Segundo envio — T2 criado, T1 deve ter sido deletado
+        $this->postJson(
+            route('portal.auth.send-token', $this->workspaceA->slug),
+            ['identifier' => $this->customerA->phone]
+        )->assertStatus(200);
+
+        // Deve existir exatamente 1 token (T2)
+        $this->assertEquals(1, CustomerAuthToken::where('customer_id', $this->customerA->id)->count());
+
+        // Tentar usar T1 deve falhar
+        $response = $this->postJson(
+            route('portal.auth.verify-token', $this->workspaceA->slug),
+            [
+                'identifier' => $this->customerA->phone,
+                'token' => $t1Value,
+            ]
+        );
+
+        $response->assertStatus(401);
+        $this->assertFalse(Auth::guard('customer')->check());
+    }
 }
