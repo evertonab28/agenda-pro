@@ -68,7 +68,7 @@ class CustomerAuthController extends Controller
         ]);
 
         // 3. Simular envio (WhatsApp/Email Mock)
-        Log::info("MAGIC LINK OTP para {$customer->name} ({$workspace->slug}): {$token}");
+        Log::info('OTP gerado', ['customer_id' => $customer->id, 'workspace_slug' => $workspace->slug]);
 
         return response()->json([
             'ok' => true,
