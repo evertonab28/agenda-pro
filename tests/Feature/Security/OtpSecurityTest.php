@@ -132,4 +132,26 @@ class OtpSecurityTest extends TestCase
         // Sem sessão autenticada
         $this->assertFalse(Auth::guard('customer')->check());
     }
+
+    public function test_send_token_does_not_create_token_for_customer_of_another_workspace(): void
+    {
+        // customerB pertence ao workspaceB — usar seu phone no workspaceA
+        $response = $this->postJson(
+            route('portal.auth.send-token', $this->workspaceA->slug),
+            ['identifier' => $this->customerB->phone]
+        );
+
+        // Workspace A não conhece esse identifier — trata como novo usuário
+        $response->assertStatus(200);
+        $response->assertJson(['requires_name' => true]);
+
+        // Nenhum token foi criado para customerB
+        $this->assertEquals(
+            0,
+            CustomerAuthToken::where('customer_id', $this->customerB->id)->count()
+        );
+
+        // Nenhuma sessão foi iniciada
+        $this->assertFalse(Auth::guard('customer')->check());
+    }
 }
