@@ -37,4 +37,25 @@ class OtpSecurityTest extends TestCase
             'email' => 'customer-b@example.com',
         ]);
     }
+
+    public function test_expired_otp_is_rejected(): void
+    {
+        CustomerAuthToken::create([
+            'customer_id' => $this->customerA->id,
+            'token' => '123456',
+            'expires_at' => now()->subMinutes(1),
+            'attempts' => 0,
+        ]);
+
+        $response = $this->postJson(
+            route('portal.auth.verify-token', $this->workspaceA->slug),
+            [
+                'identifier' => $this->customerA->phone,
+                'token' => '123456',
+            ]
+        );
+
+        $response->assertStatus(401);
+        $this->assertFalse(Auth::guard('customer')->check());
+    }
 }
