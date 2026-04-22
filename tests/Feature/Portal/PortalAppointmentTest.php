@@ -3,6 +3,7 @@
 namespace Tests\Feature\Portal;
 
 use App\Models\Appointment;
+use App\Models\ProfessionalSchedule;
 use App\Models\Workspace;
 use App\Models\Customer;
 use App\Models\Professional;
@@ -37,6 +38,26 @@ class PortalAppointmentTest extends TestCase
             'starts_at' => Carbon::parse('next monday 10:00'),
             'ends_at' => Carbon::parse('next monday 11:00'),
             'status' => 'scheduled'
+        ]);
+
+        // Schedule para segunda (dia do appointment base)
+        ProfessionalSchedule::create([
+            'workspace_id'    => $this->workspace->id,
+            'professional_id' => $this->professional->id,
+            'weekday'         => Carbon::parse('next monday')->dayOfWeek,
+            'start_time'      => '08:00',
+            'end_time'        => '18:00',
+            'is_active'       => true,
+        ]);
+
+        // Schedule para terça (dia usado nos testes de reschedule)
+        ProfessionalSchedule::create([
+            'workspace_id'    => $this->workspace->id,
+            'professional_id' => $this->professional->id,
+            'weekday'         => Carbon::parse('next tuesday')->dayOfWeek,
+            'start_time'      => '08:00',
+            'end_time'        => '18:00',
+            'is_active'       => true,
         ]);
     }
 
