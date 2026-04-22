@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Workspace;
+use App\Services\AgendaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class PortalAppointmentController extends Controller
 {
+    public function __construct(private AgendaService $agendaService) {}
+
     /**
      * Cancel an appointment
      */
@@ -51,39 +54,36 @@ class PortalAppointmentController extends Controller
             ->findOrFail($appointmentId);
 
         $startTime = Carbon::parse($request->start_time);
-        $duration = $appointment->service->duration_minutes;
-        $endTime = $startTime->copy()->addMinutes($duration);
+        $endTime   = $startTime->copy()->addMinutes($appointment->service->duration_minutes);
 
-        $hasOverlap = Appointment::where('professional_id', $appointment->professional_id)
-            ->where('workspace_id', $workspace->id)
-            ->where('id', '!=', $appointment->id)
-            ->where('status', '!=', 'canceled')
-            ->where(function ($query) use ($startTime, $endTime) {
-                $query->where(function ($q) use ($startTime, $endTime) {
-                    $q->where('starts_at', '>=', $startTime)
-                      ->where('starts_at', '<', $endTime);
-                })->orWhere(function ($q) use ($startTime, $endTime) {
-                    $q->where('ends_at', '>', $startTime)
-                      ->where('ends_at', '<=', $endTime);
-                });
-            })->exists();
+        $availability = $this->agendaService->isAvailable(
+            $appointment->professional_id,
+            $startTime->toDateTimeString(),
+            $endTime->toDateTimeString(),
+            $appointment->id,
+            $appointment->service_id
+        );
 
-        if ($hasOverlap) {
+        if (!$availability['available']) {
+            $message = ($availability['code'] ?? '') === 'overlap_detected'
+                ? 'Desculpe, este horário acabou de ser ocupado. Por favor, escolha outro.'
+                : 'Desculpe, este horário não está disponível. Por favor, escolha outro.';
+
             return response()->json([
-                'ok' => false,
-                'message' => 'Desculpe, este horário acabou de ser ocupado. Por favor, escolha outro.'
+                'ok'      => false,
+                'message' => $message,
             ]);
         }
 
         $appointment->update([
             'starts_at' => $startTime,
-            'ends_at' => $endTime,
-            'status' => 'scheduled'
+            'ends_at'   => $endTime,
+            'status'    => 'scheduled',
         ]);
 
         return response()->json([
-            'ok' => true,
-            'message' => 'Agendamento reagendado com sucesso.'
+            'ok'      => true,
+            'message' => 'Agendamento reagendado com sucesso.',
         ]);
     }
 }
