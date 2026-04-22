@@ -30,6 +30,6 @@ class CustomerAuthToken extends Model
 
     public function isValid(): bool
     {
-        return !$this->isExpired() && $this->attempts < 5;
+        return !$this->isExpired() && $this->attempts < 3;
     }
 }
