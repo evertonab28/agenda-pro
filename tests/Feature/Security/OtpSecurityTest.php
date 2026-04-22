@@ -94,4 +94,42 @@ class OtpSecurityTest extends TestCase
         $response->assertStatus(401);
         $this->assertFalse(Auth::guard('customer')->check());
     }
+
+    public function test_brute_force_blocked_on_third_attempt(): void
+    {
+        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+
+        CustomerAuthToken::create([
+            'customer_id' => $this->customerA->id,
+            'token' => '999999',
+            'expires_at' => now()->addMinutes(15),
+            'attempts' => 0,
+        ]);
+
+        $payload = [
+            'identifier' => $this->customerA->phone,
+            'token' => '000000', // token errado
+        ];
+
+        // Tentativa 1 — 401
+        $this->postJson(route('portal.auth.verify-token', $this->workspaceA->slug), $payload)
+            ->assertStatus(401)
+            ->assertJson(['message' => 'Código incorreto']);
+
+        // Tentativa 2 — 401
+        $this->postJson(route('portal.auth.verify-token', $this->workspaceA->slug), $payload)
+            ->assertStatus(401)
+            ->assertJson(['message' => 'Código incorreto']);
+
+        // Tentativa 3 — 429 pelo mecanismo de attempts, token deletado
+        $this->postJson(route('portal.auth.verify-token', $this->workspaceA->slug), $payload)
+            ->assertStatus(429)
+            ->assertJson(['message' => 'Limite de tentativas excedido. Solicite um novo código.']);
+
+        // Token deletado — prova que foi o mecanismo de attempts (não throttle)
+        $this->assertEquals(0, CustomerAuthToken::where('customer_id', $this->customerA->id)->count());
+
+        // Sem sessão autenticada
+        $this->assertFalse(Auth::guard('customer')->check());
+    }
 }
