@@ -154,4 +154,37 @@ class OtpSecurityTest extends TestCase
         // Nenhuma sessão foi iniciada
         $this->assertFalse(Auth::guard('customer')->check());
     }
+
+    public function test_verify_token_cross_tenant_has_no_side_effects(): void
+    {
+        // Criar token válido para customerB no workspaceB
+        $tokenB = CustomerAuthToken::create([
+            'customer_id' => $this->customerB->id,
+            'token' => '777777',
+            'expires_at' => now()->addMinutes(15),
+            'attempts' => 0,
+        ]);
+
+        // Tentar verificar usando workspaceA com identifier e token do customerB
+        $response = $this->postJson(
+            route('portal.auth.verify-token', $this->workspaceA->slug),
+            [
+                'identifier' => $this->customerB->phone,
+                'token' => '777777',
+            ]
+        );
+
+        // Deve retornar 401 — workspaceA não conhece esse identifier
+        $response->assertStatus(401);
+
+        // Nenhuma sessão foi iniciada
+        $this->assertFalse(Auth::guard('customer')->check());
+
+        // O token de customerB permanece intacto — attempts não foi incrementado
+        $tokenB->refresh();
+        $this->assertEquals(0, $tokenB->attempts);
+
+        // O token não foi deletado
+        $this->assertDatabaseHas('customer_auth_tokens', ['id' => $tokenB->id]);
+    }
 }
