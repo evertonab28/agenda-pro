@@ -89,6 +89,13 @@ class AgendaService
         $date = $start->toDateString();
         $weekday = $start->dayOfWeek;
 
+        // Get professional's workspace for tenant-aware queries (must use without global scopes since no auth context)
+        $professional = \App\Models\Professional::withoutGlobalScopes()->find($professionalId);
+        if (!$professional) {
+            return ['available' => false, 'code' => 'professional_not_found', 'message' => 'Profissional não encontrado.'];
+        }
+        $workspaceId = $professional->workspace_id;
+
         $serviceBuffer = 0;
         if ($serviceId) {
             $serviceBuffer = Service::where('id', $serviceId)->value('buffer_minutes') ?? 0;
@@ -99,22 +106,27 @@ class AgendaService
             return ['available' => false, 'code' => 'overlap_detected', 'message' => 'O horário (incluindo o intervalo de limpeza/buffer) coincide com outro agendamento.'];
         }
 
-        // 2. Check Holidays/Blocked dates
-        $isHoliday = \App\Models\Holiday::where(function ($q) use ($date, $professionalId) {
-                $q->where('date', $date)
-                    ->where(function ($sq) use ($professionalId) {
-                        $sq->whereNull('professional_id')
-                            ->orWhere('professional_id', $professionalId);
-                    });
-            })
-            ->orWhere(function ($q) use ($start, $professionalId) {
-                $q->where('repeats_yearly', true)
-                    ->whereMonth('date', $start->month)
-                    ->whereDay('date', $start->day)
-                    ->where(function ($sq) use ($professionalId) {
-                        $sq->whereNull('professional_id')
-                            ->orWhere('professional_id', $professionalId);
-                    });
+        // 2. Check Holidays/Blocked dates — check both specific dates and yearly repeating dates
+        $isHoliday = \App\Models\Holiday::where('workspace_id', $workspaceId)
+            ->where(function ($q) use ($date, $professionalId, $start) {
+                // Specific date holiday (exact date match)
+                $q->where(function ($sub) use ($date, $professionalId) {
+                    $sub->where('date', $date)
+                        ->where(function ($subsub) use ($professionalId) {
+                            $subsub->whereNull('professional_id')
+                                ->orWhere('professional_id', $professionalId);
+                        });
+                })
+                // OR yearly repeating holiday (month-day match)
+                ->orWhere(function ($sub) use ($start, $professionalId) {
+                    $sub->where('repeats_yearly', true)
+                        ->whereMonth('date', $start->month)
+                        ->whereDay('date', $start->day)
+                        ->where(function ($subsub) use ($professionalId) {
+                            $subsub->whereNull('professional_id')
+                                ->orWhere('professional_id', $professionalId);
+                        });
+                });
             })
             ->exists();
 
