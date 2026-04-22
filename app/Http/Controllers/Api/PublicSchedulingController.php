@@ -36,15 +36,14 @@ class PublicSchedulingController extends Controller
     {
         $request->validate([
             'professional_id' => 'required|exists:professionals,id',
-            'service_id' => 'required|exists:services,id',
-            'date' => 'required|date_format:Y-m-d',
+            'service_id'      => 'required|exists:services,id',
+            'date'            => 'required|date_format:Y-m-d',
         ]);
 
         $professional = $workspace->professionals()->findOrFail($request->professional_id);
-        $service = $workspace->services()->findOrFail($request->service_id);
-        $date = Carbon::parse($request->date);
-
-        $weekday = $date->dayOfWeek;
+        $service      = $workspace->services()->findOrFail($request->service_id);
+        $date         = Carbon::parse($request->date);
+        $weekday      = $date->dayOfWeek;
 
         $schedule = $professional->schedules()
             ->where('weekday', $weekday)
@@ -55,40 +54,26 @@ class PublicSchedulingController extends Controller
             return response()->json([]);
         }
 
-        $slots = [];
+        $duration  = $service->duration_minutes + ($service->buffer_minutes ?? 0);
         $startTime = Carbon::parse($request->date . ' ' . $schedule->start_time);
-        $endTime = Carbon::parse($request->date . ' ' . $schedule->end_time);
-        $duration = $service->duration_minutes + ($service->buffer_minutes ?? 0);
+        $endTime   = Carbon::parse($request->date . ' ' . $schedule->end_time);
+        $slots     = [];
+        $current   = $startTime->copy();
 
-        // Fetch existing appointments for the day
-        $existing = Appointment::where('professional_id', $professional->id)
-            ->whereDate('starts_at', $date)
-            ->whereIn('status', ['scheduled', 'confirmed'])
-            ->get();
-
-        $current = $startTime->copy();
         while ($current->copy()->addMinutes($duration)->lte($endTime)) {
             $slotStart = $current->copy();
-            $slotEnd = $current->copy()->addMinutes($duration);
+            $slotEnd   = $slotStart->copy()->addMinutes($duration);
 
-            $inBreak = false;
-            if ($schedule->break_start && $schedule->break_end) {
-                $breakStart = Carbon::parse($request->date . ' ' . $schedule->break_start);
-                $breakEnd = Carbon::parse($request->date . ' ' . $schedule->break_end);
+            if ($slotStart->gt(now())) {
+                $check = $this->agendaService->isAvailable(
+                    $professional->id,
+                    $slotStart->toDateTimeString(),
+                    $slotEnd->toDateTimeString(),
+                    null,
+                    $service->id
+                );
 
-                if ($slotStart->lt($breakEnd) && $slotEnd->gt($breakStart)) {
-                    $inBreak = true;
-                }
-            }
-
-            if (!$inBreak) {
-                $conflict = $existing->first(function($apt) use ($slotStart, $slotEnd) {
-                    $aptStart = Carbon::parse($apt->starts_at);
-                    $aptEnd = Carbon::parse($apt->ends_at);
-                    return $slotStart->lt($aptEnd) && $slotEnd->gt($aptStart);
-                });
-
-                if (!$conflict && $slotStart->gt(now())) {
+                if ($check['available']) {
                     $slots[] = $slotStart->format('H:i');
                 }
             }
