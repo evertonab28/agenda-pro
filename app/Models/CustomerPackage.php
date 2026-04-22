@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CustomerPackage extends Model
 {
     protected $fillable = [
-        'customer_id', 
-        'package_id', 
-        'remaining_sessions', 
-        'expires_at', 
-        'status'
+        'customer_id',
+        'package_id',
+        'workspace_id',
+        'remaining_sessions',
+        'expires_at',
+        'status',
     ];
 
     protected $casts = [
@@ -29,10 +30,15 @@ class CustomerPackage extends Model
         return $this->belongsTo(Package::class);
     }
 
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class);
+    }
+
     public function isActive(): bool
     {
-        return $this->status === 'active' && 
-               ($this->expires_at === null || $this->expires_at->isFuture()) &&
-               $this->remaining_sessions > 0;
+        return $this->status === 'active'
+            && ($this->expires_at === null || $this->expires_at->isFuture())
+            && $this->remaining_sessions > 0;
     }
 }

@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('workspace_subscriptions', function (Blueprint $table) {
-            $table->string('cancellation_category')->nullable()->after('canceled_at');
-            $table->text('cancellation_reason')->nullable()->after('cancellation_category');
-            $table->boolean('winback_candidate')->default(false)->after('cancellation_reason');
+            if (!Schema::hasColumn('workspace_subscriptions', 'cancellation_category')) {
+                $table->string('cancellation_category')->nullable()->after('canceled_at');
+            }
+            if (!Schema::hasColumn('workspace_subscriptions', 'cancellation_reason')) {
+                $table->text('cancellation_reason')->nullable()->after('cancellation_category');
+            }
+            if (!Schema::hasColumn('workspace_subscriptions', 'winback_candidate')) {
+                $table->boolean('winback_candidate')->default(false)->after('cancellation_reason');
+            }
         });
     }
 

@@ -8,6 +8,7 @@ use App\Events\SaaS\InvoiceOverdue;
 use App\Events\SaaS\InvoiceGenerated;
 use App\Events\SaaS\SubscriptionActivated;
 use App\Events\SaaS\InvoiceReminderSent;
+use App\Events\SaaS\TrialEndingSoon;
 use App\Services\Messaging\MessagingServiceInterface;
 use App\Models\Workspace;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -58,7 +59,27 @@ class SendCommercialNotification implements ShouldQueue
             $event instanceof InvoiceGenerated      => "Uma nova fatura foi gerada para o seu workspace. Link para pagamento: " . ($event->payload->meta['payment_link'] ?? 'Painel de Assinatura'),
             $event instanceof InvoiceOverdue        => "Atenção: Sua fatura está vencida. Regularize sua situação para evitar a suspensão dos serviços.",
             $event instanceof InvoiceReminderSent   => "Lembrete: Você possui uma fatura pendente com vencimento em " . ($event->payload->meta['due_date'] ?? 'breve'),
+            $event instanceof TrialEndingSoon       => $this->trialEndingSoonMessage($event),
             default => null,
         };
+    }
+
+    private function trialEndingSoonMessage(TrialEndingSoon $event): ?string
+    {
+        $daysLeft    = $event->payload->meta['days_left'] ?? null;
+        $trialEndsAt = $event->payload->meta['trial_ends_at'] ?? null;
+
+        if (!is_int($daysLeft) || $daysLeft < 0) {
+            return null;
+        }
+
+        if ($daysLeft === 0) {
+            return "Atenção: seu período de teste termina hoje. Assine agora para manter o acesso ao Agenda Pro.";
+        }
+
+        $suffix = $trialEndsAt ? " ({$trialEndsAt})" : '';
+        $unit   = $daysLeft === 1 ? 'dia' : 'dias';
+
+        return "Seu período de teste do Agenda Pro termina em {$daysLeft} {$unit}{$suffix}. Assine para continuar.";
     }
 }
