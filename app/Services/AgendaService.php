@@ -106,18 +106,18 @@ class AgendaService
             return ['available' => false, 'code' => 'overlap_detected', 'message' => 'O horário (incluindo o intervalo de limpeza/buffer) coincide com outro agendamento.'];
         }
 
-        // 2. Check Holidays/Blocked dates — check both specific dates and yearly repeating dates
+        // 2. Check Holidays/Blocked dates — use whereDate() for cross-DB date comparison compatibility
         $isHoliday = \App\Models\Holiday::where('workspace_id', $workspaceId)
             ->where(function ($q) use ($date, $professionalId, $start) {
-                // Specific date holiday (exact date match)
+                // Specific date holiday
                 $q->where(function ($sub) use ($date, $professionalId) {
-                    $sub->where('date', $date)
+                    $sub->whereDate('date', $date)
                         ->where(function ($subsub) use ($professionalId) {
                             $subsub->whereNull('professional_id')
                                 ->orWhere('professional_id', $professionalId);
                         });
                 })
-                // OR yearly repeating holiday (month-day match)
+                // OR yearly repeating holiday
                 ->orWhere(function ($sub) use ($start, $professionalId) {
                     $sub->where('repeats_yearly', true)
                         ->whereMonth('date', $start->month)
