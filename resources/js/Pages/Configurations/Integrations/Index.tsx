@@ -82,9 +82,9 @@ export default function Index({ integrations }: Props) {
 
     const StatusBadge = ({ status }: { status: string }) => {
         const styles = {
-            active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-            error: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-            pending: 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-400',
+            active: 'bg-success-bg text-success-text border-success/20',
+            error: 'bg-destructive-bg text-destructive-text border-destructive/20',
+            pending: 'bg-muted text-muted-foreground border-border',
         };
 
         const config = {
@@ -96,7 +96,7 @@ export default function Index({ integrations }: Props) {
         const { label, icon: Icon } = config[status as keyof typeof config] || config.pending;
 
         return (
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${styles[status as keyof typeof styles]}`}>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${styles[status as keyof typeof styles]}`}>
                 <Icon className="w-3.5 h-3.5" />
                 {label}
             </span>
@@ -109,15 +109,15 @@ export default function Index({ integrations }: Props) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl">
                 {/* ASAAS CARD */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-800/10">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+                    <div className="p-6 border-b border-border flex items-center justify-between bg-muted/20">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                                <CreditCard className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                            <div className="p-3 bg-info-bg rounded-xl">
+                                <CreditCard className="w-6 h-6 text-info-text" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-gray-900 dark:text-white">Asaas</h3>
-                                <p className="text-xs text-gray-500">Gateway de Pagamentos</p>
+                                <h3 className="font-bold text-foreground">Asaas</h3>
+                                <p className="text-xs text-muted-foreground">Gateway de Pagamentos</p>
                             </div>
                         </div>
                         {asaas && <StatusBadge status={asaas.status} />}
@@ -154,30 +154,30 @@ export default function Index({ integrations }: Props) {
                                     title="Testar Conexão"
                                 >
                                     {testingId === asaas.id ? (
-                                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                                     ) : (
-                                        <RefreshCw className="w-4 h-4 text-gray-400" />
+                                        <RefreshCw className="w-4 h-4 text-muted-foreground" />
                                     )}
                                 </Button>
                             )}
                         </div>
 
                         {saveResults['asaas'] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['asaas'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 border ${saveResults['asaas'].ok ? 'bg-success-bg text-success-text border-success/20' : 'bg-destructive-bg text-destructive-text border-destructive/20'}`}>
                                 {saveResults['asaas'].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                                 {saveResults['asaas'].ok ? 'Configuração salva!' : saveResults['asaas'].message}
                             </div>
                         )}
 
                         {asaas && testResults[asaas.id] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${testResults[asaas.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 border ${testResults[asaas.id].ok ? 'bg-success-bg text-success-text border-success/20' : 'bg-destructive-bg text-destructive-text border-destructive/20'}`}>
                                 {testResults[asaas.id].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                                 {testResults[asaas.id].ok ? 'Conexão estabelecida com sucesso!' : testResults[asaas.id].message}
                             </div>
                         )}
 
-                        <div className="p-4 bg-zinc-50 dark:bg-zinc-800/20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-                            <a href="https://www.asaas.com" target="_blank" className="text-[10px] text-gray-500 flex items-center gap-1 hover:text-primary transition-colors">
+                        <div className="p-4 bg-muted/20 rounded-xl border border-dashed border-border">
+                            <a href="https://www.asaas.com" target="_blank" className="text-[10px] text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
                                 Pegar chaves no painel do Asaas <ExternalLink className="w-3 h-3" />
                             </a>
                         </div>
@@ -185,26 +185,26 @@ export default function Index({ integrations }: Props) {
                 </div>
 
                 {/* EVOLUTION CARD */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
                     <div className="p-6 space-y-4">
                         {/* Seção WhatsApp / Evolution API */}
-                        <div className="space-y-4 border rounded-xl p-5">
+                        <div className="space-y-4 border border-border rounded-xl p-5">
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                                    <MessageSquare className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                <div className="w-9 h-9 rounded-lg bg-success-bg flex items-center justify-center">
+                                    <MessageSquare className="w-5 h-5 text-success-text" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900 dark:text-white">WhatsApp (Evolution API)</h3>
+                                    <h3 className="font-semibold text-foreground">WhatsApp (Evolution API)</h3>
                                     <p className="text-sm text-muted-foreground">
                                         Envie lembretes e receba confirmações diretamente pelo WhatsApp.
                                     </p>
                                 </div>
                                 {evolution && evolution.status === 'active' ? (
-                                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-full">
+                                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-success-text bg-success-bg px-2.5 py-1 rounded-full border border-success/20">
                                         <CheckCircle2 className="w-3.5 h-3.5" /> Conectado
                                     </span>
                                 ) : (
-                                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 px-2.5 py-1 rounded-full">
+                                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-warning-text bg-warning-bg px-2.5 py-1 rounded-full border border-warning/20">
                                         <AlertCircle className="w-3.5 h-3.5" /> Disponível após conectar
                                     </span>
                                 )}
@@ -274,7 +274,7 @@ export default function Index({ integrations }: Props) {
 
                             {/* Feedback de save */}
                             {saveResults['evolution'] && (
-                                <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['evolution'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
+                                <div className={`p-3 rounded-lg text-xs flex items-center gap-2 border ${saveResults['evolution'].ok ? 'bg-success-bg text-success-text border-success/20' : 'bg-destructive-bg text-destructive-text border-destructive/20'}`}>
                                     {saveResults['evolution'].ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
                                     {saveResults['evolution'].ok ? 'Configuração salva com sucesso.' : saveResults['evolution'].message || 'Erro ao salvar.'}
                                 </div>
@@ -282,7 +282,7 @@ export default function Index({ integrations }: Props) {
 
                             {/* Feedback de test */}
                             {evolution && testResults[evolution.id] && (
-                                <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${testResults[evolution.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
+                                <div className={`p-3 rounded-lg text-xs flex items-center gap-2 border ${testResults[evolution.id].ok ? 'bg-success-bg text-success-text border-success/20' : 'bg-destructive-bg text-destructive-text border-destructive/20'}`}>
                                     {testResults[evolution.id].ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
                                     {testResults[evolution.id].ok ? 'Conexão testada com sucesso.' : testResults[evolution.id].message || 'Falha na conexão.'}
                                 </div>

@@ -35,12 +35,12 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
-                <p className="text-gray-500 dark:text-gray-400">Gerencie as configurações do seu sistema.</p>
+                <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+                <p className="text-muted-foreground">Gerencie as configurações do seu sistema.</p>
             </div>
 
             {!props.auth.hide_nav && (
-                <div className="border-b border-gray-200 dark:border-zinc-800">
+                <div className="border-b border-border">
                     <nav className="-mb-px flex space-x-8 overflow-x-auto">
                         {tabs.map((tab) => {
                             const Icon = tab.icon;
@@ -51,16 +51,16 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
                                     href={tab.href}
                                     prefetch
                                     className={`
-                                        group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
+                                        group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
                                         ${active 
                                             ? 'border-primary text-primary' 
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                                         }
                                     `}
                                 >
                                     <Icon className={`
-                                        -ml-0.5 mr-2 h-5 w-5
-                                        ${active ? 'text-primary' : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'}
+                                        -ml-0.5 mr-2 h-5 w-5 transition-colors
+                                        ${active ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}
                                     `} />
                                     {tab.name}
                                 </Link>
@@ -70,7 +70,7 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
                 </div>
             )}
 
-            <div className="bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 p-6">
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                 {children}
             </div>
         </div>

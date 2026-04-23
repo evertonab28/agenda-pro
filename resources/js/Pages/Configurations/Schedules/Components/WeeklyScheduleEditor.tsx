@@ -78,22 +78,22 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-border shadow-sm">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 dark:bg-zinc-800/50">
+                    <thead className="bg-muted/50">
                         <tr>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-gray-500">Dia</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-gray-500">Status</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-gray-500">Entrada</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-gray-500">Saída</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-gray-500">Intervalo (Início)</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-gray-500">Intervalo (Fim)</th>
+                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Dia</th>
+                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Status</th>
+                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Entrada</th>
+                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Saída</th>
+                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Intervalo (Início)</th>
+                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Intervalo (Fim)</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+                    <tbody className="divide-y divide-border bg-card">
                         {data.schedules.map((day, idx) => (
-                            <tr key={idx} className={`${day.is_active ? '' : 'bg-gray-50/50 opacity-60'} transition-all`}>
-                                <td className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300">
+                            <tr key={idx} className={`${day.is_active ? '' : 'bg-muted/30 opacity-60'} transition-all`}>
+                                <td className="px-6 py-4 font-bold text-foreground">
                                     {WEEKDAYS[day.weekday]}
                                 </td>
                                 <td className="px-6 py-4">
@@ -102,9 +102,9 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                             type="checkbox"
                                             checked={day.is_active}
                                             onChange={() => handleToggleDay(idx)}
-                                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                                         />
-                                        <span className="text-xs uppercase font-bold">
+                                        <span className="text-xs uppercase font-bold text-foreground">
                                             {day.is_active ? 'Aberto' : 'Fechado'}
                                         </span>
                                     </div>
@@ -133,7 +133,7 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                         value={day.break_start || ''}
                                         disabled={!day.is_active}
                                         onChange={(e) => handleTimeChange(idx, 'break_start', e.target.value)}
-                                        className="h-9 w-32 text-gray-500"
+                                        className="h-9 w-32 text-muted-foreground"
                                     />
                                 </td>
                                 <td className="px-6 py-4">
@@ -142,7 +142,7 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                         value={day.break_end || ''}
                                         disabled={!day.is_active}
                                         onChange={(e) => handleTimeChange(idx, 'break_end', e.target.value)}
-                                        className="h-9 w-32 text-gray-500"
+                                        className="h-9 w-32 text-muted-foreground"
                                     />
                                 </td>
                             </tr>
@@ -151,7 +151,7 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                 </table>
             </div>
 
-            <div className="flex justify-end p-4 bg-gray-50 dark:bg-zinc-800/30 rounded-xl border border-dashed border-gray-200 dark:border-zinc-800">
+            <div className="flex justify-end p-4 bg-muted/20 rounded-xl border border-dashed border-border">
                 <Button 
                     type="submit" 
                     disabled={processing} 

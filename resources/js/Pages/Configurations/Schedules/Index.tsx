@@ -48,8 +48,8 @@ export default function Index({ professionals, selectedProfessionalId, schedules
                             <Clock className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Escala Semanal</h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <h2 className="text-xl font-bold text-foreground">Escala Semanal</h2>
+                            <p className="text-sm text-muted-foreground">
                                 Configure o horário de atendimento de cada profissional.
                             </p>
                         </div>
@@ -81,7 +81,7 @@ export default function Index({ professionals, selectedProfessionalId, schedules
                             schedules={schedules} 
                         />
                     ) : (
-                        <div className="text-center py-12 border-2 border-dashed rounded-xl text-gray-400">
+                        <div className="text-center py-12 border-2 border-dashed border-border rounded-xl text-muted-foreground">
                             Nenhum profissional selecionado ou cadastrado.
                         </div>
                     )}

@@ -53,11 +53,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }, [visible]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col md:flex-row dark:bg-zinc-950">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Sidebar */}
       {!props.auth.hide_nav && (
-        <aside className="w-full md:w-64 border-r bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-          <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-zinc-800 font-bold text-xl text-primary">
+        <aside className="w-full md:w-64 border-r bg-sidebar border-border">
+          <div className="h-16 flex items-center px-6 border-b border-border font-bold text-xl text-primary">
             AgendaNexo
           </div>
           <nav className="p-4 space-y-1">
@@ -67,7 +67,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/dashboard') && !isCurrent('/dashboard/executivo')
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <LayoutDashboard className="w-5 h-5" />
@@ -79,7 +79,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/dashboard/executivo') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <TrendingUp className="w-5 h-5 text-primary/70" />
@@ -91,7 +91,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/agenda') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Calendar className="w-5 h-5" />
@@ -103,7 +103,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/customers') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Users className="w-5 h-5" />
@@ -115,7 +115,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/lista-espera') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Users className="w-5 h-5 opacity-70" />
@@ -127,7 +127,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/pacotes') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Package className="w-5 h-5" />
@@ -139,7 +139,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 url === '/financeiro' 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Banknote className="w-5 h-5" />
@@ -151,7 +151,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/financeiro/cobrancas') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Banknote className="w-5 h-5 opacity-50" />
@@ -163,7 +163,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/crm') 
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Users className="w-5 h-5 opacity-50" />
@@ -176,7 +176,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                   isCurrent('/usuarios') 
                     ? 'bg-primary/10 text-primary' 
-                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 }`}
               >
                 <Users className="w-5 h-5" />
@@ -188,9 +188,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 href={route('configuracoes.general.index')} 
                 prefetch
                 className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                  isCurrent('/configuracoes') 
+                  url.startsWith('/configuracoes') 
                     ? 'bg-primary/10 text-primary' 
-                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 }`}
               >
                 <Settings className="w-5 h-5" />
@@ -204,8 +204,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {!props.auth.hide_nav && (
-          <header className="h-16 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between px-6">
-            <div className="font-medium text-gray-800 dark:text-gray-200">Visão Geral</div>
+          <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
+            <div className="font-medium text-foreground">Visão Geral</div>
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                 U
@@ -214,7 +214,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 href={route('logout')} 
                 method="post" 
                 as="button" 
-                className="p-1.5 rounded-lg text-gray-500 cursor-pointer hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                className="p-1.5 rounded-lg text-muted-foreground cursor-pointer hover:text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
               </Link>
@@ -222,10 +222,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </header>
         )}
 
-        <main className={`flex-1 overflow-auto p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden relative ${props.auth.hide_nav ? 'flex items-center justify-center bg-gray-50/50 dark:bg-zinc-950' : ''}`}>
+        <main className={`flex-1 overflow-auto p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden relative ${props.auth.hide_nav ? 'flex items-center justify-center bg-background' : ''}`}>
           {props.auth.hide_nav ? (
-            <div className="w-full max-w-4xl bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
-                <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-800/50">
+            <div className="w-full max-w-4xl bg-card shadow-2xl rounded-2xl border border-border overflow-hidden">
+                <div className="p-4 border-b border-border flex items-center justify-between bg-muted/50">
                     <div className="flex items-center gap-4">
                         <span className="font-bold text-primary italic">Onboarding</span>
                         {url.includes('/configuracoes/') && !url.includes('/geral') && (
@@ -242,7 +242,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                             </Link>
                         )}
                     </div>
-                    <Link href={route('onboarding.index')} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+                    <Link href={route('onboarding.index')} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
                         <X className="w-4 h-4" /> Sair e Voltar ao Painel
                     </Link>
                 </div>
@@ -259,16 +259,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="fixed bottom-6 right-6 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${
             message.type === 'success' 
-              ? 'bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-900/50 dark:text-emerald-400' 
-              : 'bg-red-50 border-red-100 text-red-800 dark:bg-red-950/40 dark:border-red-900/50 dark:text-red-400'
+              ? 'bg-success-bg border-success/20 text-success-text' 
+              : 'bg-error-bg border-error/20 text-error-text'
           }`}>
             {message.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+              <CheckCircle2 className="w-5 h-5 text-success" />
             ) : (
-              <XCircle className="w-5 h-5 text-red-500" />
+              <XCircle className="w-5 h-5 text-error" />
             )}
             <p className="text-sm font-bold pr-4">{message.text}</p>
-            <button onClick={() => setVisible(false)} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors">
+            <button onClick={() => setVisible(false)} className="p-1 hover:bg-foreground/5 rounded-full transition-colors">
               <X className="w-4 h-4 opacity-50" />
             </button>
           </div>

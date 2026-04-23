@@ -28,49 +28,49 @@ export default function ServicesTable({ services }: Props) {
     };
 
     return (
-        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm transition-all duration-300">
+        <div className="overflow-x-auto rounded-xl border border-border shadow-sm transition-all duration-300">
             <table className="w-full text-left border-collapse">
                 <thead>
-                    <tr className="bg-gray-50 dark:bg-zinc-800/50">
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Serviço</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Duração</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Preço</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400 text-center">Cor</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Status</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400 text-right">Ações</th>
+                    <tr className="bg-muted/50">
+                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Serviço</th>
+                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Duração</th>
+                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Preço</th>
+                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground text-center">Cor</th>
+                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Status</th>
+                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground text-right">Ações</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+                <tbody className="divide-y divide-border bg-card">
                     {services.length === 0 ? (
                         <tr>
-                            <td colSpan={6} className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                            <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">
                                 Nenhum serviço encontrado.
                             </td>
                         </tr>
                     ) : (
                         services.map((service) => (
-                            <tr key={service.id} className="hover:bg-gray-50/50 dark:hover:bg-zinc-800/30 transition-colors group">
+                            <tr key={service.id} className="hover:bg-muted/30 transition-colors group">
                                 <td className="px-6 py-4">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                                        <span className="font-bold text-foreground group-hover:text-primary transition-colors">
                                             {service.name}
                                         </span>
                                         {service.description && (
-                                            <span className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1">
+                                            <span className="text-xs text-muted-foreground/60 line-clamp-1">
                                                 {service.description}
                                             </span>
                                         )}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium">
+                                <td className="px-6 py-4 text-sm text-muted-foreground font-medium">
                                     {service.duration_minutes} min
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-bold">
+                                <td className="px-6 py-4 text-sm text-foreground font-bold">
                                     {formatPrice(service.price)}
                                 </td>
                                 <td className="px-6 py-4 text-center">
                                     <div 
-                                        className="w-6 h-6 rounded-full mx-auto border border-gray-200 dark:border-zinc-700 shadow-inner"
+                                        className="w-6 h-6 rounded-full mx-auto border border-border shadow-inner"
                                         style={{ backgroundColor: service.color || '#3b82f6' }}
                                         title={service.color || 'Padrão'}
                                     />
@@ -78,8 +78,8 @@ export default function ServicesTable({ services }: Props) {
                                 <td className="px-6 py-4">
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ring-1 ring-inset ${
                                         service.is_active 
-                                            ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' 
-                                            : 'bg-gray-50 text-gray-600 ring-gray-500/10'
+                                            ? 'bg-success-bg text-success-text ring-success/20' 
+                                            : 'bg-muted text-muted-foreground ring-border'
                                     }`}>
                                         {service.is_active ? 'Ativo' : 'Inativo'}
                                     </span>
@@ -87,7 +87,7 @@ export default function ServicesTable({ services }: Props) {
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-2">
                                         <Link href={route('configuracoes.services.edit', service.id)}>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-primary hover:bg-primary/10">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10">
                                                 <Edit2 className="w-4 h-4" />
                                             </Button>
                                         </Link>
@@ -96,7 +96,7 @@ export default function ServicesTable({ services }: Props) {
                                             method="delete" 
                                             as="button"
                                         >
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </Link>

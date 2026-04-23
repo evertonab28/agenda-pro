@@ -51,8 +51,8 @@ export default function Index({ settings }: Props) {
                         <Settings2 className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Parâmetros do Sistema</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <h2 className="text-xl font-bold text-foreground">Parâmetros do Sistema</h2>
+                        <p className="text-sm text-muted-foreground">
                             Ajuste as regras de agendamento e informações da empresa.
                         </p>
                     </div>
@@ -62,7 +62,7 @@ export default function Index({ settings }: Props) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Company Section */}
                         <div className="space-y-4 col-span-full">
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">Identificação</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border pb-2">Identificação</h3>
                             <div className="space-y-2">
                                 <Label htmlFor="company_name">Nome da Empresa</Label>
                                 <Input
@@ -72,13 +72,13 @@ export default function Index({ settings }: Props) {
                                     placeholder="Ex: Barber Shop One"
                                     required
                                 />
-                                {errors.company_name && <p className="text-xs text-red-500">{errors.company_name}</p>}
+                                {errors.company_name && <p className="text-xs text-destructive">{errors.company_name}</p>}
                             </div>
                         </div>
 
                         {/* Scheduling Section */}
                         <div className="space-y-4 col-span-full">
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">Regras de Agendamento</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border pb-2">Regras de Agendamento</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="slot_duration">Duração do Slot (minutos)</Label>
@@ -92,8 +92,8 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) => setData('slot_duration', parseInt(e.target.value))}
                                         required
                                     />
-                                    <p className="text-[10px] text-gray-500">Intervalo entre horários no calendário.</p>
-                                    {errors.slot_duration && <p className="text-xs text-red-500">{errors.slot_duration}</p>}
+                                    <p className="text-[10px] text-muted-foreground">Intervalo entre horários no calendário.</p>
+                                    {errors.slot_duration && <p className="text-xs text-destructive">{errors.slot_duration}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -106,8 +106,8 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) => setData('min_advance_minutes', parseInt(e.target.value))}
                                         required
                                     />
-                                    <p className="text-[10px] text-gray-500">Tempo mínimo antes do horário para permitir agendamento.</p>
-                                    {errors.min_advance_minutes && <p className="text-xs text-red-500">{errors.min_advance_minutes}</p>}
+                                    <p className="text-[10px] text-muted-foreground">Tempo mínimo antes do horário para permitir agendamento.</p>
+                                    {errors.min_advance_minutes && <p className="text-xs text-destructive">{errors.min_advance_minutes}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -120,8 +120,8 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) => setData('max_window_days', parseInt(e.target.value))}
                                         required
                                     />
-                                    <p className="text-[10px] text-gray-500">Até quantos dias à frente o cliente pode agendar.</p>
-                                    {errors.max_window_days && <p className="text-xs text-red-500">{errors.max_window_days}</p>}
+                                    <p className="text-[10px] text-muted-foreground">Até quantos dias à frente o cliente pode agendar.</p>
+                                    {errors.max_window_days && <p className="text-xs text-destructive">{errors.max_window_days}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -133,8 +133,8 @@ export default function Index({ settings }: Props) {
                                         value={data.default_buffer_minutes}
                                         onChange={(e) => setData('default_buffer_minutes', parseInt(e.target.value))}
                                     />
-                                    <p className="text-[10px] text-gray-500">Intervalo automático sugerido entre atendimentos.</p>
-                                    {errors.default_buffer_minutes && <p className="text-xs text-red-500">{errors.default_buffer_minutes}</p>}
+                                    <p className="text-[10px] text-muted-foreground">Intervalo automático sugerido entre atendimentos.</p>
+                                    {errors.default_buffer_minutes && <p className="text-xs text-destructive">{errors.default_buffer_minutes}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -153,7 +153,7 @@ export default function Index({ settings }: Props) {
                                             <SelectItem value="UTC">UTC</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.timezone && <p className="text-xs text-red-500">{errors.timezone}</p>}
+                                    {errors.timezone && <p className="text-xs text-destructive">{errors.timezone}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -171,22 +171,22 @@ export default function Index({ settings }: Props) {
                                             <SelectItem value="EUR">Euro (€)</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <p className="text-[10px] text-gray-500">Moeda padrão para cobranças e relatórios.</p>
-                                    {errors.currency && <p className="text-xs text-red-500">{errors.currency}</p>}
+                                    <p className="text-[10px] text-muted-foreground">Moeda padrão para cobranças e relatórios.</p>
+                                    {errors.currency && <p className="text-xs text-destructive">{errors.currency}</p>}
                                 </div>
                             </div>
                         </div>
 
                         {/* Financial/Penalty Section */}
                         <div className="space-y-4 col-span-full">
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">Gestão de Faltas & Financeiro</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border pb-2">Gestão de Faltas & Financeiro</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-3">
                                     <div className="flex items-center space-x-2">
                                         <input
                                             id="no_show_fee_enabled"
                                             type="checkbox"
-                                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
                                             checked={data.no_show_fee_enabled}
                                             onChange={(e) => setData('no_show_fee_enabled', e.target.checked)}
                                         />
@@ -194,7 +194,7 @@ export default function Index({ settings }: Props) {
                                             Cobrar Taxa de No-Show (Falta)
                                         </Label>
                                     </div>
-                                    <p className="text-[10px] text-gray-500 italic pl-6">Gera uma cobrança automática se o status for alterado para "Falta".</p>
+                                    <p className="text-[10px] text-muted-foreground italic pl-6">Gera uma cobrança automática se o status for alterado para "Falta".</p>
                                 </div>
 
                                 {data.no_show_fee_enabled && (
@@ -209,17 +209,17 @@ export default function Index({ settings }: Props) {
                                             onChange={(e) => setData('no_show_fee_amount', parseFloat(e.target.value))}
                                             placeholder="0.00"
                                         />
-                                        {errors.no_show_fee_amount && <p className="text-xs text-red-500">{errors.no_show_fee_amount}</p>}
+                                        {errors.no_show_fee_amount && <p className="text-xs text-destructive">{errors.no_show_fee_amount}</p>}
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-8 border-t">
+                    <div className="flex items-center justify-between pt-8 border-t border-border">
                         <div>
                             {recentlySuccessful && (
-                                <span className="text-sm text-emerald-600 font-bold animate-pulse">
+                                <span className="text-sm text-success-text font-bold animate-pulse">
                                     Configurações salvas com sucesso!
                                 </span>
                             )}

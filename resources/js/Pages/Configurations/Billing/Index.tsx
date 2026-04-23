@@ -79,9 +79,9 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
             <>
                 <Head title="Assinatura - Configurações" />
                 <div className="p-12 text-center">
-                    <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold">Nenhuma assinatura encontrada</h3>
-                    <p className="text-gray-500">Entre em contato com o suporte para ativar sua conta.</p>
+                    <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-foreground">Nenhuma assinatura encontrada</h3>
+                    <p className="text-muted-foreground">Entre em contato com o suporte para ativar sua conta.</p>
                 </div>
             </>
         );
@@ -93,7 +93,6 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
     const isActive   = ['active', 'trialing'].includes(subscription.status)
         || (isCanceled && new Date(subscription.ends_at!) > new Date());
 
-    /** Conversão de trial → mesmo plano */
     const handleActivate = (planId: number) => {
         router.post(route('configuracoes.billing.activate'), { plan_id: planId }, {
             onSuccess: () => {
@@ -104,7 +103,6 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
         });
     };
 
-    /** Upgrade para plano diferente */
     const handleUpgrade = (planId: number) => {
         router.post(route('configuracoes.billing.upgrade'), { plan_id: planId }, {
             onSuccess: () => {
@@ -125,12 +123,6 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
         });
     };
 
-    /**
-     * Classifica cada card de plano na modal:
-     * - 'activate'  → trialing no mesmo plano: habilitado com CTA "Assinar [nome]"
-     * - 'current'   → não-trialing no mesmo plano: desabilitado com badge "Atual"
-     * - 'select'    → plano diferente: CTA "Selecionar"
-     */
     const getPlanCardAction = (plan: Plan): 'activate' | 'current' | 'select' => {
         const isSamePlan = plan.id === subscription.plan_id;
         if (isSamePlan && isTrial)  return 'activate';
@@ -150,15 +142,15 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
         return (
             <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                    <div className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-300">
-                        <Icon className="w-4 h-4" />
+                    <div className="flex items-center gap-2 font-medium text-foreground">
+                        <Icon className="w-4 h-4 text-muted-foreground" />
                         {label}
                     </div>
-                    <span>{current} / {limit}</span>
+                    <span className="text-muted-foreground">{current} / {limit}</span>
                 </div>
-                <div className="h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                        className={`h-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-primary'}`}
+                        className={`h-full transition-all duration-500 ${isFull ? 'bg-destructive' : 'bg-primary'}`}
                         style={{ width: `${percent}%` }}
                     />
                 </div>
@@ -173,7 +165,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
             <div className="max-w-4xl space-y-8">
                 {/* Overdue Alert */}
                 {isOverdue && (
-                    <div className="p-4 bg-red-100 border border-red-200 text-red-800 rounded-xl flex items-center gap-3">
+                    <div className="p-4 bg-destructive-bg border border-destructive/20 text-destructive-text rounded-xl flex items-center gap-3">
                         <AlertTriangle className="w-5 h-5 shrink-0" />
                         <div className="text-sm font-medium">
                             Sua assinatura está em atraso. Regularize o pagamento para evitar o bloqueio total dos recursos operacionais.
@@ -183,7 +175,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
 
                 {/* Trial info banner */}
                 {isTrial && (
-                    <div className="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl flex items-center gap-3">
+                    <div className="p-4 bg-warning-bg border border-warning/20 text-warning-text rounded-xl flex items-center gap-3">
                         <Sparkles className="w-5 h-5 shrink-0" />
                         <div className="text-sm font-medium">
                             Você está no período de teste gratuito. Ative sua assinatura para continuar usando após o trial.
@@ -194,25 +186,25 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                 {/* Status Card */}
                 <div className={`p-6 rounded-2xl border flex flex-col md:flex-row gap-6 items-center justify-between ${
                     isActive
-                        ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30'
-                        : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'
+                        ? 'bg-success-bg/30 border-success/20'
+                        : 'bg-destructive-bg/30 border-destructive/20'
                 }`}>
                     <div className="flex gap-4 items-center">
-                        <div className={`p-4 rounded-xl ${isActive ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                        <div className={`p-4 rounded-xl ${isActive ? 'bg-success-bg text-success-text' : 'bg-destructive-bg text-destructive-text'}`}>
                             <Zap className="w-8 h-8" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                <h2 className="text-2xl font-bold text-foreground">
                                     Plano {subscription.plan.name}
                                 </h2>
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                    isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                    isActive ? 'bg-success-bg text-success-text border-success/20' : 'bg-destructive-bg text-destructive-text border-destructive/20'
                                 }`}>
                                     {subscription.status}
                                 </span>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-sm text-muted-foreground">
                                 {isTrial && `Período de teste gratuito até ${new Date(subscription.trial_ends_at!).toLocaleDateString()}.`}
                                 {!isTrial && !isCanceled && `Assinatura ativa — renova em ${new Date(subscription.ends_at!).toLocaleDateString()}.`}
                                 {isCanceled && `Cancelada — acesso até ${new Date(subscription.ends_at!).toLocaleDateString()}.`}
@@ -224,7 +216,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                         {!isCanceled && !isOverdue && (
                             <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                                    <Button variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
                                         Cancelar
                                     </Button>
                                 </DialogTrigger>
@@ -273,12 +265,12 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                         return (
                                             <div
                                                 key={plan.id}
-                                                className={`p-4 rounded-xl border-2 transition-all ${
+                                                className={`p-4 rounded-xl border-2 transition-all bg-card ${
                                                     isDisabled
                                                         ? 'border-primary bg-primary/5 opacity-60 cursor-not-allowed'
                                                         : isActivateCard
-                                                            ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/10 cursor-pointer hover:border-amber-500'
-                                                            : 'border-gray-200 cursor-pointer hover:border-primary'
+                                                            ? 'border-warning-text/40 bg-warning-bg cursor-pointer hover:border-warning-text'
+                                                            : 'border-border cursor-pointer hover:border-primary'
                                                 }`}
                                                 onClick={() => {
                                                     if (isDisabled || processing) return;
@@ -286,12 +278,12 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                                     else handleUpgrade(plan.id);
                                                 }}
                                             >
-                                                <h4 className="font-bold text-lg">{plan.name}</h4>
-                                                <div className="text-2xl font-black my-2">R$ {plan.price}</div>
-                                                <p className="text-xs text-gray-500 mb-4">{plan.billing_cycle}</p>
+                                                <h4 className="font-bold text-lg text-foreground">{plan.name}</h4>
+                                                <div className="text-2xl font-black my-2 text-foreground">R$ {plan.price}</div>
+                                                <p className="text-xs text-muted-foreground mb-4">{plan.billing_cycle}</p>
                                                 <Button
                                                     variant={isDisabled ? 'outline' : 'default'}
-                                                    className={`w-full ${isActivateCard ? 'bg-amber-500 hover:bg-amber-600 text-white border-0' : ''}`}
+                                                    className={`w-full ${isActivateCard ? 'bg-warning text-warning-foreground hover:bg-warning/90' : ''}`}
                                                     disabled={isDisabled || processing}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -315,9 +307,9 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
 
                 {/* Usage + Features */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-200 dark:border-zinc-800 space-y-6">
-                        <h3 className="font-bold flex items-center gap-2">
-                            <Users className="w-5 h-5 text-gray-400" />
+                    <div className="bg-card p-6 rounded-2xl border border-border space-y-6">
+                        <h3 className="font-bold flex items-center gap-2 text-foreground">
+                            <Users className="w-5 h-5 text-muted-foreground" />
                             Uso de Recursos
                         </h3>
                         <div className="space-y-6">
@@ -326,14 +318,14 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-200 dark:border-zinc-800 space-y-4">
-                        <h3 className="font-bold">Incluso no seu plano:</h3>
+                    <div className="bg-card p-6 rounded-2xl border border-border space-y-4">
+                        <h3 className="font-bold text-foreground">Incluso no seu plano:</h3>
                         <ul className="space-y-3">
                             {Object.entries(subscription.plan.features).map(([key, value]) => {
                                 if (typeof value !== 'boolean') return null;
                                 return (
-                                    <li key={key} className={`flex items-center gap-3 text-sm ${value ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 line-through'}`}>
-                                        <CheckCircle2 className={`w-4 h-4 ${value ? 'text-emerald-500' : 'text-gray-300'}`} />
+                                    <li key={key} className={`flex items-center gap-3 text-sm ${value ? 'text-foreground' : 'text-muted-foreground/50 line-through'}`}>
+                                        <CheckCircle2 className={`w-4 h-4 ${value ? 'text-success' : 'text-muted-foreground/30'}`} />
                                         {key.replace(/_/g, ' ').toUpperCase()}
                                     </li>
                                 );
@@ -343,16 +335,16 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                 </div>
 
                 {/* Invoices Table */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 dark:border-zinc-800">
-                        <h3 className="font-bold flex items-center gap-2 text-lg">
-                            <CreditCard className="w-5 h-5 text-gray-400" />
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="font-bold flex items-center gap-2 text-lg text-foreground">
+                            <CreditCard className="w-5 h-5 text-muted-foreground" />
                             Histórico de Faturamento (SaaS)
                         </h3>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
-                            <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+                            <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
                                 <tr>
                                     <th className="px-6 py-4">Período</th>
                                     <th className="px-6 py-4">Plano</th>
@@ -362,25 +354,25 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                     <th className="px-6 py-4">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+                            <tbody className="divide-y divide-border">
                                 {invoices.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                                             Nenhuma fatura encontrada.
                                         </td>
                                     </tr>
                                 ) : (
                                     invoices.map((invoice) => (
-                                        <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/20">
-                                            <td className="px-6 py-4 font-medium">{invoice.reference_period}</td>
-                                            <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{invoice.plan.name}</td>
-                                            <td className="px-6 py-4 font-bold">R$ {invoice.amount}</td>
-                                            <td className="px-6 py-4">{new Date(invoice.due_date).toLocaleDateString()}</td>
+                                        <tr key={invoice.id} className="hover:bg-muted/30 transition-colors">
+                                            <td className="px-6 py-4 font-medium text-foreground">{invoice.reference_period}</td>
+                                            <td className="px-6 py-4 text-muted-foreground">{invoice.plan.name}</td>
+                                            <td className="px-6 py-4 font-bold text-foreground">R$ {invoice.amount}</td>
+                                            <td className="px-6 py-4 text-muted-foreground">{new Date(invoice.due_date).toLocaleDateString()}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                                    invoice.status === 'paid'    ? 'bg-emerald-100 text-emerald-700' :
-                                                    invoice.status === 'overdue' ? 'bg-red-100 text-red-700'         :
-                                                    'bg-amber-100 text-amber-700'
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${
+                                                    invoice.status === 'paid'    ? 'bg-success-bg text-success-text border-success/20' :
+                                                    invoice.status === 'overdue' ? 'bg-destructive-bg text-destructive-text border-destructive/20' :
+                                                    'bg-warning-bg text-warning-text border-warning/20'
                                                 }`}>
                                                     {invoice.status}
                                                 </span>
@@ -403,6 +395,8 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                         </table>
                     </div>
                 </div>
+            </div>
+        </>
             </div>
         </>
     );

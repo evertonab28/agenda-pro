@@ -38,8 +38,8 @@ export default function Index({ professionals }: Props) {
                             <UserCircle className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Lista de Profissionais</h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <h2 className="text-xl font-bold text-foreground">Lista de Profissionais</h2>
+                            <p className="text-sm text-muted-foreground">
                                 {professionals.data.length} profissionais cadastrados
                             </p>
                         </div>
