@@ -9,11 +9,12 @@ import { PendingChargesTable } from './Components/PendingChargesTable';
 import { DayDetailsDrawer } from './Components/DayDetailsDrawer';
 import { DailyActions } from './Components/DailyActions';
 import { BookingLinkBanner } from './Components/BookingLinkBanner';
+import { AtRiskBanner } from './Components/AtRiskBanner';
 
 export default function DashboardIndex({
   filters, range, current, deltas, timeseries,
-  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors, publicBookingUrl
-}: DashboardProps & { daily_actions: any[], publicBookingUrl: string }) {
+  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors, publicBookingUrl, atRiskCount
+}: DashboardProps & { daily_actions: any[], publicBookingUrl: string, atRiskCount: number }) {
 
   const [filterState, setFilterState] = useState<FiltersState>({
     from: filters.from || range.from.split(' ')[0],
@@ -40,6 +41,7 @@ export default function DashboardIndex({
     <AppLayout>
       <div className="space-y-6 pb-12">
         <BookingLinkBanner publicBookingUrl={publicBookingUrl} />
+        <AtRiskBanner atRiskCount={atRiskCount} />
 
         {errors && Object.keys(errors).length > 0 && (
            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/50">

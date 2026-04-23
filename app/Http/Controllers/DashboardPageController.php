@@ -5,16 +5,15 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Http\Requests\DashboardFilterRequest;
 use App\Services\DashboardService;
+use App\Services\CRMService;
 use Illuminate\Support\Facades\Response;
 
 class DashboardPageController extends Controller
 {
-    protected $dashboardService;
-
-    public function __construct(DashboardService $dashboardService)
-    {
-        $this->dashboardService = $dashboardService;
-    }
+    public function __construct(
+        protected DashboardService $dashboardService,
+        protected CRMService $crmService,
+    ) {}
 
     public function index(DashboardFilterRequest $request)
     {
@@ -33,10 +32,14 @@ class DashboardPageController extends Controller
             ? $officialAppUrl . '/p/' . $workspace->slug
             : '';
 
+        $segmentCounts = $this->crmService->getSegmentCounts();
+        $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
+
         return Inertia::render('Dashboard/index', array_merge([
             'filters' => $filters,
             'can_export' => $request->user() ? $request->user()->can('export-dashboard') : true,
             'publicBookingUrl' => $publicBookingUrl,
+            'atRiskCount' => $atRiskCount,
         ], $dashboardData));
     }
 
