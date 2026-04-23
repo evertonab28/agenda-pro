@@ -15,9 +15,16 @@ class DashboardPageController extends Controller
         protected CRMService $crmService,
     ) {}
 
-    public function index(DashboardFilterRequest $request)
+    public function index(\Illuminate\Http\Request $request)
     {
-        die("TESTE: O SERVIDOR ESTÁ LENDO O ARQUIVO CORRETO!");
+        return \Inertia\Inertia::render('Dashboard/index', [
+            'filters' => [],
+            'dashboardData' => [],
+            'atRiskCount' => 0,
+            'whatsAppConnected' => false,
+            'publicBookingUrl' => '',
+            'can_export' => true
+        ]);
     }
 
     public function export(DashboardFilterRequest $request)
