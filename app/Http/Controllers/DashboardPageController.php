@@ -20,13 +20,11 @@ class DashboardPageController extends Controller
         $filters = $request->validated();
         if (!isset($filters['status'])) $filters['status'] = [];
 
-        $dashboardData = $this->dashboardService->getDashboardData($filters);
-        $dashboardData['daily_actions'] = $this->dashboardService->getDailyActions();
-
         $workspace = auth()->user()->workspace;
         $officialAppUrl = 'https://app.agendanexo.com.br';
         $publicBookingUrl = $workspace ? $officialAppUrl . '/p/' . $workspace->slug : '';
 
+        // Otimização: Buscamos dados leves imediatamente
         $segmentCounts = $this->crmService->getSegmentCounts();
         $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
 
@@ -37,13 +35,19 @@ class DashboardPageController extends Controller
                 ->exists()
             : false;
 
-        return \Inertia\Inertia::render('Dashboard/index', array_merge([
+        // Otimização: Dados pesados são "adiados" (Deferred)
+        // O usuário verá o layout do dashboard instantaneamente.
+        return \Inertia\Inertia::render('Dashboard/index', [
             'filters' => $filters,
             'can_export' => $request->user() ? $request->user()->can('export-dashboard') : true,
             'publicBookingUrl' => $publicBookingUrl,
             'atRiskCount' => $atRiskCount,
             'whatsAppConnected' => $whatsAppConnected,
-        ], $dashboardData));
+            
+            // Estes blocos serão carregados em segundo plano
+            'dashboardData' => \Inertia\Inertia::defer(fn() => $this->dashboardService->getDashboardData($filters)),
+            'daily_actions' => \Inertia\Inertia::defer(fn() => $this->dashboardService->getDailyActions()),
+        ]);
     }
 
     public function export(DashboardFilterRequest $request)
