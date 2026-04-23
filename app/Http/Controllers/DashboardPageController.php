@@ -30,10 +30,13 @@ class DashboardPageController extends Controller
                 ->exists()
             : false;
 
+        $segmentCounts = $this->crmService->getSegmentCounts();
+        $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
+
         return \Inertia\Inertia::render('Dashboard/index', [
             'filters' => [],
             'dashboardData' => [],
-            'atRiskCount' => 0,
+            'atRiskCount' => $atRiskCount,
             'whatsAppConnected' => $whatsAppConnected,
             'publicBookingUrl' => $publicBookingUrl,
             'can_export' => true
