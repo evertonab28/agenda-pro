@@ -42,7 +42,7 @@ export default function AppearanceIndex() {
                         Define a identidade visual usada por toda a equipe no sistema.
                     </p>
                     {!canManageWorkspace && (
-                        <div className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 text-xs font-medium border border-amber-200 dark:border-amber-900/50 w-fit">
+                        <div className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 text-xs font-bold border border-amber-200 dark:border-amber-900/50 w-fit">
                             <Lock className="w-3.5 h-3.5" />
                             Apenas administradores podem alterar o tema
                         </div>
@@ -57,33 +57,33 @@ export default function AppearanceIndex() {
                             onClick={() => updateAppearance({ theme_preset: p.id as ThemePreset })}
                             className={`
                                 relative flex flex-col group text-left transition-all duration-300
-                                ${!canManageWorkspace ? 'opacity-80 cursor-not-allowed' : 'hover:-translate-y-1'}
+                                ${!canManageWorkspace ? 'opacity-70 cursor-not-allowed' : 'hover:-translate-y-1.5'}
                             `}
                         >
                             <div className={`
-                                aspect-[4/3] rounded-2xl border-2 overflow-hidden transition-all duration-300
+                                aspect-[4/3] rounded-2xl border-2 overflow-hidden transition-all duration-300 shadow-sm
                                 ${preset === p.id 
-                                    ? 'border-primary ring-4 ring-primary/10 shadow-lg' 
-                                    : 'border-border group-hover:border-primary/40'
+                                    ? 'border-primary ring-4 ring-primary/15 shadow-xl shadow-primary/10' 
+                                    : 'border-border group-hover:border-primary/50 group-hover:shadow-md'
                                 }
                             `}>
                                 {/* Mini Preview UI */}
                                 <div className="flex h-full w-full" style={{ background: p.colors.background }}>
                                     {/* Sidebar */}
-                                    <div className="w-1/4 h-full border-r border-border/40" style={{ background: p.colors.sidebar }}>
-                                        <div className="p-1.5 space-y-1.5">
-                                            <div className="h-2 w-full rounded-full opacity-40" style={{ background: p.colors.primary }}></div>
-                                            <div className="h-1 w-2/3 rounded-full bg-muted-foreground/10"></div>
-                                            <div className="h-1 w-3/4 rounded-full bg-muted-foreground/10"></div>
+                                    <div className="w-1/4 h-full border-r border-border/60" style={{ background: p.colors.sidebar }}>
+                                        <div className="p-2 space-y-2">
+                                            <div className="h-2 w-full rounded-full opacity-60" style={{ background: p.colors.primary }}></div>
+                                            <div className="h-1.5 w-2/3 rounded-full bg-muted-foreground/15"></div>
+                                            <div className="h-1.5 w-3/4 rounded-full bg-muted-foreground/15"></div>
                                         </div>
                                     </div>
                                     {/* Content Area */}
-                                    <div className="flex-1 p-2.5 space-y-2.5">
-                                        <div className="h-1.5 w-1/3 rounded-full bg-muted-foreground/20"></div>
-                                        <div className="h-12 rounded-xl border border-border/40 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] flex flex-col p-2 gap-2" style={{ background: p.colors.card }}>
-                                            <div className="h-1 w-1/2 rounded-full bg-muted-foreground/10"></div>
+                                    <div className="flex-1 p-3 space-y-3">
+                                        <div className="h-2 w-1/3 rounded-full bg-muted-foreground/25"></div>
+                                        <div className="h-14 rounded-xl border-2 border-border/40 shadow-lg flex flex-col p-2 gap-2" style={{ background: p.colors.card }}>
+                                            <div className="h-1.5 w-1/2 rounded-full bg-muted-foreground/15"></div>
                                             <div className="mt-auto flex justify-end">
-                                                <div className="h-3 w-8 rounded-md shadow-sm" style={{ background: p.colors.primary }}></div>
+                                                <div className="h-4 w-10 rounded-md shadow-md" style={{ background: p.colors.primary }}></div>
                                             </div>
                                         </div>
                                     </div>
@@ -92,14 +92,14 @@ export default function AppearanceIndex() {
 
                             <div className="mt-4 px-1 flex items-center justify-between">
                                 <div className="flex flex-col">
-                                    <span className={`text-sm font-bold transition-colors ${preset === p.id ? 'text-primary' : 'text-foreground'}`}>
+                                    <span className={`text-sm font-extrabold transition-colors ${preset === p.id ? 'text-primary' : 'text-foreground'}`}>
                                         {p.name}
                                     </span>
-                                    <span className="text-[11px] text-muted-foreground line-clamp-1">{p.description}</span>
+                                    <span className="text-[11px] font-medium text-muted-foreground line-clamp-1">{p.description}</span>
                                 </div>
                                 {preset === p.id && (
-                                    <div className="bg-primary text-primary-foreground rounded-full p-0.5 ring-2 ring-background shadow-sm">
-                                        <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                                    <div className="bg-primary text-primary-foreground rounded-full p-0.5 ring-2 ring-background shadow-lg">
+                                        <Check className="w-3.5 h-3.5" strokeWidth={4} />
                                     </div>
                                 )}
                             </div>
@@ -109,7 +109,7 @@ export default function AppearanceIndex() {
             </section>
 
             {/* Bloco 2: Seu modo de exibição */}
-            <section className="space-y-6 pt-6 border-t border-border/50">
+            <section className="space-y-6 pt-8 border-t border-border">
                 <div className="flex flex-col gap-1">
                     <h2 className="text-xl font-bold tracking-tight text-foreground">Seu modo de exibição</h2>
                     <p className="text-muted-foreground text-sm">Personalize como o sistema aparece apenas para você.</p>
@@ -128,20 +128,20 @@ export default function AppearanceIndex() {
                                 key={m.id}
                                 onClick={() => updateAppearance({ theme_mode: m.id as ThemeMode })}
                                 className={`
-                                    flex-1 min-w-[140px] p-5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-4 group
+                                    flex-1 min-w-[140px] p-6 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-4 group
                                     ${active 
-                                        ? 'border-primary bg-primary/[0.03] text-primary shadow-md ring-4 ring-primary/5' 
-                                        : 'border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                                        ? 'border-primary bg-primary/[0.05] text-primary shadow-xl shadow-primary/5 ring-4 ring-primary/10 scale-[1.02]' 
+                                        : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground hover:bg-muted/30'
                                     }
                                 `}
                             >
                                 <div className={`
-                                    p-3 rounded-xl transition-all duration-300
-                                    ${active ? 'bg-primary text-primary-foreground rotate-0' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary -rotate-3 group-hover:rotate-0'}
+                                    p-4 rounded-2xl transition-all duration-300 shadow-sm
+                                    ${active ? 'bg-primary text-primary-foreground rotate-0 scale-110 shadow-lg' : 'bg-muted/80 group-hover:bg-primary/15 group-hover:text-primary group-hover:scale-105'}
                                 `}>
-                                    <Icon className="w-6 h-6" strokeWidth={2.5} />
+                                    <Icon className="w-7 h-7" strokeWidth={2.5} />
                                 </div>
-                                <span className="text-sm font-bold tracking-wide uppercase">{m.name}</span>
+                                <span className="text-xs font-black tracking-widest uppercase">{m.name}</span>
                             </button>
                         );
                     })}

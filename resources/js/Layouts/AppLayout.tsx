@@ -62,143 +62,82 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <div className="h-16 flex items-center px-6 border-b border-border font-bold text-xl text-primary">
             AgendaNexo
           </div>
-          <nav className="p-4 space-y-1">
-            <Link 
-              href={route('dashboard')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/dashboard') && !isCurrent('/dashboard/executivo')
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              Geral
-            </Link>
-            <Link 
-              href={route('dashboard.executive')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/dashboard/executivo') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <TrendingUp className="w-5 h-5 text-primary/70" />
-              BI Executivo
-            </Link>
-            <Link 
-              href={route('agenda')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/agenda') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Calendar className="w-5 h-5" />
-              Agenda
-            </Link>
-            <Link 
-              href={route('customers.index')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/customers') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Users className="w-5 h-5" />
-              Clientes
-            </Link>
-            <Link 
-              href={route('waitlist.index')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/lista-espera') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Users className="w-5 h-5 opacity-70" />
-              Lista de Espera
-            </Link>
-            <Link 
-              href={route('packages.index')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/pacotes') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Package className="w-5 h-5" />
-              Pacotes
-            </Link>
-            <Link 
-              href={route('finance.dashboard')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                url === '/financeiro' 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Banknote className="w-5 h-5" />
-              Financeiro
-            </Link>
-            <Link 
-              href={route('finance.charges.index')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/financeiro/cobrancas') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Banknote className="w-5 h-5 opacity-50" />
-              Gestão de Cobranças
-            </Link>
-            <Link 
-              href={route('crm.index')} 
-              prefetch
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                isCurrent('/crm') 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              <Users className="w-5 h-5 opacity-50" />
-              CRM & Retenção
-            </Link>
-            {props.auth.can.manage_users && (
-              <Link 
-                href={route('users.index')} 
-                prefetch
-                className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                  isCurrent('/usuarios') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                }`}
-              >
-                <Users className="w-5 h-5" />
-                Usuários
-              </Link>
-            )}
-            {props.auth.can.manage_settings && (
-              <Link 
-                href={route('configuracoes.general.index')} 
-                prefetch
-                className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                  url.startsWith('/configuracoes') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                }`}
-              >
-                <Settings className="w-5 h-5" />
-                Configurações
-              </Link>
-            )}
+          <nav className="p-4 space-y-2">
+            {[
+              { href: route('dashboard'), icon: LayoutDashboard, label: 'Geral', pattern: '/dashboard', exact: true },
+              { href: route('dashboard.executive'), icon: TrendingUp, label: 'BI Executivo', pattern: '/dashboard/executivo' },
+              { href: route('agenda'), icon: Calendar, label: 'Agenda', pattern: '/agenda' },
+              { href: route('customers.index'), icon: Users, label: 'Clientes', pattern: '/customers' },
+              { href: route('waitlist.index'), icon: Users, label: 'Lista de Espera', pattern: '/lista-espera', sub: true },
+              { href: route('packages.index'), icon: Package, label: 'Pacotes', pattern: '/pacotes' },
+              { href: route('finance.dashboard'), icon: Banknote, label: 'Financeiro', pattern: '/financeiro', exact: true },
+              { href: route('finance.charges.index'), icon: Banknote, label: 'Gestão de Cobranças', pattern: '/financeiro/cobrancas', sub: true },
+              { href: route('crm.index'), icon: Users, label: 'CRM & Retenção', pattern: '/crm', sub: true },
+            ].map((item) => {
+              const active = item.exact ? url === item.pattern : url.startsWith(item.pattern);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  prefetch
+                  className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                    active
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+                    active ? 'bg-white/20' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary'
+                  }`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="flex-1">{item.label}</span>
+                  {active && (
+                    <div className="absolute left-0 w-1 h-6 bg-white rounded-full -translate-x-1" />
+                  )}
+                </Link>
+              );
+            })}
+
+            <div className="pt-4 mt-4 border-t border-border/50">
+              {props.auth.can.manage_users && (
+                <Link 
+                  href={route('users.index')} 
+                  prefetch
+                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                    url.startsWith('/usuarios') 
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
+                    url.startsWith('/usuarios') ? 'bg-white/20' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary'
+                  }`}>
+                    <Users className="w-5 h-5" />
+                  </div>
+                  Usuários
+                </Link>
+              )}
+              {props.auth.can.manage_settings && (
+                <Link 
+                  href={route('configuracoes.general.index')} 
+                  prefetch
+                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                    url.startsWith('/configuracoes') 
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
+                    url.startsWith('/configuracoes') ? 'bg-white/20' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary'
+                  }`}>
+                    <Settings className="w-5 h-5" />
+                  </div>
+                  Configurações
+                </Link>
+              )}
+            </div>
           </nav>
         </aside>
       )}

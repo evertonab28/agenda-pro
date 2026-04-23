@@ -42,8 +42,8 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
             </div>
 
             {!props.auth.hide_nav && (
-                <div className="border-b border-border">
-                    <nav className="-mb-px flex space-x-8 overflow-x-auto">
+                <div className="border-b border-border/60">
+                    <nav className="-mb-px flex space-x-1 overflow-x-auto">
                         {tabs.map((tab) => {
                             const Icon = tab.icon;
                             const active = isCurrent(tab.pattern);
@@ -53,17 +53,19 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
                                     href={tab.href}
                                     prefetch
                                     className={`
-                                        group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
+                                        group inline-flex items-center py-4 px-4 border-b-2 font-bold text-sm whitespace-nowrap transition-all duration-200
                                         ${active 
-                                            ? 'border-primary text-primary' 
-                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                                            ? 'border-primary text-primary bg-primary/5' 
+                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                         }
                                     `}
                                 >
-                                    <Icon className={`
-                                        -ml-0.5 mr-2 h-5 w-5 transition-colors
-                                        ${active ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}
-                                    `} />
+                                    <div className={`
+                                        mr-2.5 flex items-center justify-center w-7 h-7 rounded-lg transition-colors
+                                        ${active ? 'bg-primary/10 text-primary' : 'bg-muted/50 text-muted-foreground group-hover:bg-muted group-hover:text-foreground'}
+                                    `}>
+                                        <Icon className="h-4 w-4" />
+                                    </div>
                                     {tab.name}
                                 </Link>
                             );
