@@ -19,7 +19,7 @@ interface Props {
 
 export default function Index({ customers, filters, stats }: Props & { stats: any }) {
   return (
-    <AppLayout>
+    <>
       <Head title="Gerenciamento de Clientes" />
       
       <div className="max-w-7xl mx-auto space-y-6">
@@ -96,6 +96,8 @@ export default function Index({ customers, filters, stats }: Props & { stats: an
            </div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }
+
+Index.layout = (page: any) => <AppLayout children={page} />;

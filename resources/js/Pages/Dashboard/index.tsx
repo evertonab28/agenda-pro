@@ -50,7 +50,6 @@ export default function DashboardIndex({
   );
 
   return (
-    <AppLayout>
       <div className="space-y-6 pb-12">
         <BookingLinkBanner publicBookingUrl={publicBookingUrl} />
         <AtRiskBanner atRiskCount={atRiskCount} />
@@ -113,6 +112,7 @@ export default function DashboardIndex({
           onClose={() => setSelectedDay(null)} 
         />
       </div>
-    </AppLayout>
   );
 }
+
+DashboardIndex.layout = (page: any) => <AppLayout children={page} />;

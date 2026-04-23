@@ -211,7 +211,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </header>
         )}
 
-        <main className={`flex-1 overflow-auto p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden relative page-fade-in ${props.auth.hide_nav ? 'flex items-center justify-center bg-gray-50/50 dark:bg-zinc-950' : ''}`}>
+        <main className={`flex-1 overflow-auto p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden relative ${props.auth.hide_nav ? 'flex items-center justify-center bg-gray-50/50 dark:bg-zinc-950' : ''}`}>
           {props.auth.hide_nav ? (
             <div className="w-full max-w-4xl bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
                 <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-800/50">

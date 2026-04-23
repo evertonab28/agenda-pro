@@ -116,7 +116,7 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
   }, [services.length, visibleProfessionals, openCreateModal]);
 
   return (
-    <AppLayout>
+    <>
       <Head title="Agenda" />
       <div className="p-4">
         <AgendaToolbar
@@ -162,6 +162,8 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
           onClose={closeModal}
         />
       </div>
-    </AppLayout>
+    </>
   );
 }
+
+AgendaIndex.layout = (page: any) => <AppLayout children={page} />;
