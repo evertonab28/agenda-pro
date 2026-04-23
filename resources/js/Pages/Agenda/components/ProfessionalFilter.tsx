@@ -41,8 +41,8 @@ export function ProfessionalFilter({
           <button
             key={p.id}
             onClick={() => onToggle(p.id)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-opacity ${
-              visible ? 'opacity-100' : 'opacity-40'
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${
+              visible ? 'opacity-100 shadow-sm' : 'opacity-40 grayscale'
             }`}
             style={{ borderColor: color, color, backgroundColor: `${color}18` }}
           >

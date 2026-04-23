@@ -10,6 +10,8 @@ import { useAppointments } from './hooks/useAppointments';
 import { useAgendaUI } from './hooks/useAgendaUI';
 import { toResourceInput } from './utils/calendarMappers';
 import type { AppointmentEvent, Professional, Service } from './types';
+import { PageHeader } from '@/Components/Shared/PageHeader';
+import { SectionCard } from '@/Components/Shared/SectionCard';
 
 interface Props {
   events: AppointmentEvent[];
@@ -118,32 +120,43 @@ export default function AgendaIndex({ events, professionals, services }: Props) 
   return (
     <>
       <Head title="Agenda" />
-      <div className="p-4">
-        <AgendaToolbar
-          currentView={currentView}
-          currentDate={currentDate}
-          professionals={professionals}
-          visibleProfessionalIds={visibleProfessionalIds}
-          onViewChange={(v) => { calendarApi?.changeView(v); setCurrentView(v); }}
-          onNavigate={handleNavigate}
-          onToggleProfessional={toggleProfessional}
-          onCreateClick={handleCreateClick}
-          isMobile={isMobile}
-          onMobileProfessionalSelect={handleMobileProfessionalSelect}
+      <div className="space-y-6">
+        <PageHeader 
+          title="Agenda"
+          subtitle="Visualize e gerencie os atendimentos da sua equipe."
         />
 
-        <AgendaCalendar
-          events={visibleEvents}
-          resources={resources}
-          currentView={currentView}
-          onEventDrop={moveAppointment}
-          onEventResize={resizeAppointment}
-          onSelect={openCreateModal}
-          onEventClick={openEditModal}
-          onViewChange={setCurrentView}
-          onDateChange={setCurrentDate}
-          onReady={setCalendarApi}
-        />
+        <SectionCard noPadding className="flex-1">
+          <div className="p-4 bg-muted/20 border-b">
+            <AgendaToolbar
+              currentView={currentView}
+              currentDate={currentDate}
+              professionals={professionals}
+              visibleProfessionalIds={visibleProfessionalIds}
+              onViewChange={(v) => { calendarApi?.changeView(v); setCurrentView(v); }}
+              onNavigate={handleNavigate}
+              onToggleProfessional={toggleProfessional}
+              onCreateClick={handleCreateClick}
+              isMobile={isMobile}
+              onMobileProfessionalSelect={handleMobileProfessionalSelect}
+            />
+          </div>
+
+          <div className="p-4">
+            <AgendaCalendar
+              events={visibleEvents}
+              resources={resources}
+              currentView={currentView}
+              onEventDrop={moveAppointment}
+              onEventResize={resizeAppointment}
+              onSelect={openCreateModal}
+              onEventClick={openEditModal}
+              onViewChange={setCurrentView}
+              onDateChange={setCurrentDate}
+              onReady={setCalendarApi}
+            />
+          </div>
+        </SectionCard>
 
         <AppointmentModal
           open={modalOpen}

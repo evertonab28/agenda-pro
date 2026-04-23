@@ -1,5 +1,5 @@
 // resources/js/Pages/Agenda/components/AgendaToolbar.tsx
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -54,57 +54,67 @@ export function AgendaToolbar({
   const views = isMobile ? MOBILE_VIEWS : DESKTOP_VIEWS;
 
   return (
-    <div className="flex flex-col gap-3 mb-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        {/* Navegação */}
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => onNavigate('prev')}>
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => onNavigate('today')}>
-            Hoje
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => onNavigate('next')}>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-          <span className="text-sm font-medium capitalize ml-1">
-            {formatHeader(currentDate, currentView)}
-          </span>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Navegação e Título */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center bg-muted/50 rounded-lg p-0.5 border border-border/40">
+            <Button variant="ghost" size="icon" onClick={() => onNavigate('prev')} className="h-8 w-8">
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onNavigate('today')} className="h-8 px-3 text-[11px] font-bold uppercase tracking-wider">
+              Hoje
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => onNavigate('next')} className="h-8 w-8">
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-primary opacity-50" />
+            <span className="text-sm font-bold capitalize text-foreground">
+              {formatHeader(currentDate, currentView)}
+            </span>
+          </div>
         </div>
 
-        {/* Seletor de view */}
-        <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 rounded-lg p-1">
-          {views.map((v) => (
-            <button
-              key={v}
-              onClick={() => onViewChange(v)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                currentView === v
-                  ? 'bg-white dark:bg-zinc-700 shadow-sm text-gray-900 dark:text-white'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400'
-              }`}
-            >
-              {VIEW_LABELS[v]}
-            </button>
-          ))}
-        </div>
+        <div className="flex items-center gap-3">
+          {/* Seletor de view */}
+          <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border/40">
+            {views.map((v) => (
+              <button
+                key={v}
+                onClick={() => onViewChange(v)}
+                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
+                  currentView === v
+                    ? 'bg-card shadow-sm text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {VIEW_LABELS[v]}
+              </button>
+            ))}
+          </div>
 
-        {/* Botão criar */}
-        <Button onClick={onCreateClick} size="sm" className="gap-2">
-          <Plus className="w-4 h-4" />
-          Novo
-        </Button>
+          {/* Botão criar */}
+          <Button onClick={onCreateClick} size="sm" className="bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/10 h-9 px-4">
+            <Plus className="w-4 h-4 mr-1.5" />
+            Novo Agendamento
+          </Button>
+        </div>
       </div>
 
       {/* Filtro de profissionais */}
       {professionals.length > 1 && (
-        <ProfessionalFilter
-          professionals={professionals}
-          visibleIds={visibleProfessionalIds}
-          onToggle={onToggleProfessional}
-          mobile={isMobile}
-          onMobileSelect={onMobileProfessionalSelect}
-        />
+        <div className="pt-3 border-t border-border/40">
+          <ProfessionalFilter
+            professionals={professionals}
+            visibleIds={visibleProfessionalIds}
+            onToggle={onToggleProfessional}
+            mobile={isMobile}
+            onMobileSelect={onMobileProfessionalSelect}
+          />
+        </div>
       )}
     </div>
   );
