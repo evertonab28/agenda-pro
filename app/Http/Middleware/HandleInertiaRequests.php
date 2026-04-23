@@ -64,11 +64,15 @@ class HandleInertiaRequests extends Middleware
                 ] : [],
                 'hide_nav' => $request->user() && 
                              (in_array($request->user()->role, ['admin', 'manager'])) && 
-                             (!Service::exists() || !Professional::exists() || !ProfessionalSchedule::exists()) &&
+                             \Illuminate\Support\Facades\Cache::remember('onboarding_checks_' . auth()->id(), 600, function() {
+                                 return !\App\Models\Service::exists() || 
+                                        !\App\Models\Professional::exists() || 
+                                        !\App\Models\ProfessionalSchedule::exists();
+                             }) &&
                              ($request->routeIs('onboarding.*') || $request->routeIs('configuracoes.*')),
             ],
             'ziggy' => fn () => [
-                ...(new Ziggy)->toArray(),
+                ...(new \Tighten\Ziggy\Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
         ];
