@@ -28,6 +28,8 @@ Route::get('/', function () {
 })->name('home')->withoutMiddleware([
     \Illuminate\Session\Middleware\StartSession::class,
     \Illuminate\Session\Middleware\AuthenticateSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     \App\Http\Middleware\HandleInertiaRequests::class,
     \App\Http\Middleware\CheckOnboarding::class,
 ]);
