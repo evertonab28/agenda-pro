@@ -36,7 +36,7 @@ export function AtRiskPanel({ customers = [] }: Props) {
       title="Clientes em Risco"
       subtitle="Sem agendamento recente"
       headerAction={
-        <span className="font-display text-lg font-extrabold text-destructive-foreground">
+        <span className="font-display text-lg font-extrabold text-destructive">
           {customers.length}
         </span>
       }

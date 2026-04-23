@@ -65,7 +65,7 @@ export default function DashboardIndex({
   const headerAction = (
     <Link
       href={route('agenda')}
-      className="flex items-center gap-1.5 text-sm font-bold text-white bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)] no-underline transition-transform active:scale-95"
+      className="flex items-center gap-1.5 text-sm font-bold text-primary-foreground bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)] no-underline transition-transform active:scale-95"
     >
       <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Novo agendamento
     </Link>

@@ -105,8 +105,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               );
             })}
 
-            <div className="mt-6 pt-6 border-t border-sidebar-border/30">
-              <div className="px-6 mb-3 text-[10px] font-black uppercase tracking-widest text-sidebar-foreground/40">
+            <div className="mt-6 pt-6 border-t border-sidebar-border/50">
+              <div className="px-6 mb-3 text-[10px] font-black uppercase tracking-widest text-sidebar-foreground/50">
                 Administração
               </div>
               {props.auth.can.manage_users && (
@@ -141,7 +141,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </nav>
 
           {/* RODAPÉ FIXO: Workspace */}
-          <div className="flex-shrink-0 p-4 border-t border-sidebar-border/30 bg-sidebar-accent/10">
+          <div className="flex-shrink-0 p-4 border-t border-sidebar-border/50 bg-sidebar-accent/20">
             <div className="flex flex-col gap-4">
               {/* Workspace / Context */}
               <div className="px-2 flex items-center gap-2">
@@ -276,13 +276,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${
             message.type === 'success' 
               ? 'bg-success-bg border-success/20 text-success-text' 
-              : 'bg-error-bg border-error/20 text-error-text'
+              : 'bg-destructive-bg border-destructive/20 text-destructive-text'
           }`}>
             {message.type === 'success' ? (
               <CheckCircle2 className="w-5 h-5 text-success" />
             ) : (
-              <XCircle className="w-5 h-5 text-error" />
+              <XCircle className="w-5 h-5 text-destructive" />
             )}
+
             <p className="text-sm font-bold pr-4">{message.text}</p>
             <button onClick={() => setVisible(false)} className="p-1 hover:bg-foreground/5 rounded-full transition-colors">
               <X className="w-4 h-4 opacity-50" />

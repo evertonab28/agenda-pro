@@ -67,9 +67,9 @@ export function MetricCard({
       onMouseLeave={() => setHov(false)}
       className={`bg-card border rounded-2xl p-5 transition-all duration-300 cursor-default flex flex-col h-full ${className}`}
       style={{
-        borderColor: hov ? `${color}44` : 'var(--border)',
-        boxShadow: hov ? `0 8px 32px ${color}18` : 'none',
-        background: hov ? 'color-mix(in srgb, var(--muted) 20%, transparent)' : undefined,
+        borderColor: hov ? `color-mix(in srgb, ${color}, transparent 70%)` : 'var(--border)',
+        boxShadow: hov ? `0 8px 32px color-mix(in srgb, ${color}, transparent 88%)` : 'none',
+        background: hov ? 'color-mix(in srgb, var(--muted) 40%, transparent)' : undefined,
       }}
     >
       {/* Header row: icon + trend badge */}
@@ -77,7 +77,10 @@ export function MetricCard({
         {icon && (
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
-            style={{ background: `${color}22`, color }}
+            style={{ 
+              background: `color-mix(in srgb, ${color}, transparent 85%)`, 
+              color 
+            }}
           >
             {icon}
           </div>
@@ -86,7 +89,7 @@ export function MetricCard({
       </div>
 
       {/* Label */}
-      <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[.06em] mb-1">
+      <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-[.08em] mb-1">
         {label}
       </div>
 
@@ -94,6 +97,7 @@ export function MetricCard({
       <div className="font-display text-[26px] font-extrabold tracking-tight leading-tight text-foreground">
         {value}
       </div>
+
 
       {/* Subtext */}
       {sub && (

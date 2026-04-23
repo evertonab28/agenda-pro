@@ -69,7 +69,7 @@ export function BarChart({
                 width={barW}
                 height={H}
                 rx="6"
-                fill={isHov ? 'color-mix(in srgb, var(--primary) 8%, transparent)' : 'transparent'}
+                fill={isHov ? `color-mix(in srgb, ${color} 10%, transparent)` : 'transparent'}
               />
               {/* bar */}
               <rect
@@ -78,7 +78,7 @@ export function BarChart({
                 width={barW - 4}
                 height={bh}
                 rx="5"
-                fill={isHov ? color : `color-mix(in srgb, ${color} 15%, transparent)`}
+                fill={isHov ? color : `color-mix(in srgb, ${color} 25%, transparent)`}
                 className="transition-all duration-200"
               />
               {/* tooltip value on hover */}
