@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('charge_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount_received', 12, 2);
             $table->decimal('fee_amount', 12, 2)->default(0);
@@ -21,6 +22,8 @@ return new class extends Migration
             $table->datetime('received_at');
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->index(['charge_id', 'received_at']);
         });
     }
 

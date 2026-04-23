@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('waitlist_entries', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->foreignId('service_id')->constrained()->cascadeOnDelete();
             $table->foreignId('professional_id')->nullable()->constrained()->nullOnDelete();

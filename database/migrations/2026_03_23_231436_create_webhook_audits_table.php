@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('webhook_audits', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('workspace_id')->nullable();
             $table->string('provider');
+            $table->string('type')->nullable();
             $table->string('event_id')->index();
             $table->timestamp('processed_at')->useCurrent();
-            
-            $table->unique(['provider', 'event_id']);
+
+            $table->index(['workspace_id', 'provider', 'type', 'event_id'], 'webhook_audits_scope_lookup_idx');
         });
     }
 

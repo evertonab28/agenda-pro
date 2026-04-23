@@ -14,6 +14,7 @@ return new class extends Migration
         // Weekly schedules for professionals
         Schema::create('professional_schedules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('professional_id')->constrained()->onDelete('cascade');
             $table->unsignedTinyInteger('weekday'); // 0 (Sunday) to 6 (Saturday)
             $table->time('start_time')->default('09:00:00');
@@ -29,6 +30,7 @@ return new class extends Migration
         // Holidays and Blocked Dates
         Schema::create('holidays', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->date('date');
             $table->foreignId('professional_id')->nullable()->constrained()->onDelete('cascade');
@@ -39,9 +41,12 @@ return new class extends Migration
         // Global System Settings
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();
+            $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('key');
             $table->text('value')->nullable();
             $table->timestamps();
+
+            $table->unique(['workspace_id', 'key']);
         });
     }
 

@@ -20,6 +20,11 @@ return new class extends Migration
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
+            $table->string('cancellation_category')->nullable();
+            $table->text('cancellation_reason')->nullable();
+            $table->timestamp('cancellation_recorded_at')->nullable();
+            $table->string('canceled_by')->nullable()->comment('customer, admin, system');
+            $table->boolean('winback_candidate')->default(false);
             $table->timestamp('grace_ends_at')->nullable();
             $table->string('external_id')->nullable(); // Integration ID from Asaas/Stripe
             $table->json('meta')->nullable();

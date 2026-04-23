@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('professionals', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();

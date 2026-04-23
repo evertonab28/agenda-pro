@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('workspace_subscription_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('workspace_id')->constrained()->onDelete('cascade');
-            $table->foreignId('subscription_id')->constrained('workspace_subscriptions')->onDelete('cascade');
+            $table->foreignId('subscription_id')->nullable()->constrained('workspace_subscriptions')->onDelete('cascade');
             $table->string('event_type'); // trialled_ended, invoice_generated, payment_received, overdue, reactivated, canceled
             $table->json('payload')->nullable();
             $table->timestamps();

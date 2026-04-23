@@ -11,6 +11,7 @@ return new class extends Migration
         // Wallets
         Schema::create('wallets', function (Blueprint $blueprint) {
             $blueprint->id();
+            $blueprint->foreignId('workspace_id')->nullable()->constrained()->nullOnDelete();
             $blueprint->foreignId('customer_id')->unique()->constrained()->onDelete('cascade');
             $blueprint->decimal('balance', 12, 2)->default(0);
             $blueprint->timestamps();
@@ -19,6 +20,7 @@ return new class extends Migration
         // Wallet Transactions
         Schema::create('wallet_transactions', function (Blueprint $blueprint) {
             $blueprint->id();
+            $blueprint->unsignedBigInteger('workspace_id')->nullable()->index();
             $blueprint->foreignId('wallet_id')->constrained()->onDelete('cascade');
             $blueprint->decimal('amount', 12, 2);
             $blueprint->string('type'); // credit, debit
@@ -26,11 +28,14 @@ return new class extends Migration
             $blueprint->string('reference_type')->nullable(); // appointment, charge, package
             $blueprint->unsignedBigInteger('reference_id')->nullable();
             $blueprint->timestamps();
+
+            $blueprint->index(['reference_type', 'reference_id']);
         });
 
         // Packages (Templates)
         Schema::create('packages', function (Blueprint $blueprint) {
             $blueprint->id();
+            $blueprint->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $blueprint->foreignId('service_id')->constrained()->onDelete('cascade');
             $blueprint->string('name');
             $blueprint->text('description')->nullable();
@@ -44,6 +49,7 @@ return new class extends Migration
         // Customer's purchased packages
         Schema::create('customer_packages', function (Blueprint $blueprint) {
             $blueprint->id();
+            $blueprint->foreignId('workspace_id')->nullable()->constrained()->nullOnDelete();
             $blueprint->foreignId('customer_id')->constrained()->onDelete('cascade');
             $blueprint->foreignId('package_id')->constrained()->onDelete('cascade');
             $blueprint->integer('remaining_sessions');
