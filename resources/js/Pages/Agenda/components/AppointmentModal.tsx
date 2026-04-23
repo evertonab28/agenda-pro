@@ -1,5 +1,6 @@
 // resources/js/Pages/Agenda/components/AppointmentModal.tsx
 import { useState, useEffect } from 'react';
+import { router } from '@inertiajs/react';
 import { format, addMinutes } from 'date-fns';
 import { CreditCard } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -77,11 +78,20 @@ export function AppointmentModal({
       setPendingCriticalStatus(null);
       setError('');
     } else if (mode === 'edit' && event) {
+      const getIso = (date: any) => {
+        if (!date) return '';
+        if (date instanceof Date) return format(date, "yyyy-MM-dd'T'HH:mm");
+        return String(date).slice(0, 16);
+      };
+
+      // FullCalendar EventApi uses getResources()
+      const resId = (event as any).getResources?.()?.[0]?.id || event.resourceId;
+
       setCustomerId(String(ep?.customer?.id ?? ''));
       setServiceId(String(ep?.service?.id ?? ''));
-      setProfessionalId(String(event.resourceId ?? ''));
-      setStartsAt((event.start as string)?.slice(0, 16) ?? '');
-      setEndsAt((event.end as string)?.slice(0, 16) ?? '');
+      setProfessionalId(String(resId ?? ''));
+      setStartsAt((event as any).startStr || getIso(event.start));
+      setEndsAt((event as any).endStr || getIso(event.end));
       setNotes(ep?.notes ?? '');
       setCancelReason('');
       setPendingCriticalStatus(null);
@@ -315,7 +325,7 @@ export function AppointmentModal({
               variant="default"
               className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
               onClick={() => {
-                window.location.href = `/agenda/${event.id}/finalizar`;
+                router.patch(route('agenda.finalize', event.id));
               }}
               disabled={loading}
             >
