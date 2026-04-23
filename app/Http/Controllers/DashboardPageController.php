@@ -15,32 +15,43 @@ class DashboardPageController extends Controller
         protected CRMService $crmService,
     ) {}
 
-    public function index(\Illuminate\Http\Request $request)
+    public function index(DashboardFilterRequest $request)
     {
-        $workspace = auth()->user()->workspace;
-        $officialAppUrl = 'https://app.agendanexo.com.br';
-        $publicBookingUrl = $workspace
-            ? $officialAppUrl . '/p/' . $workspace->slug
-            : '';
+        try {
+            $filters = $request->validated();
+            if (!isset($filters['status'])) $filters['status'] = [];
 
-        $whatsAppConnected = $workspace
-            ? $workspace->integrations()
-                ->where('provider', 'evolution')
-                ->where('status', 'active')
-                ->exists()
-            : false;
+            $dashboardData = $this->dashboardService->getDashboardData($filters);
+            $dashboardData['daily_actions'] = $this->dashboardService->getDailyActions();
 
-        $segmentCounts = $this->crmService->getSegmentCounts();
-        $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
+            $workspace = auth()->user()->workspace;
+            $officialAppUrl = 'https://app.agendanexo.com.br';
+            $publicBookingUrl = $workspace ? $officialAppUrl . '/p/' . $workspace->slug : '';
 
-        return \Inertia\Inertia::render('Dashboard/index', [
-            'filters' => [],
-            'dashboardData' => [],
-            'atRiskCount' => $atRiskCount,
-            'whatsAppConnected' => $whatsAppConnected,
-            'publicBookingUrl' => $publicBookingUrl,
-            'can_export' => true
-        ]);
+            $segmentCounts = $this->crmService->getSegmentCounts();
+            $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
+
+            $whatsAppConnected = $workspace
+                ? $workspace->integrations()
+                    ->where('provider', 'evolution')
+                    ->where('status', 'active')
+                    ->exists()
+                : false;
+
+            return \Inertia\Inertia::render('Dashboard/index', array_merge([
+                'filters' => $filters,
+                'can_export' => true,
+                'publicBookingUrl' => $publicBookingUrl,
+                'atRiskCount' => $atRiskCount,
+                'whatsAppConnected' => $whatsAppConnected,
+            ], $dashboardData));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
+        }
     }
 
     public function export(DashboardFilterRequest $request)
