@@ -11,9 +11,11 @@ import { DailyActions } from './Components/DailyActions';
 import { BookingLinkBanner } from './Components/BookingLinkBanner';
 import { AtRiskBanner } from './Components/AtRiskBanner';
 import { WhatsAppBanner } from './Components/WhatsAppBanner';
-import { BarChart } from './Components/BarChart';
+import { BarChart } from '@/Components/Shared/Charts/BarChart';
 import { TodayPanel } from './Components/TodayPanel';
 import { AtRiskPanel } from './Components/AtRiskPanel';
+import { PageHeader } from '@/Components/Shared/PageHeader';
+import { SectionCard } from '@/Components/Shared/SectionCard';
 import { Plus } from 'lucide-react';
 
 export default function DashboardIndex({
@@ -60,8 +62,17 @@ export default function DashboardIndex({
     <div className="h-32 w-full bg-muted/50 animate-pulse rounded-2xl border border-border/50" />
   );
 
+  const headerAction = (
+    <Link
+      href={route('agenda')}
+      className="flex items-center gap-1.5 text-sm font-bold text-white bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)] no-underline transition-transform active:scale-95"
+    >
+      <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Novo agendamento
+    </Link>
+  );
+
   return (
-    <div className="space-y-4 pb-12">
+    <div className="space-y-4 pb-12 max-w-[1600px] mx-auto">
       {/* Banners */}
       <BookingLinkBanner publicBookingUrl={publicBookingUrl} />
       <AtRiskBanner atRiskCount={atRiskCount} />
@@ -69,7 +80,7 @@ export default function DashboardIndex({
 
       {/* Error messages */}
       {errors && Object.keys(errors).length > 0 && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/50">
+        <div className="p-4 bg-destructive/10 text-destructive rounded-lg text-sm border border-destructive/20 font-medium">
           {Object.values(errors).map((e: any, idx) => <p key={idx}>{e}</p>)}
         </div>
       )}
@@ -80,18 +91,11 @@ export default function DashboardIndex({
       </Deferred>
 
       {/* Page header */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h1 className="font-display text-[22px] font-extrabold text-foreground tracking-tight">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{dateLabel}</p>
-        </div>
-        <Link
-          href={route('agenda')}
-          className="flex items-center gap-1.5 text-sm font-bold text-white bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)] no-underline"
-        >
-          <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Novo agendamento
-        </Link>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle={dateLabel}
+        action={headerAction}
+      />
 
       {/* Filters */}
       <DashboardFilters
@@ -101,9 +105,9 @@ export default function DashboardIndex({
         canExport={can_export !== false}
       />
 
-      {/* KPI Cards: 5 cols on xl, 3 on md, 2 on sm */}
+      {/* KPI Cards */}
       <Deferred data="dashboardData" fallback={
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
           {Array.from({ length: 5 }).map((_, i) => <SkeletonBlock key={i} />)}
         </div>
       }>
@@ -117,40 +121,39 @@ export default function DashboardIndex({
 
       {/* Main two-column grid */}
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-[1fr_340px]">
-        {/* Left column */}
+        {/* Left column: Chart + Rankings */}
         <div className="flex flex-col gap-4">
-          {/* Bar chart card */}
           <Deferred data="dashboardData" fallback={<div className="h-[320px] bg-muted/50 rounded-2xl animate-pulse" />}>
-            <div className="bg-card border border-border rounded-2xl p-5 pb-3.5">
-              <div className="flex justify-between items-start mb-5">
-                <div>
-                  <div className="font-display font-bold text-sm text-foreground">
-                    {chartMetric === 'revenue' ? 'Receita por dia' : 'Agendamentos por dia'}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">Últimos 7 dias</div>
-                </div>
-                <div className="flex gap-1.5">
+            <SectionCard
+              title={chartMetric === 'revenue' ? 'Receita por dia' : 'Agendamentos por dia'}
+              subtitle="Últimos 7 dias"
+              headerAction={
+                <div className="flex gap-1.5 p-1 bg-muted rounded-xl">
                   {(['revenue', 'appointments'] as const).map(m => (
                     <button
                       key={m}
                       onClick={() => setChartMetric(m)}
-                      className="text-[11px] font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150"
-                      style={{
-                        border: `1px solid ${chartMetric === m ? 'var(--primary)' : 'var(--border)'}`,
-                        background: chartMetric === m ? 'color-mix(in srgb, var(--primary) 12%, transparent)' : 'transparent',
-                        color: chartMetric === m ? 'var(--primary)' : 'var(--muted-foreground)',
-                      }}
+                      className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 border-none ${
+                        chartMetric === m
+                          ? 'bg-card text-primary shadow-sm'
+                          : 'bg-transparent text-muted-foreground hover:text-foreground'
+                      }`}
                     >
                       {m === 'revenue' ? 'Receita' : 'Agendamentos'}
                     </button>
                   ))}
                 </div>
-              </div>
-              <BarChart data={dashboardData?.timeseries ?? []} metric={chartMetric} onBarClick={setSelectedDay} />
-            </div>
+              }
+            >
+              <BarChart
+                data={dashboardData?.timeseries ?? []}
+                metric={chartMetric}
+                onBarClick={setSelectedDay}
+                formatValue={v => chartMetric === 'revenue' ? `R$ ${v.toLocaleString('pt-BR')}` : String(v)}
+              />
+            </SectionCard>
           </Deferred>
 
-          {/* Rankings Panel */}
           <Deferred data="dashboardData" fallback={<div className="h-[300px] bg-muted/50 rounded-2xl animate-pulse" />}>
             <RankingsPanel
               services={dashboardData?.ranking_services}
@@ -159,7 +162,7 @@ export default function DashboardIndex({
           </Deferred>
         </div>
 
-        {/* Right column */}
+        {/* Right column: Today + At Risk */}
         <div className="flex flex-col gap-4">
           <Deferred data="today_appointments" fallback={<SkeletonBlock />}>
             <TodayPanel appointments={today_appointments} />

@@ -1,8 +1,9 @@
 import { AtRiskCustomer } from './types';
 import { Link } from '@inertiajs/react';
+import { SectionCard } from '@/Components/Shared/SectionCard';
 
 interface Props {
-  customers: AtRiskCustomer[];
+  customers?: AtRiskCustomer[];
 }
 
 const initials = (name: string) =>
@@ -21,37 +22,41 @@ function riskBg(days: number): string {
 }
 
 export function AtRiskPanel({ customers = [] }: Props) {
+  const footer = (
+    <Link
+      href={route('crm.segment', 'Em Risco')}
+      className="w-full py-2 rounded-lg text-xs font-semibold text-primary bg-primary/10 cursor-pointer border-none no-underline flex items-center justify-center transition-colors hover:bg-primary/20"
+    >
+      Ver todos os clientes em risco
+    </Link>
+  );
+
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-3.5 border-b border-border/60 flex items-center justify-between">
-        <div>
-          <p className="font-display text-sm font-bold text-foreground">Clientes em Risco</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Sem agendamento recente</p>
-        </div>
-        <span
-          className="font-display text-lg font-extrabold"
-          style={{ color: 'var(--destructive-text)' }}
-        >
+    <SectionCard
+      title="Clientes em Risco"
+      subtitle="Sem agendamento recente"
+      headerAction={
+        <span className="font-display text-lg font-extrabold text-destructive-foreground">
           {customers.length}
         </span>
-      </div>
-
-      {/* List */}
-      {customers.length === 0 ? (
-        <p className="p-8 text-center text-sm text-muted-foreground">
-          Nenhum cliente em risco.
-        </p>
-      ) : (
-        <>
-          {customers.map(customer => {
+      }
+      footer={footer}
+      noPadding
+    >
+      <div className="flex flex-col">
+        {customers.length === 0 ? (
+          <p className="p-8 text-center text-sm text-muted-foreground font-medium">
+            Nenhum cliente em risco.
+          </p>
+        ) : (
+          customers.map(customer => {
             const days = customer.days_without_appointment;
             const color = riskColor(days);
             const bg = riskBg(days);
             return (
               <div
                 key={customer.id}
-                className="flex items-center gap-3 px-5 py-2.5 border-b border-border/40 last:border-0"
+                className="flex items-center gap-3 px-5 py-3 border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
               >
                 {/* Avatar */}
                 <div
@@ -63,8 +68,8 @@ export function AtRiskPanel({ customers = [] }: Props) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-foreground">{customer.name}</p>
-                  <p className="text-xs text-muted-foreground">{customer.last_service}</p>
+                  <p className="text-[13px] font-semibold text-foreground truncate">{customer.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{customer.last_service}</p>
                 </div>
 
                 {/* Days badge */}
@@ -76,19 +81,10 @@ export function AtRiskPanel({ customers = [] }: Props) {
                 </span>
               </div>
             );
-          })}
-
-          {/* Footer button */}
-          <div className="px-5 py-2.5">
-            <Link
-              href={route('crm.segment', 'Em Risco')}
-              className="w-full py-2 rounded-lg text-xs font-semibold text-primary bg-primary/10 cursor-pointer border-none no-underline flex items-center justify-center"
-            >
-              Ver todos os clientes em risco
-            </Link>
-          </div>
-        </>
-      )}
-    </div>
+          })
+        )}
+      </div>
+    </SectionCard>
   );
 }
+

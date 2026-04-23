@@ -1,13 +1,34 @@
 import { TodayAppointment } from './types';
-import { StatusPill } from './StatusPill';
+import { StatusPill } from '@/Components/Shared/StatusPill';
+import { SectionCard } from '@/Components/Shared/SectionCard';
 import { Link } from '@inertiajs/react';
 
 interface Props {
-  appointments: TodayAppointment[];
+  appointments?: TodayAppointment[];
 }
 
 const initials = (name: string) =>
   name.split(' ').map((w: string) => w[0]).slice(0, 2).join('');
+
+const mapStatusToVariant = (status: string): any => {
+  switch (status) {
+    case 'confirmed': return 'success';
+    case 'completed': return 'info';
+    case 'noshow': return 'destructive';
+    case 'cancelled': return 'muted';
+    default: return 'warning';
+  }
+};
+
+const mapStatusToLabel = (status: string): string => {
+  switch (status) {
+    case 'confirmed': return 'Confirmado';
+    case 'completed': return 'Concluído';
+    case 'noshow': return 'No-Show';
+    case 'cancelled': return 'Cancelado';
+    default: return 'Pendente';
+  }
+};
 
 export function TodayPanel({ appointments = [] }: Props) {
   const confirmed = appointments.filter(a => a.status === 'confirmed').length;
@@ -17,35 +38,32 @@ export function TodayPanel({ appointments = [] }: Props) {
 
   const formattedRev = totalRev.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-  return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between">
-        <div>
-          <p className="font-display text-sm font-bold text-foreground">Agenda de Hoje</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {confirmed} confirmados · {formattedRev} esperado
-          </p>
-        </div>
-        <Link
-          href={route('agenda')}
-          className="text-xs font-semibold text-primary bg-primary/10 border-none rounded-lg px-3 py-1.5 cursor-pointer no-underline"
-        >
-          + Agendar
-        </Link>
-      </div>
+  const headerAction = (
+    <Link
+      href={route('agenda')}
+      className="text-xs font-semibold text-primary bg-primary/10 border-none rounded-lg px-3 py-1.5 cursor-pointer no-underline"
+    >
+      + Agendar
+    </Link>
+  );
 
-      {/* List */}
-      <div className="overflow-y-auto flex-1 max-h-80">
+  return (
+    <SectionCard
+      title="Agenda de Hoje"
+      subtitle={`${confirmed} confirmados · ${formattedRev} esperado`}
+      headerAction={headerAction}
+      noPadding
+    >
+      <div className="overflow-y-auto max-h-80 custom-scrollbar">
         {appointments.length === 0 ? (
-          <p className="p-8 text-center text-sm text-muted-foreground">
+          <p className="p-8 text-center text-sm text-muted-foreground font-medium">
             Nenhum agendamento para hoje.
           </p>
         ) : (
           appointments.map(appt => (
             <div
               key={appt.id}
-              className="flex items-center gap-3 px-5 py-2.5 border-b border-border/40 last:border-0"
+              className="flex items-center gap-3 px-5 py-3 border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
             >
               {/* Avatar */}
               <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-display text-xs font-bold text-primary flex-shrink-0">
@@ -55,18 +73,22 @@ export function TodayPanel({ appointments = [] }: Props) {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-foreground truncate">{appt.name}</p>
-                <p className="text-xs text-muted-foreground">{appt.service}</p>
+                <p className="text-xs text-muted-foreground truncate">{appt.service}</p>
               </div>
 
               {/* Right side */}
               <div className="text-right flex-shrink-0">
-                <p className="font-display text-xs font-bold text-foreground/70">{appt.time}</p>
-                <StatusPill status={appt.status} />
+                <p className="font-display text-xs font-bold text-foreground/70 mb-1">{appt.time}</p>
+                <StatusPill
+                  variant={mapStatusToVariant(appt.status)}
+                  label={mapStatusToLabel(appt.status)}
+                />
               </div>
             </div>
           ))
         )}
       </div>
-    </div>
+    </SectionCard>
   );
 }
+
