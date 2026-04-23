@@ -197,9 +197,13 @@ export default function Index({ integrations }: Props) {
                                         Envie lembretes e receba confirmações diretamente pelo WhatsApp.
                                     </p>
                                 </div>
-                                {evolution && evolution.status === 'active' && (
+                                {evolution && evolution.status === 'active' ? (
                                     <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-full">
                                         <CheckCircle2 className="w-3.5 h-3.5" /> Conectado
+                                    </span>
+                                ) : (
+                                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 px-2.5 py-1 rounded-full">
+                                        <AlertCircle className="w-3.5 h-3.5" /> Disponível após conectar
                                     </span>
                                 )}
                             </div>
