@@ -78,17 +78,6 @@ class DashboardService
         $pendingChargesData = $this->getPendingCharges($filters);
         $pendingTimeMs = round((microtime(true) - $pendingStartTime) * 1000, 2);
 
-        Log::info("Dashboard Load", [
-            'total_time_ms' => $totalTimeMs + $pendingTimeMs,
-            'blocks' => [
-                'cards' => ['ms' => $cardsTime, 'hit' => $cardsHit],
-                'timeseries' => ['ms' => $tsTime, 'hit' => $tsHit],
-                'ranking_services' => ['ms' => $rsTime, 'hit' => $rsHit],
-                'ranking_customers' => ['ms' => $rcTime, 'hit' => $rcHit],
-                'pending_table_dynamic' => ['ms' => $pendingTimeMs],
-            ]
-        ]);
-
         return array_merge([
             'range' => [
                 'from' => $from->toDateTimeString(),
