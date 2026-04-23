@@ -58,7 +58,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {!props.auth.hide_nav && (
         <aside className="w-full md:w-64 border-r bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
           <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-zinc-800 font-bold text-xl text-primary">
-            Agenda Pro
+            AgendaNexo
           </div>
           <nav className="p-4 space-y-1">
             <Link 

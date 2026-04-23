@@ -17,7 +17,7 @@ export default function DirectCheckout({ charge, amount_formatted }: Props) {
             
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-black text-indigo-600 dark:text-indigo-400 italic">Agenda Pro</h1>
+                    <h1 className="text-2xl font-black text-indigo-600 dark:text-indigo-400 italic">AgendaNexo</h1>
                     <p className="text-slate-500 text-sm font-medium">Checkout Seguro</p>
                 </div>
 
@@ -71,7 +71,7 @@ export default function DirectCheckout({ charge, amount_formatted }: Props) {
                 
                 <p className="mt-8 text-center text-slate-400 text-xs flex items-center justify-center gap-1 font-bold italic">
                     <CheckCircle className="w-3 h-3 text-emerald-500" />
-                    Powered by Agenda Pro Finance
+                    Powered by AgendaNexo Finance
                 </p>
             </div>
         </div>
