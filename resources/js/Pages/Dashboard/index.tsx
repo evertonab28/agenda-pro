@@ -10,11 +10,12 @@ import { DayDetailsDrawer } from './Components/DayDetailsDrawer';
 import { DailyActions } from './Components/DailyActions';
 import { BookingLinkBanner } from './Components/BookingLinkBanner';
 import { AtRiskBanner } from './Components/AtRiskBanner';
+import { WhatsAppBanner } from './Components/WhatsAppBanner';
 
 export default function DashboardIndex({
   filters, range, current, deltas, timeseries,
-  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors, publicBookingUrl, atRiskCount
-}: DashboardProps & { daily_actions: any[], publicBookingUrl: string, atRiskCount: number }) {
+  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors, publicBookingUrl, atRiskCount, whatsAppConnected
+}: DashboardProps & { daily_actions: any[], publicBookingUrl: string, atRiskCount: number, whatsAppConnected: boolean }) {
 
   const [filterState, setFilterState] = useState<FiltersState>({
     from: filters.from || range.from.split(' ')[0],
@@ -42,6 +43,7 @@ export default function DashboardIndex({
       <div className="space-y-6 pb-12">
         <BookingLinkBanner publicBookingUrl={publicBookingUrl} />
         <AtRiskBanner atRiskCount={atRiskCount} />
+        <WhatsAppBanner whatsAppConnected={whatsAppConnected} />
 
         {errors && Object.keys(errors).length > 0 && (
            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/50">
