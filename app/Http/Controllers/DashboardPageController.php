@@ -35,11 +35,19 @@ class DashboardPageController extends Controller
         $segmentCounts = $this->crmService->getSegmentCounts();
         $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
 
+        $whatsAppConnected = $workspace
+            ? $workspace->integrations()
+                ->where('provider', 'evolution')
+                ->where('status', 'active')
+                ->exists()
+            : false;
+
         return Inertia::render('Dashboard/index', array_merge([
             'filters' => $filters,
             'can_export' => $request->user() ? $request->user()->can('export-dashboard') : true,
             'publicBookingUrl' => $publicBookingUrl,
             'atRiskCount' => $atRiskCount,
+            'whatsAppConnected' => $whatsAppConnected,
         ], $dashboardData));
     }
 
