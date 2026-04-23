@@ -63,7 +63,7 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
   };
 
   return (
-    <Card className="xl:col-span-12 border-none shadow-sm bg-linear-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/50">
+    <Card className="xl:col-span-12 border shadow-sm bg-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
@@ -85,7 +85,7 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
           {actions.map((action) => (
             <div 
               key={`${action.action_type}-${action.id}`}
-              className="group flex flex-col p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-indigo-300 dark:hover:border-indigo-800 transition-all duration-200 hover:shadow-md"
+              className="group flex flex-col p-4 rounded-xl border border-border bg-card hover:border-primary/50 transition-all duration-200 hover:shadow-md"
             >
               <div className="flex justify-between items-start mb-3">
                 <Badge className={getPriorityColor(action.priority)}>
@@ -95,8 +95,8 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
               </div>
               
               <div className="mb-4">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-1">{action.customer_name}</h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
+                <h4 className="font-bold text-foreground mb-1">{action.customer_name}</h4>
+                <p className="text-sm text-muted-foreground leading-tight">
                   {action.suggestion}
                 </p>
                 {action.amount > 0 && (
@@ -111,7 +111,7 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
                 size="sm" 
                 onClick={() => handleAction(action)}
                 disabled={(action.action_type === 'whatsapp_reminder' || action.action_type === 'crm_action') && !action.customer_phone}
-                className="mt-auto w-full bg-slate-900 hover:bg-indigo-600 dark:bg-slate-800 dark:hover:bg-indigo-700 text-white flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-auto w-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {getIcon(action.action_type)}
                 {action.action_label}

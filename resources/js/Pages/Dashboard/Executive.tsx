@@ -61,7 +61,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
 
                 {/* Top KPIs Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 overflow-hidden relative">
+                    <Card className="border shadow-sm bg-card overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <DollarSign className="w-12 h-12" />
                         </div>
@@ -77,7 +77,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                         </CardContent>
                     </Card>
 
-                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 overflow-hidden relative">
+                    <Card className="border shadow-sm bg-card overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Users className="w-12 h-12" />
                         </div>
@@ -93,7 +93,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                         </CardContent>
                     </Card>
 
-                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 overflow-hidden relative">
+                    <Card className="border shadow-sm bg-card overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <AlertTriangle className="w-12 h-12" />
                         </div>
@@ -109,7 +109,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                         </CardContent>
                     </Card>
 
-                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 overflow-hidden relative">
+                    <Card className="border shadow-sm bg-card overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Clock className="w-12 h-12" />
                         </div>
@@ -134,7 +134,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                     </div>
 
                     {/* Heatmap Section */}
-                    <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 lg:col-span-6">
+                    <Card className="border shadow-sm bg-card lg:col-span-6">
                         <CardHeader>
                             <CardTitle className="text-lg">Densidade de Atendimentos</CardTitle>
                             <CardDescription>Horários com maior volume nos últimos 30 dias.</CardDescription>
@@ -149,7 +149,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                                     return (
                                         <div key={i} className="flex items-center gap-4">
                                             <span className="text-[10px] font-bold w-10 text-muted-foreground">{h.hour}</span>
-                                            <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
+                                            <div className="flex-1 bg-muted h-2 rounded-full overflow-hidden">
                                                 <div 
                                                     className={`h-full transition-all duration-1000 ${percentage > 80 ? 'bg-red-500' : percentage > 50 ? 'bg-amber-500' : 'bg-primary'}`} 
                                                     style={{ width: `${percentage}%` }} 
@@ -167,7 +167,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
 
                     {/* Revenue Gap & No-Show Ranking */}
                     <div className="space-y-8 lg:col-span-6">
-                        <Card className="border-none shadow-sm bg-white dark:bg-zinc-900">
+                        <Card className="border shadow-sm bg-card">
                             <CardHeader>
                                 <CardTitle className="text-lg">Projeção vs. Realizado</CardTitle>
                                 <CardDescription>Eficiência de cobrança mensal.</CardDescription>
@@ -178,7 +178,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                                         <span className="text-muted-foreground">Eficiência</span>
                                         <span className="text-primary">{Math.round((revenue.realized / (revenue.forecasted || 1)) * 100)}%</span>
                                     </div>
-                                    <Progress value={(revenue.realized / (revenue.forecasted || 1)) * 100} className="h-3 bg-zinc-100 dark:bg-zinc-800" />
+                                    <Progress value={(revenue.realized / (revenue.forecasted || 1)) * 100} className="h-3 bg-muted" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-8 pt-6 border-t">
                                     <div>
@@ -193,7 +193,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                             </CardContent>
                         </Card>
 
-                        <Card className="border-none shadow-sm bg-white dark:bg-zinc-900">
+                        <Card className="border shadow-sm bg-card">
                             <CardHeader>
                                 <CardTitle className="text-lg">Ranking de No-Show (Serviços)</CardTitle>
                                 <CardDescription>Onde as faltas mais ocorrem.</CardDescription>
@@ -201,7 +201,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                             <CardContent>
                                 <div className="space-y-4">
                                     {noShowRanking.map((item, i) => (
-                                        <div key={i} className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border">
+                                        <div key={i} className="flex justify-between items-center p-3 bg-muted/30 rounded-xl border">
                                             <p className="font-bold text-sm">{item.name}</p>
                                             <Badge variant="destructive" className="font-bold">{item.total} faltas</Badge>
                                         </div>

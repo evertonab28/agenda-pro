@@ -25,6 +25,7 @@ import {
   DollarSign,
   Sun,
   Moon,
+  Building2,
 } from 'lucide-react';
 import { route } from '@/utils/route';
 import { Link, usePage } from '@inertiajs/react';
@@ -61,14 +62,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Sidebar - CAMADA 1: ESTRUTURA */}
       {!props.auth.hide_nav && (
-        <aside className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border hidden md:flex flex-col z-20 shadow-[4px_0_24px_rgba(0,0,0,0.05)] h-screen sticky top-0">
-          <div className="h-16 flex items-center px-6 border-b border-sidebar-border/50">
+        <aside className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border hidden md:flex flex-col z-20 h-screen sticky top-0 overflow-hidden">
+          {/* TOPO FIXO: Logo */}
+          <div className="h-16 flex-shrink-0 flex items-center px-6 border-b border-sidebar-border/50 bg-sidebar">
             <span className="text-sidebar-primary font-black text-xl tracking-tight">
               Agenda<span className="text-primary">Nexo</span>
             </span>
           </div>
           
-          <nav className="flex-1 overflow-y-auto py-6 space-y-1">
+          {/* ÁREA CENTRAL ROLÁVEL: Menus */}
+          <nav className="flex-1 overflow-y-auto py-6 space-y-1 custom-scrollbar">
             {[
               { href: route('dashboard'), icon: LayoutDashboard, label: 'Dashboard', pattern: '/dashboard', exact: true },
               { href: route('dashboard.executive'), icon: TrendingUp, label: 'BI Executivo', pattern: '/dashboard/executivo' },
@@ -87,36 +90,36 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   key={item.label}
                   href={item.href}
                   prefetch
-                  className={`group relative flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
+                  className={`group relative flex items-center gap-3 px-6 py-2.5 text-sm font-bold transition-all duration-150 ${
                     active
                       ? 'bg-sidebar-accent text-sidebar-primary'
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 transition-colors ${active ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                  <Icon className={`w-4.5 h-4.5 transition-colors ${active ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   <span>{item.label}</span>
                   {active && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary shadow-[0_0_8px_var(--primary)]" />
                   )}
                 </Link>
               );
             })}
 
-            <div className="mt-8 pt-8 border-t border-sidebar-border/30">
-              <div className="px-6 mb-4 text-[10px] font-black uppercase tracking-widest text-sidebar-foreground/50">
+            <div className="mt-6 pt-6 border-t border-sidebar-border/30">
+              <div className="px-6 mb-3 text-[10px] font-black uppercase tracking-widest text-sidebar-foreground/40">
                 Administração
               </div>
               {props.auth.can.manage_users && (
                 <Link 
                   href={route('users.index')} 
                   prefetch
-                  className={`group flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
+                  className={`group flex items-center gap-3 px-6 py-2.5 text-sm font-bold transition-all duration-150 ${
                     url.startsWith('/usuarios') 
                       ? 'bg-sidebar-accent text-sidebar-primary' 
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <Users className={`w-5 h-5 ${url.startsWith('/usuarios') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                  <Users className={`w-4.5 h-4.5 ${url.startsWith('/usuarios') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   Equipe
                 </Link>
               )}
@@ -124,28 +127,31 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <Link 
                   href={route('configuracoes.general.index')} 
                   prefetch
-                  className={`group flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
+                  className={`group flex items-center gap-3 px-6 py-2.5 text-sm font-bold transition-all duration-150 ${
                     url.startsWith('/configuracoes') 
                       ? 'bg-sidebar-accent text-sidebar-primary' 
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <Settings className={`w-5 h-5 ${url.startsWith('/configuracoes') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                  <Settings className={`w-4.5 h-4.5 ${url.startsWith('/configuracoes') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   Configurações
                 </Link>
               )}
             </div>
           </nav>
 
-          {/* User Section at bottom */}
-          <div className="p-4 border-t border-sidebar-border/30 bg-sidebar-accent/20">
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary font-bold text-xs border border-primary/30">
-                {props.auth.user.name.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-sidebar-primary truncate">{props.auth.user.name}</p>
-                <p className="text-[10px] text-sidebar-foreground truncate uppercase tracking-tighter">{props.auth.user.role}</p>
+          {/* RODAPÉ FIXO: Workspace */}
+          <div className="flex-shrink-0 p-4 border-t border-sidebar-border/30 bg-sidebar-accent/10">
+            <div className="flex flex-col gap-4">
+              {/* Workspace / Context */}
+              <div className="px-2 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-sidebar-accent flex items-center justify-center border border-sidebar-border/50 shadow-sm">
+                  <Building2 className="w-4 h-4 text-sidebar-primary/70" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black text-sidebar-foreground/40 uppercase tracking-widest leading-none mb-1">Unidade</p>
+                  <p className="text-xs font-bold text-sidebar-primary truncate">{props.auth.workspace?.name || 'Sede Principal'}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -155,37 +161,79 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Main Content Area - CAMADA 2: CANVAS */}
       <div className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden relative">
         {!props.auth.hide_nav && (
-          <header className="h-16 flex-shrink-0 bg-card border-b border-border flex items-center justify-between px-8 z-10">
+          <header className="h-16 flex-shrink-0 bg-background/95 backdrop-blur-sm border-b border-border/60 flex items-center justify-between px-8 z-10">
             <div className="flex items-center gap-4">
-              <h1 className="text-lg font-black text-foreground tracking-tight">{props.title || ''}</h1>
+              {props.title && (
+                <>
+                  <h1 className="text-lg font-black text-foreground tracking-tight">{props.title}</h1>
+                  <div className="h-6 w-px bg-border/40" />
+                </>
+              )}
+              <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success text-[10px] font-black uppercase border border-success/20">
+                      <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                      Sistema Operacional
+                  </span>
+              </div>
             </div>
             
-            <div className="flex items-center gap-6">
-               <div className="h-8 w-px bg-border/60" />
+            <div className="flex items-center gap-3">
+               <div className="hidden lg:flex items-center bg-muted/50 rounded-full px-3 py-1.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                  <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                  <input type="text" placeholder="Pesquisar..." className="bg-transparent border-none focus:ring-0 text-xs ml-2 w-32 placeholder:text-muted-foreground/60" />
+               </div>
+
+               <div className="h-6 w-px bg-border/40" />
+               
+               <Link href={route('configuracoes.general.index')} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Ajuda & Suporte">
+                  <HelpCircle className="w-5 h-5" />
+               </Link>
+
                <button
                  onClick={() => updateAppearance({ theme_mode: isDark ? 'light' : 'dark' })}
-                 className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                 className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                  aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}
                >
                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                </button>
-               <div className="h-8 w-px bg-border/60" />
-               <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest hidden sm:block">Status:</span>
-                  <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-success/10 text-success text-[10px] font-black uppercase border border-success/20">
-                      <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                      Online
-                  </span>
+
+               <button className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  <Bell className="w-5 h-5" />
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-background" />
+               </button>
+
+               <div className="h-6 w-px bg-border/40 mx-2" />
+
+               <div className="relative group">
+                  <button className="flex items-center gap-3 pl-2 py-1.5 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+                    <div className="flex flex-col items-end hidden sm:flex">
+                        <span className="text-xs font-black text-foreground leading-none">{props.auth.user.name}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{props.auth.user.role}</span>
+                    </div>
+                    <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs shadow-inner">
+                        {props.auth.user.name.charAt(0)}
+                    </div>
+                  </button>
+
+                  {/* Simple Dropdown on Hover/Focus */}
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border shadow-2xl rounded-xl py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="px-4 py-2 border-b border-border/50 mb-1">
+                      <p className="text-xs font-bold text-foreground truncate">{props.auth.user.name}</p>
+                      <p className="text-[10px] text-muted-foreground truncate uppercase">{props.auth.user.role}</p>
+                    </div>
+                    <Link href={route('configuracoes.general.index')} className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors">
+                      <Settings className="w-4 h-4" /> Configurações
+                    </Link>
+                    <Link 
+                      href={route('logout')} 
+                      method="post" 
+                      as="button" 
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" /> Sair do Sistema
+                    </Link>
+                  </div>
                </div>
-               <div className="h-8 w-px bg-border/60" />
-               <Link 
-                 href={route('logout')} 
-                 method="post" 
-                 as="button" 
-                 className="p-1.5 rounded-lg text-muted-foreground cursor-pointer hover:text-destructive hover:bg-destructive/10 transition-colors"
-               >
-                 <LogOut className="w-5 h-5" />
-               </Link>
             </div>
           </header>
         )}

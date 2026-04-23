@@ -652,11 +652,27 @@
         background: var(--color-brand-faint);
     }
     .landing-card {
-        @apply rounded-2xl border p-6 bg-white transition-all duration-200;
+        @apply rounded-2xl border p-6 bg-card transition-all duration-200;
         border-color: var(--border);
     }
     .landing-card:hover {
         border-color: var(--color-brand-light);
         background: var(--color-brand-faint);
+    }
+
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--sidebar-border);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--sidebar-accent-foreground);
+        opacity: 0.5;
     }
 }
