@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->constrained()->onDelete('cascade');
+        $refTable = Schema::hasTable('clinics') ? 'clinics' : 'workspaces';
+
+        Schema::table('settings', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->references('id')->on($refTable)->onDelete('cascade');
             $table->unique(['clinic_id', 'key']);
         });
     }

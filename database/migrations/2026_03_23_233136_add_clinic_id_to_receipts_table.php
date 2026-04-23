@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('receipts', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        $refTable = Schema::hasTable('clinics') ? 'clinics' : 'workspaces';
+
+        Schema::table('receipts', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
     }
 

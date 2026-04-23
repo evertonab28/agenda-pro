@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        $refTable = Schema::hasTable('clinics') ? 'clinics' : 'workspaces';
+
+        Schema::table('services', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
 
-        Schema::table('professionals', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        Schema::table('professionals', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
 
-        Schema::table('packages', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        Schema::table('packages', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
     }
 

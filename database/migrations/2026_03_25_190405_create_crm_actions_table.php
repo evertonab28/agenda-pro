@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('crm_actions', function (Blueprint $table) {
+        $refTable = Schema::hasTable('clinics') ? 'clinics' : 'workspaces';
+
+        Schema::create('crm_actions', function (Blueprint $table) use ($refTable) {
             $table->id();
-            $table->foreignId('clinic_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('clinic_id')->references('id')->on($refTable)->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->string('type'); // 'reengagement', 'loyalty', 'review', etc.
             $table->string('status')->default('pending'); // 'pending', 'done', 'dismissed'

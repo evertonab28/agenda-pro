@@ -11,20 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        $refTable = Schema::hasTable('clinics') ? 'clinics' : 'workspaces';
+
+        Schema::table('users', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
 
-        Schema::table('customers', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        Schema::table('customers', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
 
-        Schema::table('appointments', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        Schema::table('appointments', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
 
-        Schema::table('charges', function (Blueprint $table) {
-            $table->foreignId('clinic_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+        Schema::table('charges', function (Blueprint $table) use ($refTable) {
+            $table->foreignId('clinic_id')->nullable()->after('id')->references('id')->on($refTable)->cascadeOnDelete();
         });
     }
 
