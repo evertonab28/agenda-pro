@@ -25,6 +25,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { route } from '@/utils/route';
+import { Link, usePage } from '@inertiajs/react';
 import { useAppearance } from '@/Hooks/useAppearance';
 
 export default function AppLayout({ children }: { children: ReactNode }) {

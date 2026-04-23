@@ -9,7 +9,8 @@ import {
     CalendarDays, 
     Settings2,
     PlugZap,
-    CreditCard 
+    CreditCard,
+    Palette
 } from 'lucide-react';
 
 interface ConfigLayoutProps {
@@ -26,8 +27,9 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
         { name: 'Horários', href: route('configuracoes.schedules.index'), icon: Clock, pattern: '/configuracoes/horarios' },
         { name: 'Feriados', href: route('configuracoes.holidays.index'), icon: CalendarDays, pattern: '/configuracoes/feriados' },
         { name: 'Geral', href: route('configuracoes.general.index'), icon: Settings2, pattern: '/configuracoes/geral' },
-        { name: 'Integrações', href: route('configuracoes.integrations.index'), icon: PlugZap, pattern: '/configuracoes/integracoes' },
+        { name: 'Integrações', href: route('configuracoes.integrations'), icon: PlugZap, pattern: '/configuracoes/integrations-list' },
         { name: 'Assinatura', href: route('configuracoes.billing.index'), icon: CreditCard, pattern: '/configuracoes/assinatura' },
+        { name: 'Aparência', href: route('configuracoes.visual_settings'), icon: Palette, pattern: '/configuracoes/estilo' },
     ];
 
     const isCurrent = (pattern: string) => url.startsWith(pattern);

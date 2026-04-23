@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Auth;
 
 class AppearanceController extends Controller
 {
+    public function index()
+    {
+        return \Inertia\Inertia::render('Configurations/Appearance/Index');
+    }
+
     public function update(Request $request)
     {
         $validated = $request->validate([

@@ -117,13 +117,14 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
         Route::post('geral', [\App\Http\Controllers\GeneralSettingsController::class, 'store'])->name('general.store');
 
         // Integrations
-        Route::get('integrações', [\App\Http\Controllers\WorkspaceIntegrationPageController::class, 'index'])->name('integrations.index');
+        Route::get('integrations-list', [\App\Http\Controllers\WorkspaceIntegrationPageController::class, 'index'])->name('integrations');
 
         // Billing
         Route::get('assinatura', [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
         Route::post('assinatura/upgrade', [\App\Http\Controllers\BillingController::class, 'upgrade'])->name('billing.upgrade');
         Route::post('assinatura/ativar', [\App\Http\Controllers\BillingController::class, 'activate'])->name('billing.activate');
         // Appearance
+        Route::get('estilo', [\App\Http\Controllers\AppearanceController::class, 'index'])->name('visual_settings');
         Route::patch('aparencia', [\App\Http\Controllers\AppearanceController::class, 'update'])->name('appearance.update');
     });
 });

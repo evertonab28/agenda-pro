@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { usePage, router } from '@inertiajs/react';
+import { route } from '@/utils/route';
 
 export type ThemePreset = 'slate' | 'ocean' | 'emerald' | 'violet' | 'mono';
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export function useAppearance() {
-    const { auth } = usePage<any>().props;
+    const props = usePage<any>().props;
+    const auth = props?.auth;
     const mode = auth?.user?.theme_mode || 'system';
     const preset = auth?.user?.workspace?.theme_preset || 'slate';
 
