@@ -25,7 +25,12 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name(
 
 Route::get('/', function () {
     return view('landing');
-})->name('home');
+})->name('home')->withoutMiddleware([
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\Session\Middleware\AuthenticateSession::class,
+    \App\Http\Middleware\HandleInertiaRequests::class,
+    \App\Http\Middleware\CheckOnboarding::class,
+]);
 
 Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::resource('usuarios', \App\Http\Controllers\UserController::class)->names('users');
