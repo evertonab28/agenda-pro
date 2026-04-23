@@ -277,10 +277,15 @@ export function AppointmentModal({
                 </div>
               </div>
               {(pendingCriticalStatus === 'canceled' || pendingCriticalStatus === 'no_show') && (
-                <div className="space-y-2 rounded-md border bg-amber-50 p-3">
+                <div className="space-y-2 rounded-md border bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/40 p-3">
                   <Label>Motivo para {STATUS_LABELS[pendingCriticalStatus].toLowerCase()} (opcional)</Label>
+                  {pendingCriticalStatus === 'no_show' && (
+                    <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 rounded px-2 py-1">
+                      Uma cobrança de taxa de no-show será gerada automaticamente.
+                    </p>
+                  )}
                   <Input
-                    placeholder="Ex: cliente solicitou cancelamento"
+                    placeholder="Ex: cliente não avisou a ausência"
                     value={cancelReason}
                     onChange={(e) => setCancelReason(e.target.value)}
                   />
