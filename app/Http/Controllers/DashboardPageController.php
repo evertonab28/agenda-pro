@@ -17,56 +17,7 @@ class DashboardPageController extends Controller
 
     public function index(DashboardFilterRequest $request)
     {
-        try {
-            $filters = $request->validated();
-
-            if (!isset($filters['status'])) {
-                $filters['status'] = [];
-            }
-
-            // Vamos logar o início para ver se o log está funcionando
-            \Illuminate\Support\Facades\Log::debug('Dashboard: Iniciando processamento de dados...');
-
-            $dashboardData = $this->dashboardService->getDashboardData($filters);
-            $dashboardData['daily_actions'] = $this->dashboardService->getDailyActions();
-
-            $workspace = auth()->user()->workspace;
-            $officialAppUrl = 'https://app.agendanexo.com.br';
-            $publicBookingUrl = $workspace
-                ? $officialAppUrl . '/p/' . $workspace->slug
-                : '';
-
-            $segmentCounts = $this->crmService->getSegmentCounts();
-            $atRiskCount = ($segmentCounts['Em Risco'] ?? 0) + ($segmentCounts['Inativo'] ?? 0);
-
-            $whatsAppConnected = $workspace
-                ? $workspace->integrations()
-                    ->where('provider', 'evolution')
-                    ->where('status', 'active')
-                    ->exists()
-                : false;
-
-            return Inertia::render('Dashboard/index', array_merge([
-                'filters' => $filters,
-                'can_export' => $request->user() ? $request->user()->can('export-dashboard') : true,
-                'publicBookingUrl' => $publicBookingUrl,
-                'atRiskCount' => $atRiskCount,
-                'whatsAppConnected' => $whatsAppConnected,
-            ], $dashboardData));
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Dashboard Error [CRÍTICO]: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => auth()->id()
-            ]);
-            
-            if (app()->environment('local')) {
-                throw $e;
-            }
-
-            return response("Erro ao carregar Dashboard. Detalhes salvos no log: " . $e->getMessage(), 500);
-        }
+        die("TESTE: O SERVIDOR ESTÁ LENDO O ARQUIVO CORRETO!");
     }
 
     public function export(DashboardFilterRequest $request)
