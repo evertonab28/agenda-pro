@@ -12,21 +12,27 @@ import { DailyActions } from './Components/DailyActions';
 import { BookingLinkBanner } from './Components/BookingLinkBanner';
 import { AtRiskBanner } from './Components/AtRiskBanner';
 import { WhatsAppBanner } from './Components/WhatsAppBanner';
-import { Skeleton } from '@/Components/ui/skeleton';
 
 export default function DashboardIndex({
-  filters, dashboardData, daily_actions, can_export, errors, publicBookingUrl, atRiskCount, whatsAppConnected
+  filters = {}, 
+  dashboardData = {}, 
+  daily_actions = [], 
+  can_export = true, 
+  errors = {}, 
+  publicBookingUrl = '', 
+  atRiskCount = 0, 
+  whatsAppConnected = false
 }: any) {
 
   const [filterState, setFilterState] = useState<FiltersState>({
-    from: filters.from || '',
-    to: filters.to || '',
-    status: filters.status || [],
-    professional_id: filters.professional_id || '',
-    service_id: filters.service_id || '',
-    pending_page: filters.pending_page || 1,
-    pending_search: filters.pending_search || '',
-    pending_status: filters.pending_status || 'all',
+    from: filters?.from || '',
+    to: filters?.to || '',
+    status: filters?.status || [],
+    professional_id: filters?.professional_id || '',
+    service_id: filters?.service_id || '',
+    pending_page: filters?.pending_page || 1,
+    pending_search: filters?.pending_search || '',
+    pending_status: filters?.pending_status || 'all',
   });
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
