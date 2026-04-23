@@ -397,8 +397,6 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                 </div>
             </div>
         </>
-            </div>
-        </>
     );
 }
 
