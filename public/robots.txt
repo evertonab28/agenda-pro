@@ -1,2 +1,16 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard
+Disallow: /agenda
+Disallow: /admin
+Disallow: /configuracoes
+Disallow: /financeiro
+Disallow: /clientes
+Disallow: /crm
+Disallow: /usuarios
+Disallow: /pacotes
+Disallow: /lista-espera
+Disallow: /onboarding
+Disallow: /p/
+
+Sitemap: https://agendanexo.com.br/sitemap.xml
