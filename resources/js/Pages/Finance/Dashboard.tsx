@@ -10,23 +10,21 @@ import {
     ExternalLink,
     DollarSign,
     Banknote,
-    BarChart2,
     PieChart,
 } from "lucide-react";
 import { route } from "@/utils/route";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
     PieChart as RechartsPie,
     Pie,
     Cell,
+    Tooltip,
+    ResponsiveContainer,
     Legend,
 } from "recharts";
+import { PageHeader } from "@/Components/Shared/PageHeader";
+import { MetricCard } from "@/Components/Shared/MetricCard";
+import { SectionCard } from "@/Components/Shared/SectionCard";
+import { BarChart } from "@/Components/Shared/Charts/BarChart";
 
 interface FinanceMetrics {
     received: number;
@@ -58,15 +56,6 @@ interface Props {
     filters: { period?: string };
 }
 
-type PaymentMethodChartItem = PaymentMethod & {
-    label: string;
-};
-
-type PieLabelProps = {
-    name?: string | number;
-    percent?: number;
-};
-
 const METHOD_LABELS: Record<string, string> = {
     cash: "Dinheiro",
     credit_card: "Crédito",
@@ -80,256 +69,150 @@ const METHOD_LABELS: Record<string, string> = {
 };
 
 const PIE_COLORS = [
-    "#10b981",
-    "#3b82f6",
-    "#f59e0b",
-    "#8b5cf6",
-    "#ef4444",
-    "#06b6d4",
+    "var(--primary)",
+    "var(--info)",
+    "var(--success)",
+    "var(--warning)",
+    "var(--destructive)",
+    "var(--muted-foreground)",
 ];
 
 export default function Dashboard({ metrics, chartData, filters }: Props) {
-    const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handlePeriodChange = (val: string) => {
         router.get(
             route("finance.dashboard"),
-            { period: e.target.value },
+            { period: val },
             { preserveState: true },
         );
     };
 
-    const formatCurrency = (value: number) =>
+    const money = (v: number) =>
         new Intl.NumberFormat("pt-BR", {
             style: "currency",
             currency: "BRL",
-        }).format(value);
+        }).format(v);
 
-    const formatPercent = (value: number) =>
-        new Intl.NumberFormat("pt-BR", {
-            style: "percent",
-            maximumFractionDigits: 1,
-        }).format(value / 100);
+    const percent = (v: number) => `${v.toFixed(1)}%`;
 
-    const formatDate = (dateStr: string) => {
-        const d = new Date(`${dateStr}T00:00:00`);
-        return d.toLocaleDateString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-        });
-    };
-
-    const dailyData = chartData.dailyReceipts.map((receipt) => ({
-        ...receipt,
-        dateLabel: formatDate(receipt.date),
+    const methodData = chartData.paymentMethods.map((m) => ({
+        ...m,
+        label: METHOD_LABELS[m.method] ?? m.method,
     }));
 
-    const methodData: PaymentMethodChartItem[] = chartData.paymentMethods.map(
-        (method) => ({
-            ...method,
-            label: METHOD_LABELS[method.method] ?? method.method,
-        }),
+    const chartAction = (
+        <div className="flex gap-1.5 p-1 bg-muted rounded-xl">
+            {(["week", "month", "year"] as const).map((p) => (
+                <button
+                    key={p}
+                    onClick={() => handlePeriodChange(p)}
+                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 border-none ${
+                        (filters.period || "month") === p
+                            ? "bg-card text-primary shadow-sm"
+                            : "bg-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                >
+                    {p === "week" ? "Semana" : p === "month" ? "Mês" : "Ano"}
+                </button>
+            ))}
+        </div>
     );
 
-    const renderPieLabel = ({ name, percent }: PieLabelProps) => {
-        const safeName = String(name ?? "");
-        const safePercent = percent ?? 0;
-        return `${safeName} (${(safePercent * 100).toFixed(0)}%)`;
-    };
+    const headerAction = (
+        <Link
+            href="/financeiro/cobrancas/create"
+            className="flex items-center gap-1.5 text-sm font-bold text-primary-foreground bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)] no-underline transition-transform active:scale-95"
+        >
+            <Plus className="w-4 h-4" strokeWidth={2.5} /> Nova Cobrança
+        </Link>
+    );
 
     return (
-        <>
+        <div className="space-y-6 pb-12 max-w-[1600px] mx-auto">
             <Head title="Painel Financeiro" />
 
-            <div className="max-w-7xl mx-auto space-y-8">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                            <Banknote className="h-6 w-6 text-emerald-600" />
-                            Painel Financeiro
-                        </h1>
-                        <p className="mt-1 text-sm text-gray-500">
-                            Visão geral do seu fluxo de caixa e inadimplência.
-                        </p>
-                    </div>
+            <PageHeader
+                title="Painel Financeiro"
+                subtitle="Visão geral do seu fluxo de caixa e inadimplência."
+                action={headerAction}
+            />
 
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
-                            <Calendar className="h-4 w-4 text-gray-400 ml-2" />
-                            <select
-                                className="border-0 bg-transparent text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer"
-                                value={filters.period || "month"}
-                                onChange={handlePeriodChange}
-                            >
-                                <option value="week">Esta Semana</option>
-                                <option value="month">Este Mês</option>
-                                <option value="year">Este Ano</option>
-                            </select>
-                        </div>
-
-                        <Link
-                            href="/financeiro/cobrancas/create"
-                            className="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700 transition duration-150 shadow-sm"
-                        >
-                            <Plus className="w-4 h-4 mr-2" />
-                            Nova Cobrança
-                        </Link>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-50 rounded-bl-full -z-0" />
-                        <div className="flex items-center gap-3 mb-2 relative z-10">
-                            <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-                                <TrendingDown className="h-5 w-5" />
-                            </div>
-                            <h3 className="text-sm font-medium text-gray-500">
-                                Recebido
-                            </h3>
-                        </div>
-                        <p className="text-2xl font-bold text-gray-900 relative z-10">
-                            {formatCurrency(metrics.received)}
-                        </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-blue-50 rounded-bl-full -z-0" />
-                        <div className="flex items-center gap-3 mb-2 relative z-10">
-                            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                                <Activity className="h-5 w-5" />
-                            </div>
-                            <h3 className="text-sm font-medium text-gray-500">
-                                A Receber
-                            </h3>
-                        </div>
-                        <p className="text-2xl font-bold text-gray-900 relative z-10">
-                            {formatCurrency(metrics.pending)}
-                        </p>
-                        <Link
-                            href="/financeiro/cobrancas?status=pending"
-                            className="mt-2 text-xs text-blue-600 font-medium hover:underline flex items-center gap-1 relative z-10"
-                        >
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                <MetricCard
+                    label="Recebido"
+                    value={money(metrics.received)}
+                    color="var(--success)"
+                    icon={<TrendingDown size={18} />}
+                />
+                <MetricCard
+                    label="A Receber"
+                    value={money(metrics.pending)}
+                    color="var(--info)"
+                    icon={<Activity size={18} />}
+                    sub={
+                        <Link href="/financeiro/cobrancas?status=pending" className="hover:underline flex items-center gap-1">
                             Ver todas <ExternalLink className="h-3 w-3" />
                         </Link>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col relative overflow-hidden bg-red-50/30">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-red-100/50 rounded-bl-full -z-0" />
-                        <div className="flex items-center gap-3 mb-2 relative z-10">
-                            <div className="p-2 bg-red-100 rounded-lg text-red-600">
-                                <AlertCircle className="h-5 w-5" />
-                            </div>
-                            <h3 className="text-sm font-medium text-red-800">
-                                Vencido
-                            </h3>
-                        </div>
-                        <p className="text-2xl font-bold text-red-700 relative z-10">
-                            {formatCurrency(metrics.overdue)}
-                        </p>
-                        <Link
-                            href="/financeiro/cobrancas?status=overdue"
-                            className="mt-2 text-xs text-red-600 font-medium hover:underline flex items-center gap-1 relative z-10"
-                        >
+                    }
+                />
+                <MetricCard
+                    label="Vencido"
+                    value={money(metrics.overdue)}
+                    color="var(--destructive)"
+                    icon={<AlertCircle size={18} />}
+                    sub={
+                        <Link href="/financeiro/cobrancas?status=overdue" className="hover:underline flex items-center gap-1">
                             Ver pendências <ExternalLink className="h-3 w-3" />
                         </Link>
+                    }
+                />
+                <MetricCard
+                    label="Ticket Médio"
+                    value={money(metrics.averageTicket)}
+                    color="var(--primary)"
+                    icon={<DollarSign size={18} />}
+                />
+                <MetricCard
+                    label="Inadimplência"
+                    value={percent(metrics.defaultRate)}
+                    color="var(--warning)"
+                    icon={<Activity size={18} />}
+                    reverseColors
+                />
+            </div>
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <SectionCard
+                    title="Evolução de Recebimentos"
+                    subtitle="Histórico de entradas"
+                    headerAction={chartAction}
+                >
+                    <div className="h-[280px] w-full">
+                        <BarChart
+                            data={chartData.dailyReceipts.map(d => ({
+                                date: d.date,
+                                full_date: d.date,
+                                value: d.total
+                            }))}
+                            height={240}
+                            formatValue={(v) => money(v)}
+                        />
                     </div>
+                </SectionCard>
 
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-gray-100 rounded-lg text-gray-600">
-                                <DollarSign className="h-5 w-5" />
-                            </div>
-                            <h3 className="text-sm font-medium text-gray-500">
-                                Ticket Médio
-                            </h3>
-                        </div>
-                        <p className="text-2xl font-bold text-gray-900">
-                            {formatCurrency(metrics.averageTicket)}
-                        </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-orange-100 rounded-lg text-orange-600">
-                                <Activity className="h-5 w-5" />
-                            </div>
-                            <h3 className="text-sm font-medium text-gray-500">
-                                Inadimplência
-                            </h3>
-                        </div>
-                        <p className="text-2xl font-bold text-gray-900">
-                            {formatPercent(metrics.defaultRate)}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 min-h-[300px]">
-                        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                            <BarChart2 className="h-5 w-5 text-emerald-600" />
-                            Evolução de Recebimentos
-                        </h3>
-
-                        {dailyData.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-56 text-center">
-                                <Banknote className="mx-auto h-10 w-10 text-gray-300 mb-2" />
-                                <p className="text-sm text-gray-400">
-                                    Nenhum recebimento no período.
-                                </p>
-                            </div>
-                        ) : (
-                            <ResponsiveContainer width="100%" height={250}>
-                                <BarChart
-                                    data={dailyData}
-                                    margin={{
-                                        top: 4,
-                                        right: 8,
-                                        left: 0,
-                                        bottom: 0,
-                                    }}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke="#f0f0f0"
-                                    />
-                                    <XAxis
-                                        dataKey="dateLabel"
-                                        tick={{ fontSize: 11 }}
-                                    />
-                                    <YAxis
-                                        tick={{ fontSize: 11 }}
-                                        tickFormatter={(value) => `R$${value}`}
-                                    />
-                                    <Tooltip
-                                        formatter={(value) => [
-                                            formatCurrency(Number(value ?? 0)),
-                                            "Recebido",
-                                        ]}
-                                    />
-                                    <Bar
-                                        dataKey="total"
-                                        fill="#10b981"
-                                        radius={[4, 4, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        )}
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 min-h-[300px]">
-                        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                            <PieChart className="h-5 w-5 text-blue-600" />
-                            Métodos de Pagamento
-                        </h3>
-
+                <SectionCard
+                    title="Métodos de Pagamento"
+                    subtitle="Distribuição por canal"
+                >
+                    <div className="h-[280px] w-full">
                         {methodData.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-56 text-center">
-                                <TrendingDown className="mx-auto h-10 w-10 text-gray-300 mb-2" />
-                                <p className="text-sm text-gray-400">
-                                    Nenhum recebimento no período.
-                                </p>
+                            <div className="flex flex-col items-center justify-center h-full text-center">
+                                <Banknote className="mx-auto h-10 w-10 text-muted-foreground/30 mb-2" />
+                                <p className="text-sm text-muted-foreground font-medium">Nenhum recebimento no período.</p>
                             </div>
                         ) : (
-                            <ResponsiveContainer width="100%" height={250}>
+                            <ResponsiveContainer width="100%" height="100%">
                                 <RechartsPie>
                                     <Pie
                                         data={methodData}
@@ -337,35 +220,46 @@ export default function Dashboard({ metrics, chartData, filters }: Props) {
                                         nameKey="label"
                                         cx="50%"
                                         cy="50%"
+                                        innerRadius={60}
                                         outerRadius={90}
-                                        label={renderPieLabel}
+                                        paddingAngle={4}
                                     >
                                         {methodData.map((_, index) => (
                                             <Cell
                                                 key={index}
-                                                fill={
-                                                    PIE_COLORS[
-                                                        index %
-                                                            PIE_COLORS.length
-                                                    ]
-                                                }
+                                                fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                                stroke="var(--card)"
+                                                strokeWidth={2}
                                             />
                                         ))}
                                     </Pie>
                                     <Tooltip
-                                        formatter={(value) =>
-                                            formatCurrency(Number(value ?? 0))
-                                        }
+                                        contentStyle={{
+                                            backgroundColor: "var(--card)",
+                                            borderColor: "var(--border)",
+                                            borderRadius: "12px",
+                                            fontSize: "12px",
+                                            fontWeight: "600",
+                                            boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+                                        }}
+                                        itemStyle={{ color: "var(--foreground)" }}
+                                        formatter={(v: number) => money(v)}
                                     />
-                                    <Legend />
+                                    <Legend
+                                        verticalAlign="bottom"
+                                        align="center"
+                                        iconType="circle"
+                                        formatter={(v) => <span className="text-xs font-bold text-muted-foreground">{v}</span>}
+                                    />
                                 </RechartsPie>
                             </ResponsiveContainer>
                         )}
                     </div>
-                </div>
+                </SectionCard>
             </div>
-        </>
+        </div>
     );
 }
 
 Dashboard.layout = (page: any) => <AppLayout children={page} />;
+

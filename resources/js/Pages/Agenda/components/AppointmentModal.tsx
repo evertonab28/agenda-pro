@@ -80,8 +80,19 @@ export function AppointmentModal({
     } else if (mode === 'edit' && event) {
       const getIso = (date: any) => {
         if (!date) return '';
-        if (date instanceof Date) return format(date, "yyyy-MM-dd'T'HH:mm");
-        return String(date).slice(0, 16);
+        try {
+          const d = new Date(date);
+          if (isNaN(d.getTime())) {
+            // Tenta limpar strings com formatos zoados (ex: remove offset)
+            const cleanDate = String(date).split(/[+-]/)[0].replace(' ', 'T');
+            const d2 = new Date(cleanDate);
+            if (isNaN(d2.getTime())) return '';
+            return format(d2, "yyyy-MM-dd'T'HH:mm");
+          }
+          return format(d, "yyyy-MM-dd'T'HH:mm");
+        } catch (e) {
+          return '';
+        }
       };
 
       // FullCalendar EventApi uses getResources()
@@ -90,24 +101,29 @@ export function AppointmentModal({
       setCustomerId(String(ep?.customer?.id ?? ''));
       setServiceId(String(ep?.service?.id ?? ''));
       setProfessionalId(String(resId ?? ''));
-      setStartsAt((event as any).startStr || getIso(event.start));
-      setEndsAt((event as any).endStr || getIso(event.end));
+      setStartsAt(getIso(event.start) || (event as any).startStr?.slice(0, 16) || '');
+      setEndsAt(getIso(event.end) || (event as any).endStr?.slice(0, 16) || '');
       setNotes(ep?.notes ?? '');
       setCancelReason('');
       setPendingCriticalStatus(null);
       setError('');
     }
-  }, [open, mode]);
+  }, [open, mode, event, initialSlot]);
 
   // Recalcula ends_at ao trocar serviço
   useEffect(() => {
     if (!startsAt || !serviceId) return;
     const svc = services.find((s) => String(s.id) === serviceId);
     if (!svc) return;
-    const start = new Date(startsAt);
-    const end = addMinutes(start, svc.duration_minutes);
-    setEndsAt(format(end, "yyyy-MM-dd'T'HH:mm"));
-  }, [serviceId, startsAt]);
+    try {
+      const start = new Date(startsAt);
+      if (isNaN(start.getTime())) return;
+      const end = addMinutes(start, svc.duration_minutes);
+      setEndsAt(format(end, "yyyy-MM-dd'T'HH:mm"));
+    } catch (e) {
+      console.error("Erro ao calcular término:", e);
+    }
+  }, [serviceId, startsAt, services]);
 
   const handleSave = async () => {
     if (!customerId || !serviceId || !professionalId || !startsAt || !endsAt) {
@@ -149,18 +165,26 @@ export function AppointmentModal({
       setLoading(false);
     }
   };
-
   const handleStatusChange = async (status: AppointmentStatus) => {
     if (!event) return;
-    setLoading(true);
+    
     if ((status === 'canceled' || status === 'no_show') && pendingCriticalStatus !== status) {
       setPendingCriticalStatus(status);
       setCancelReason('');
       return;
     }
 
+    setLoading(true);
+
+    const id = Number(event.id);
+    if (isNaN(id)) {
+      setError('ID de agendamento inválido.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      await onStatusChange(Number(event.id), status, cancelReason || undefined);
+      await onStatusChange(id, status, cancelReason || undefined);
       onClose();
     } catch (e: any) {
       setError(resolveApiError(e, 'Não foi possível mudar o status. Tente novamente.'));
@@ -176,14 +200,14 @@ export function AppointmentModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
+      <DialogContent className="max-w-lg p-0 flex flex-col max-h-[90vh] overflow-hidden">
+        <DialogHeader className="p-6 border-b">
           <DialogTitle>
             {mode === 'create' ? 'Novo Agendamento' : 'Editar Agendamento'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
           {error && (
             <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>
           )}
@@ -220,7 +244,7 @@ export function AppointmentModal({
           </div>
 
           {/* Horários */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>Início *</Label>
               <Input
@@ -287,20 +311,44 @@ export function AppointmentModal({
                 </div>
               </div>
               {(pendingCriticalStatus === 'canceled' || pendingCriticalStatus === 'no_show') && (
-                <div className="space-y-2 rounded-md border bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/40 p-3">
-                  <Label>Motivo para {STATUS_LABELS[pendingCriticalStatus].toLowerCase()} (opcional)</Label>
+                <div className="mt-4 space-y-3 rounded-xl border-2 border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900/40 p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center justify-between">
+                    <Label className="font-semibold text-amber-900 dark:text-amber-200">
+                      Confirmar {STATUS_LABELS[pendingCriticalStatus]}
+                    </Label>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/50" 
+                      onClick={() => setPendingCriticalStatus(null)}
+                    >
+                      <span className="sr-only">Cancelar</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </Button>
+                  </div>
+                  
                   {pendingCriticalStatus === 'no_show' && (
-                    <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 rounded px-2 py-1">
-                      Uma cobrança de taxa de no-show será gerada automaticamente.
+                    <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                      O não comparecimento será registrado no histórico do cliente para consultas futuras. Nenhuma cobrança será gerada.
                     </p>
                   )}
-                  <Input
-                    placeholder="Ex: cliente não avisou a ausência"
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                  />
-                  <Button size="sm" onClick={() => handleStatusChange(pendingCriticalStatus)} disabled={loading}>
-                    Confirmar {STATUS_LABELS[pendingCriticalStatus]}
+                  
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-amber-800 dark:text-amber-300">Motivo (opcional)</Label>
+                    <Input
+                      placeholder="Ex: cliente não avisou a ausência"
+                      value={cancelReason}
+                      onChange={(e) => setCancelReason(e.target.value)}
+                      className="bg-white dark:bg-black/20 border-amber-200 dark:border-amber-800 focus-visible:ring-amber-500"
+                    />
+                  </div>
+                  
+                  <Button 
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-200/50 dark:shadow-none" 
+                    onClick={() => handleStatusChange(pendingCriticalStatus)} 
+                    disabled={loading}
+                  >
+                    {loading ? 'Processando...' : `Confirmar ${STATUS_LABELS[pendingCriticalStatus]}`}
                   </Button>
                 </div>
               )}
@@ -308,31 +356,38 @@ export function AppointmentModal({
           )}
         </div>
 
-        <DialogFooter className="gap-2">
-          {mode === 'edit' && (
-            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
-              Excluir
+        <DialogFooter className="p-4 border-t bg-gray-50/50 flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-2 w-full">
+            {mode === 'edit' && (
+              <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading} className="w-full">
+                Excluir
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={onClose} disabled={loading} className="w-full border">
+              Cancelar
             </Button>
-          )}
-          <Button variant="ghost" onClick={onClose} disabled={loading}>Cancelar</Button>
-          {(mode === 'create' || isEditable) && (
-            <Button onClick={handleSave} disabled={loading}>
-              {loading ? 'Salvando...' : 'Salvar'}
-            </Button>
-          )}
-          {mode === 'edit' && isEditable && event && (
-            <Button
-              variant="default"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-              onClick={() => {
-                router.patch(route('agenda.finalize', event.id));
-              }}
-              disabled={loading}
-            >
-              <CreditCard className="w-4 h-4" />
-              Finalizar e Cobrar
-            </Button>
-          )}
+          </div>
+          
+          <div className="flex flex-col gap-2 w-full">
+            {(mode === 'create' || isEditable) && (
+              <Button onClick={handleSave} disabled={loading} className="w-full h-10">
+                {loading ? 'Processando...' : 'Salvar Alterações'}
+              </Button>
+            )}
+            {mode === 'edit' && isEditable && event && (
+              <Button
+                variant="default"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 w-full h-10"
+                onClick={() => {
+                  router.patch(route('agenda.finalize', event.id));
+                }}
+                disabled={loading}
+              >
+                <CreditCard className="w-4 h-4" />
+                Finalizar e Cobrar
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

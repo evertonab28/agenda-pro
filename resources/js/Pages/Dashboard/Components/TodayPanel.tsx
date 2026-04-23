@@ -14,8 +14,8 @@ const mapStatusToVariant = (status: string): any => {
   switch (status) {
     case 'confirmed': return 'success';
     case 'completed': return 'info';
-    case 'noshow': return 'destructive';
-    case 'cancelled': return 'muted';
+    case 'no_show': return 'destructive';
+    case 'canceled': return 'muted';
     default: return 'warning';
   }
 };
@@ -24,14 +24,14 @@ const mapStatusToLabel = (status: string): string => {
   switch (status) {
     case 'confirmed': return 'Confirmado';
     case 'completed': return 'Concluído';
-    case 'noshow': return 'No-Show';
-    case 'cancelled': return 'Cancelado';
+    case 'no_show': return 'No-Show';
+    case 'canceled': return 'Cancelado';
     default: return 'Pendente';
   }
 };
 
 export function TodayPanel({ appointments = [] }: Props) {
-  const confirmed = appointments.filter(a => a.status === 'confirmed').length;
+  const confirmed = appointments.filter(a => a.status === 'confirmed' || a.status === 'completed').length;
   const totalRev = appointments
     .filter(a => a.status === 'confirmed' || a.status === 'completed')
     .reduce((s, a) => s + a.value, 0);

@@ -8,6 +8,7 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 import { route } from '@/utils/route';
+import ReceivePaymentModal from '../Components/ReceivePaymentModal';
 
 interface Receipt {
     id: number;
@@ -33,6 +34,7 @@ export default function ChargeShow({ charge }: Props) {
     const [paymentLink, setPaymentLink] = useState<string | null>(null);
     const [linkError, setLinkError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     const handleGenerateLink = async () => {
         setGeneratingLink(true);
@@ -134,6 +136,14 @@ export default function ChargeShow({ charge }: Props) {
                                                 <ExternalLink className="w-4 h-4" />
                                             )}
                                             Gerar Link de Pagamento
+                                        </button>
+
+                                        <button
+                                            onClick={() => setIsPaymentModalOpen(true)}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors"
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                            Registrar Recebimento
                                         </button>
 
                                         {linkError && (
@@ -320,6 +330,12 @@ export default function ChargeShow({ charge }: Props) {
                     </div>
                 </div>
             </div>
+
+            <ReceivePaymentModal 
+                isOpen={isPaymentModalOpen} 
+                onClose={() => setIsPaymentModalOpen(false)} 
+                charge={charge} 
+            />
         </AppLayout>
     );
 }

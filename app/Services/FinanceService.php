@@ -139,6 +139,13 @@ class FinanceService
                     'status' => ChargeStatus::Paid->value,
                     'paid_at' => Carbon::parse($data['received_at']),
                 ]);
+
+                // Se houver um agendamento vinculado, marcá-lo como concluído
+                if ($charge->appointment_id) {
+                    \App\Models\Appointment::where('id', $charge->appointment_id)
+                        ->where('status', '!=', \App\Enums\AppointmentStatus::Completed->value)
+                        ->update(['status' => \App\Enums\AppointmentStatus::Completed->value]);
+                }
             } else {
                 $charge->update(['status' => ChargeStatus::Partial->value]);
             }
@@ -195,6 +202,13 @@ class FinanceService
                     ? $method
                     : $charge->payment_method,
             ]);
+
+            // Se houver um agendamento vinculado, marcá-lo como concluído
+            if ($charge->appointment_id) {
+                \App\Models\Appointment::where('id', $charge->appointment_id)
+                    ->where('status', '!=', \App\Enums\AppointmentStatus::Completed->value)
+                    ->update(['status' => \App\Enums\AppointmentStatus::Completed->value]);
+            }
 
             if ($user) {
                 AuditService::log($user, 'charge.marked_paid', $charge, [

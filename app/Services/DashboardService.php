@@ -145,7 +145,7 @@ class DashboardService
             'appointments_confirmed' => $confirmed,
             'appointments_completed' => $completed,
             'appointments_no_show' => $noShow,
-            'confirmation_rate' => $total > 0 ? round(($confirmed / $total) * 100, 2) : 0,
+            'confirmation_rate' => $total > 0 ? round((($confirmed + $completed) / $total) * 100, 2) : 0,
             'no_show_rate' => $total > 0 ? round(($noShow / $total) * 100, 2) : 0,
             'pending_amount' => (float) $pendingAmount,
             'paid_amount' => (float) $paidAmount,

@@ -136,8 +136,6 @@ class AppointmentLifecycleService
                 AuditService::log($actor, 'appointment.no_show', $appointment);
             }
 
-            $this->checkoutService->ensureNoShowFeeForAppointment($appointment->fresh(['service']));
-
             return $appointment->fresh();
         });
     }
