@@ -10,8 +10,8 @@ import { useAppointments } from './hooks/useAppointments';
 import { useAgendaUI } from './hooks/useAgendaUI';
 import { toResourceInput } from './utils/calendarMappers';
 import type { AppointmentEvent, Professional, Service } from './types';
-import { PageHeader } from '@/Components/Shared/PageHeader';
-import { SectionCard } from '@/Components/Shared/SectionCard';
+import { PageHeader } from '@/components/Shared/PageHeader';
+import { SectionCard } from '@/components/Shared/SectionCard';
 
 interface Props {
   events: AppointmentEvent[];

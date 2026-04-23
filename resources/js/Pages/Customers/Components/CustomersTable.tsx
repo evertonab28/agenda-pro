@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { route } from '@/lib/route';
-import { StatusPill } from '@/Components/Shared/StatusPill';
+import { StatusPill } from '@/components/Shared/StatusPill';
 
 interface Customer {
   id: number;
@@ -130,3 +130,5 @@ export default function CustomersTable({ customers }: Props) {
         )}
       </TableBody>
     </Table>
+  );
+}

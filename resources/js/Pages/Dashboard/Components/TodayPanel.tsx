@@ -1,6 +1,6 @@
 import { TodayAppointment } from './types';
-import { StatusPill } from '@/Components/Shared/StatusPill';
-import { SectionCard } from '@/Components/Shared/SectionCard';
+import { StatusPill } from '@/components/Shared/StatusPill';
+import { SectionCard } from '@/components/Shared/SectionCard';
 import { Link } from '@inertiajs/react';
 
 interface Props {

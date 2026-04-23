@@ -1,6 +1,6 @@
 import { AtRiskCustomer } from './types';
 import { Link } from '@inertiajs/react';
-import { SectionCard } from '@/Components/Shared/SectionCard';
+import { SectionCard } from '@/components/Shared/SectionCard';
 
 interface Props {
   customers?: AtRiskCustomer[];

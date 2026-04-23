@@ -21,10 +21,10 @@ import {
     ResponsiveContainer,
     Legend,
 } from "recharts";
-import { PageHeader } from "@/Components/Shared/PageHeader";
-import { MetricCard } from "@/Components/Shared/MetricCard";
-import { SectionCard } from "@/Components/Shared/SectionCard";
-import { BarChart } from "@/Components/Shared/Charts/BarChart";
+import { PageHeader } from "@/components/Shared/PageHeader";
+import { MetricCard } from "@/components/Shared/MetricCard";
+import { SectionCard } from "@/components/Shared/SectionCard";
+import { BarChart } from "@/components/Shared/Charts/BarChart";
 
 interface FinanceMetrics {
     received: number;

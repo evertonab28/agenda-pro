@@ -7,9 +7,9 @@ import CustomerFilters from './Components/CustomerFilters';
 import CustomersTable from './Components/CustomersTable';
 import Pagination from '@/components/Pagination';
 import { route } from '@/lib/route';
-import { PageHeader } from '@/Components/Shared/PageHeader';
-import { SectionCard } from '@/Components/Shared/SectionCard';
-import { MetricCard } from '@/Components/Shared/MetricCard';
+import { PageHeader } from '@/components/Shared/PageHeader';
+import { SectionCard } from '@/components/Shared/SectionCard';
+import { MetricCard } from '@/components/Shared/MetricCard';
 
 interface Props {
   customers: {

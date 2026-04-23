@@ -11,11 +11,11 @@ import { DailyActions } from './Components/DailyActions';
 import { BookingLinkBanner } from './Components/BookingLinkBanner';
 import { AtRiskBanner } from './Components/AtRiskBanner';
 import { WhatsAppBanner } from './Components/WhatsAppBanner';
-import { BarChart } from '@/Components/Shared/Charts/BarChart';
+import { BarChart } from '@/components/Shared/Charts/BarChart';
 import { TodayPanel } from './Components/TodayPanel';
 import { AtRiskPanel } from './Components/AtRiskPanel';
-import { PageHeader } from '@/Components/Shared/PageHeader';
-import { SectionCard } from '@/Components/Shared/SectionCard';
+import { PageHeader } from '@/components/Shared/PageHeader';
+import { SectionCard } from '@/components/Shared/SectionCard';
 import { Plus } from 'lucide-react';
 
 export default function DashboardIndex({

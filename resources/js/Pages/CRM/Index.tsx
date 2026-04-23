@@ -4,9 +4,9 @@ import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Users, TrendingUp, AlertTriangle, UserMinus, UserCheck, Star, ArrowRight, Zap } from 'lucide-react';
 import { route } from '@/utils/route';
-import { PageHeader } from '@/Components/Shared/PageHeader';
-import { MetricCard } from '@/Components/Shared/MetricCard';
-import { SectionCard } from '@/Components/Shared/SectionCard';
+import { PageHeader } from '@/components/Shared/PageHeader';
+import { MetricCard } from '@/components/Shared/MetricCard';
+import { SectionCard } from '@/components/Shared/SectionCard';
 
 interface Props {
     stats: Record<string, number>;

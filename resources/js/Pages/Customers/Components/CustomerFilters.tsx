@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import { route } from '@/lib/route';
-import { SectionCard } from '@/Components/Shared/SectionCard';
+import { SectionCard } from '@/components/Shared/SectionCard';
 
 interface Props {
   filters: {

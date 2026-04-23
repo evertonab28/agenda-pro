@@ -1,7 +1,7 @@
 import { CalendarCheck, CheckCircle2, AlertCircle, Wallet, AlertTriangle } from 'lucide-react';
 import { Cards, Delta, TimeseriesItem } from './types';
-import { MetricCard } from '@/Components/Shared/MetricCard';
-import { Sparkline } from '@/Components/Shared/Charts/Sparkline';
+import { MetricCard } from '@/components/Shared/MetricCard';
+import { Sparkline } from '@/components/Shared/Charts/Sparkline';
 
 const money = (v: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
