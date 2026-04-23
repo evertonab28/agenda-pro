@@ -123,7 +123,8 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
         Route::get('assinatura', [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
         Route::post('assinatura/upgrade', [\App\Http\Controllers\BillingController::class, 'upgrade'])->name('billing.upgrade');
         Route::post('assinatura/ativar', [\App\Http\Controllers\BillingController::class, 'activate'])->name('billing.activate');
-        Route::post('assinatura/cancelar', [\App\Http\Controllers\BillingController::class, 'cancel'])->name('billing.cancel');
+        // Appearance
+        Route::patch('aparencia', [\App\Http\Controllers\AppearanceController::class, 'update'])->name('appearance.update');
     });
 });
 

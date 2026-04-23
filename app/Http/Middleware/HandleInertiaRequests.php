@@ -51,6 +51,11 @@ class HandleInertiaRequests extends Middleware
                     'name' => $request->user()->name,
                     'email'=> $request->user()->email,
                     'role' => $request->user()->role,
+                    'theme_mode' => $request->user()->theme_mode,
+                    'workspace' => [
+                        'name' => $request->user()->workspace?->name,
+                        'theme_preset' => $request->user()->workspace?->theme_preset,
+                    ],
                 ] : null,
                 'admin' => \Illuminate\Support\Facades\Auth::guard('admin')->user() ? [
                     'id'    => \Illuminate\Support\Facades\Auth::guard('admin')->user()->id,

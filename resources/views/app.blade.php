@@ -8,6 +8,27 @@
 @viteReactRefresh
 @vite(['resources/css/app.css', 'resources/js/app.tsx'])
 @inertiaHead
+    <script>
+        (function() {
+            try {
+                const mode = "{{ Auth::user()?->theme_mode ?? 'system' }}";
+                const preset = "{{ Auth::user()?->workspace?->theme_preset ?? 'slate' }}";
+                const doc = document.documentElement;
+                
+                // Limpar classes de tema anteriores se houver
+                const themeClasses = Array.from(doc.classList).filter(c => c.startsWith('theme-'));
+                themeClasses.forEach(c => doc.classList.remove(c));
+                
+                doc.classList.add('theme-' + preset);
+                
+                if (mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    doc.classList.add('dark');
+                } else {
+                    doc.classList.remove('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 <body class="antialiased">
 @inertia

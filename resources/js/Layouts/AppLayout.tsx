@@ -25,9 +25,10 @@ import {
   DollarSign
 } from 'lucide-react';
 import { route } from '@/utils/route';
-import { Link, usePage } from '@inertiajs/react';
+import { useAppearance } from '@/Hooks/useAppearance';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
+  useAppearance(); // Gerencia a aplicação do tema globalmente
   const { url, props } = usePage<any>();
   const isCurrent = (path: string) => url.startsWith(path);
   const flash = props.flash || {};
