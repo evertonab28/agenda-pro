@@ -184,93 +184,136 @@ export default function Index({ integrations }: Props) {
 
                 {/* EVOLUTION CARD */}
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-800/10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
-                                <MessageSquare className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 dark:text-white">WhatsApp</h3>
-                                <p className="text-xs text-gray-500">Evolution API</p>
-                            </div>
-                        </div>
-                        {evolution && <StatusBadge status={evolution.status} />}
-                    </div>
-
-                    <div className="p-6 space-y-6">
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="evo_url">URL da API</Label>
-                                <Input
-                                    id="evo_url"
-                                    placeholder="https://api.seuservidor.com"
-                                    value={evoUrl}
-                                    onChange={e => setEvoUrl(e.target.value)}
-                                />
+                    <div className="p-6 space-y-4">
+                        {/* Seção WhatsApp / Evolution API */}
+                        <div className="space-y-4 border rounded-xl p-5">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                                    <MessageSquare className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">WhatsApp (Evolution API)</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Envie lembretes e receba confirmações diretamente pelo WhatsApp.
+                                    </p>
+                                </div>
+                                {evolution && evolution.status === 'active' && (
+                                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-full">
+                                        <CheckCircle2 className="w-3.5 h-3.5" /> Conectado
+                                    </span>
+                                )}
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="evo_instance">Nome da Instância</Label>
-                                <Input
-                                    id="evo_instance"
-                                    placeholder="ex: agendapro_01"
-                                    value={evoInstance}
-                                    onChange={e => setEvoInstance(e.target.value)}
-                                />
+                            <div className="space-y-4">
+                                {/* Passo 1 */}
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="evo-url" className="flex items-center gap-1.5">
+                                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">1</span>
+                                        URL da sua Evolution API
+                                    </Label>
+                                    <Input
+                                        id="evo-url"
+                                        placeholder="https://api.seudominio.com"
+                                        value={evoUrl}
+                                        onChange={(e) => setEvoUrl(e.target.value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        É o endereço do servidor Evolution API que você configurou.{' '}
+                                        <a
+                                            href="https://doc.evolution-api.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-primary underline hover:no-underline"
+                                        >
+                                            O que é isso?
+                                        </a>
+                                    </p>
+                                </div>
+
+                                {/* Passo 2 */}
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="evo-instance" className="flex items-center gap-1.5">
+                                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">2</span>
+                                        Nome da instância
+                                    </Label>
+                                    <Input
+                                        id="evo-instance"
+                                        placeholder="minha-barbearia"
+                                        value={evoInstance}
+                                        onChange={(e) => setEvoInstance(e.target.value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        Você vê o nome da instância no painel da sua Evolution API, em "Instâncias".
+                                    </p>
+                                </div>
+
+                                {/* Passo 3 */}
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="evo-key" className="flex items-center gap-1.5">
+                                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">3</span>
+                                        Chave de API
+                                    </Label>
+                                    <Input
+                                        id="evo-key"
+                                        type="password"
+                                        placeholder="Sua API Key da Evolution"
+                                        value={evoKey}
+                                        onChange={(e) => setEvoKey(e.target.value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        Encontrada em Configurações &gt; API Keys no painel da Evolution API.
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="evo_key">API Global Key</Label>
-                                <Input
-                                    id="evo_key"
-                                    type="password"
-                                    placeholder={evolution ? 'Manter chave existente' : 'Insira o Global Token'}
-                                    value={evoKey}
-                                    onChange={e => setEvoKey(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                            {/* Feedback de save */}
+                            {saveResults['evolution']?.ok === true && (
+                                <p className="text-sm text-emerald-600 font-medium">Configuração salva com sucesso.</p>
+                            )}
+                            {saveResults['evolution']?.ok === false && (
+                                <p className="text-sm text-red-600">{saveResults['evolution'].message || 'Erro ao salvar.'}</p>
+                            )}
 
-                        <div className="flex items-center gap-3">
-                            <Button
-                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                                onClick={() => handleSave({ type: 'messaging', provider: 'evolution', credentials: { api_key: evoKey, instance_name: evoInstance, base_url: evoUrl } }, 'evolution')}
-                                disabled={savingProvider === 'evolution' || (!evoKey && !evoUrl && !evoInstance)}
-                            >
-                                {savingProvider === 'evolution' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                {evolution ? 'Atualizar' : 'Configurar'}
-                            </Button>
+                            {/* Feedback de test */}
+                            {evolution && testResults[evolution.id]?.ok === true && (
+                                <p className="text-sm text-emerald-600 font-medium">Conexão testada com sucesso.</p>
+                            )}
+                            {evolution && testResults[evolution.id]?.ok === false && (
+                                <p className="text-sm text-red-600">{testResults[evolution.id].message || 'Falha na conexão.'}</p>
+                            )}
 
-                            {evolution && (
+                            <div className="flex gap-2 pt-2">
                                 <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={() => testConnection(evolution.id)}
-                                    disabled={testingId === evolution.id}
-                                    title="Testar Conexão"
+                                    variant="default"
+                                    disabled={!evoUrl || !evoInstance || !evoKey || savingProvider === 'evolution'}
+                                    onClick={() =>
+                                        handleSave(
+                                            { type: 'messaging', provider: 'evolution', credentials: { api_key: evoKey, instance_name: evoInstance, base_url: evoUrl } },
+                                            'evolution',
+                                        )
+                                    }
                                 >
-                                    {testingId === evolution.id ? (
-                                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                                    {savingProvider === 'evolution' ? (
+                                        <><Loader2 className="w-4 h-4 animate-spin mr-2" />Salvando...</>
                                     ) : (
-                                        <RefreshCw className="w-4 h-4 text-gray-400" />
+                                        'Salvar configuração'
                                     )}
                                 </Button>
-                            )}
+                                {evolution && (
+                                    <Button
+                                        variant="outline"
+                                        disabled={testingId === evolution.id}
+                                        onClick={() => testConnection(evolution.id)}
+                                    >
+                                        {testingId === evolution.id ? (
+                                            <><Loader2 className="w-4 h-4 animate-spin mr-2" />Testando...</>
+                                        ) : (
+                                            'Testar conexão'
+                                        )}
+                                    </Button>
+                                )}
+                            </div>
                         </div>
-
-                        {saveResults['evolution'] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['evolution'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
-                                {saveResults['evolution'].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                                {saveResults['evolution'].ok ? 'Configuração salva!' : saveResults['evolution'].message}
-                            </div>
-                        )}
-
-                        {evolution && testResults[evolution.id] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${testResults[evolution.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
-                                {testResults[evolution.id].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                                {testResults[evolution.id].ok ? 'WhatsApp conectado!' : testResults[evolution.id].message}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
