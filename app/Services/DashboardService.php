@@ -37,7 +37,7 @@ class DashboardService
         $userId = auth()->id() ?? 'guest';
         $filterHash = md5(json_encode($metricFilters) . $userId);
         
-        $ttl = env('DASHBOARD_CACHE_TTL', 120);
+        $ttl = (int) env('DASHBOARD_CACHE_TTL', 120);
         $prefix = $this->getCacheKeyPrefix();
         $startTime = microtime(true);
 
