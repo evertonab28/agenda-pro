@@ -267,19 +267,19 @@ export default function Index({ integrations }: Props) {
                             </div>
 
                             {/* Feedback de save */}
-                            {saveResults['evolution']?.ok === true && (
-                                <p className="text-sm text-emerald-600 font-medium">Configuração salva com sucesso.</p>
-                            )}
-                            {saveResults['evolution']?.ok === false && (
-                                <p className="text-sm text-red-600">{saveResults['evolution'].message || 'Erro ao salvar.'}</p>
+                            {saveResults['evolution'] && (
+                                <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['evolution'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
+                                    {saveResults['evolution'].ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                                    {saveResults['evolution'].ok ? 'Configuração salva com sucesso.' : saveResults['evolution'].message || 'Erro ao salvar.'}
+                                </div>
                             )}
 
                             {/* Feedback de test */}
-                            {evolution && testResults[evolution.id]?.ok === true && (
-                                <p className="text-sm text-emerald-600 font-medium">Conexão testada com sucesso.</p>
-                            )}
-                            {evolution && testResults[evolution.id]?.ok === false && (
-                                <p className="text-sm text-red-600">{testResults[evolution.id].message || 'Falha na conexão.'}</p>
+                            {evolution && testResults[evolution.id] && (
+                                <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${testResults[evolution.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
+                                    {testResults[evolution.id].ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                                    {testResults[evolution.id].ok ? 'Conexão testada com sucesso.' : testResults[evolution.id].message || 'Falha na conexão.'}
+                                </div>
                             )}
 
                             <div className="flex gap-2 pt-2">
