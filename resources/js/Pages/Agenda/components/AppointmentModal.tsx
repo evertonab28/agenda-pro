@@ -1,6 +1,7 @@
 // resources/js/Pages/Agenda/components/AppointmentModal.tsx
 import { useState, useEffect } from 'react';
 import { format, addMinutes } from 'date-fns';
+import { CreditCard } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -302,6 +303,19 @@ export function AppointmentModal({
           {(mode === 'create' || isEditable) && (
             <Button onClick={handleSave} disabled={loading}>
               {loading ? 'Salvando...' : 'Salvar'}
+            </Button>
+          )}
+          {mode === 'edit' && isEditable && event && (
+            <Button
+              variant="default"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+              onClick={() => {
+                window.location.href = `/agenda/${event.id}/finalizar`;
+              }}
+              disabled={loading}
+            >
+              <CreditCard className="w-4 h-4" />
+              Finalizar e Cobrar
             </Button>
           )}
         </DialogFooter>
