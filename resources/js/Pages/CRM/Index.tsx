@@ -37,7 +37,7 @@ export default function CRMIndex({ stats, segments, avg_nps }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="CRM & Inteligência" />
             
             <div className="space-y-8">
@@ -95,6 +95,8 @@ export default function CRMIndex({ stats, segments, avg_nps }: Props) {
                     </div>
                 </Card>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+CRMIndex.layout = (page: any) => <AppLayout children={page} />;

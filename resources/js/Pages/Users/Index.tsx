@@ -54,7 +54,7 @@ export default function Index({ users }: { users: User[] }) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Gerenciamento de Usuários" />
 
             <div className="flex items-center justify-between mb-6">
@@ -124,8 +124,10 @@ export default function Index({ users }: { users: User[] }) {
                     </TableBody>
                 </Table>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => <AppLayout children={page} />;
 
 declare var route: any;
