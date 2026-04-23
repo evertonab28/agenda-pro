@@ -8,11 +8,12 @@ import { RankingsPanel } from './Components/RankingsPanel';
 import { PendingChargesTable } from './Components/PendingChargesTable';
 import { DayDetailsDrawer } from './Components/DayDetailsDrawer';
 import { DailyActions } from './Components/DailyActions';
+import { BookingLinkBanner } from './Components/BookingLinkBanner';
 
-export default function DashboardIndex({ 
-  filters, range, current, deltas, timeseries, 
-  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors
-}: DashboardProps & { daily_actions: any[] }) {
+export default function DashboardIndex({
+  filters, range, current, deltas, timeseries,
+  ranking_services, ranking_customers, pending_charges, daily_actions, can_export, errors, publicBookingUrl
+}: DashboardProps & { daily_actions: any[], publicBookingUrl: string }) {
 
   const [filterState, setFilterState] = useState<FiltersState>({
     from: filters.from || range.from.split(' ')[0],
@@ -38,6 +39,8 @@ export default function DashboardIndex({
   return (
     <AppLayout>
       <div className="space-y-6 pb-12">
+        <BookingLinkBanner publicBookingUrl={publicBookingUrl} />
+
         {errors && Object.keys(errors).length > 0 && (
            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/50">
              {Object.values(errors).map((e: any, idx) => <p key={idx}>{e}</p>)}
