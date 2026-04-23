@@ -28,14 +28,18 @@ class DashboardFilterRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if ($this->has('from') && $this->has('to')) {
-            $from = \Carbon\Carbon::parse($this->from);
-            $to = \Carbon\Carbon::parse($this->to);
-            if ($from->gt($to)) {
-                $this->merge([
-                    'from' => $this->to,
-                    'to' => $this->from,
-                ]);
+        if ($this->filled(['from', 'to'])) {
+            try {
+                $from = \Carbon\Carbon::parse($this->from);
+                $to = \Carbon\Carbon::parse($this->to);
+                if ($from->gt($to)) {
+                    $this->merge([
+                        'from' => $this->to,
+                        'to' => $this->from,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Se a data for inválida, deixa passar para o validador padrão do Laravel tratar
             }
         }
     }
@@ -43,11 +47,15 @@ class DashboardFilterRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if ($this->has('from') && $this->has('to')) {
-                $from = \Carbon\Carbon::parse($this->from);
-                $to = \Carbon\Carbon::parse($this->to);
-                if ($from->diffInDays($to) > 365) {
-                    $validator->errors()->add('to', 'O período máximo de busca é de 365 dias.');
+            if ($this->filled(['from', 'to'])) {
+                try {
+                    $from = \Carbon\Carbon::parse($this->from);
+                    $to = \Carbon\Carbon::parse($this->to);
+                    if ($from->diffInDays($to) > 365) {
+                        $validator->errors()->add('to', 'O período máximo de busca é de 365 dias.');
+                    }
+                } catch (\Exception $e) {
+                    $validator->errors()->add('from', 'Formato de data inválido.');
                 }
             }
         });
