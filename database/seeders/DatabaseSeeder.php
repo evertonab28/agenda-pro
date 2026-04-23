@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(PlanSeeder::class);
+        $this->call(AdminUserSeeder::class);
         
         $workspace = \App\Models\Workspace::updateOrCreate(
             ['slug' => 'workspace-modelo'],

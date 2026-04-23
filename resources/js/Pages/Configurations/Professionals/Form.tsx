@@ -48,8 +48,11 @@ export default function Form({ professional, services }: Props) {
         }
     };
 
+    const isCreating = !professional?.id;
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isCreating && data.services.length === 0) return;
         if (professional?.id) {
             put(route('configuracoes.professionals.update', professional.id));
         } else {
@@ -171,6 +174,11 @@ export default function Form({ professional, services }: Props) {
                             })}
                         </div>
                         {errors.services && <p className="text-sm text-red-500">{errors.services}</p>}
+                        {isCreating && data.services.length === 0 && services.length > 0 && (
+                            <p className="text-sm text-amber-600 dark:text-amber-400">
+                                Selecione ao menos um serviço para cadastrar o profissional.
+                            </p>
+                        )}
                         {services.length === 0 && (
                             <div className="text-center py-6 bg-gray-50 dark:bg-zinc-800/50 rounded-xl border border-dashed text-gray-500 text-sm">
                                 Nenhum serviço ativo cadastrado. 
@@ -187,9 +195,9 @@ export default function Form({ professional, services }: Props) {
                                 Cancelar
                             </Button>
                         </Link>
-                        <Button 
-                            type="submit" 
-                            disabled={processing}
+                        <Button
+                            type="submit"
+                            disabled={processing || (isCreating && data.services.length === 0)}
                             className="px-10 rounded-xl h-11 shadow-lg shadow-primary/20"
                         >
                             {processing ? 'Salvando...' : (professional?.id ? 'Salvar Alterações' : 'Cadastrar Profissional')}

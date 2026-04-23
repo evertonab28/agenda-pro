@@ -43,9 +43,7 @@ class ProfessionalController extends Controller
 
         $professional = Professional::create($request->validated());
 
-        if ($request->has('services')) {
-            $professional->services()->sync($request->services);
-        }
+        $professional->services()->sync($request->input('services', []));
 
         AuditService::log(auth()->user(), 'professional.created', $professional);
 
@@ -56,7 +54,10 @@ class ProfessionalController extends Controller
     {
         $this->authorize('update', $professional);
         $professional->load('services');
-        $services = Service::where('is_active', true)->get();
+        $linkedIds = $professional->services->pluck('id');
+        $services = Service::where('is_active', true)
+            ->orWhereIn('id', $linkedIds)
+            ->get();
         return Inertia::render('Configurations/Professionals/Form', [
             'professional' => $professional,
             'services'     => $services,
@@ -68,9 +69,7 @@ class ProfessionalController extends Controller
         $this->authorize('update', $professional);
         $professional->update($request->validated());
 
-        if ($request->has('services')) {
-            $professional->services()->sync($request->services);
-        }
+        $professional->services()->sync($request->input('services', []));
 
         AuditService::log(auth()->user(), 'professional.updated', $professional);
 

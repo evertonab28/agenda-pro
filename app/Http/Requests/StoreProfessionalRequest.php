@@ -25,7 +25,7 @@ class StoreProfessionalRequest extends FormRequest
             'phone' => 'nullable|string|max:20',
             'specialty' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
-            'services' => 'nullable|array',
+            'services' => 'required|array|min:1',
             'services.*' => 'exists:services,id',
         ];
     }

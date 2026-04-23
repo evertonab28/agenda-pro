@@ -90,14 +90,21 @@ class SubscriptionGatingTest extends TestCase
         
         $workspace->subscription->update(['plan_id' => $plan->id, 'status' => 'active']);
 
-        // Primeiro já existe ou criamos (Starter limit is 1)
+        // Criar serviço e profissional para o workspace de limite
+        $service = \App\Models\Service::create([
+            'workspace_id' => $workspace->id,
+            'name' => 'Serviço Limite',
+            'price' => 50,
+            'duration_minutes' => 30,
+        ]);
         Professional::create(['workspace_id' => $workspace->id, 'name' => 'Prof 1', 'email' => 'p1@test.com']);
 
-        // Tentar criar o segundo (is_active obrigatório na validação)
+        // Tentar criar o segundo (services obrigatório na validação)
         $response = $this->actingAs($user)->post(route('configuracoes.professionals.store'), [
             'name' => 'Prof 2',
             'email' => 'p2@test.com',
             'is_active' => true,
+            'services' => [$service->id],
         ]);
 
         $response->assertSessionHas('error', 'Limite de profissionais atingido para seu plano atual. Faça um upgrade!');
