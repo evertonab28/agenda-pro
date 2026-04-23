@@ -115,14 +115,10 @@ class DashboardService
         })->when(!empty($filters['professional_id']), function ($q) use ($filters) {
             if ($q->getModel() instanceof Charge) {
                 $q->whereHas('appointment', function ($sub) use ($filters) {
-                    if (Schema::hasColumn('appointments', 'professional_id')) {
-                        $sub->where('professional_id', $filters['professional_id']);
-                    }
+                    $sub->where('professional_id', $filters['professional_id']);
                 });
             } else {
-                if (Schema::hasColumn('appointments', 'professional_id')) {
-                    $q->where('professional_id', $filters['professional_id']);
-                }
+                $q->where('professional_id', $filters['professional_id']);
             }
         });
     }
@@ -244,7 +240,7 @@ class DashboardService
                 $q->where('appointments.service_id', $filters['service_id']);
             });
         }
-        if (!empty($filters['professional_id']) && \Illuminate\Support\Facades\Schema::hasColumn('appointments', 'professional_id')) {
+        if (!empty($filters['professional_id'])) {
             $revQuery->where(function ($q) use ($filters) {
                 $q->where('appointments.professional_id', $filters['professional_id']);
             });
