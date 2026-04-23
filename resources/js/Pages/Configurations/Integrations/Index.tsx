@@ -161,14 +161,14 @@ export default function Index({ integrations }: Props) {
                         </div>
 
                         {saveResults['asaas'] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['asaas'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${saveResults['asaas'].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
                                 {saveResults['asaas'].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                                 {saveResults['asaas'].ok ? 'Configuração salva!' : saveResults['asaas'].message}
                             </div>
                         )}
 
                         {asaas && testResults[asaas.id] && (
-                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${testResults[asaas.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10' : 'bg-red-50 text-red-700 dark:bg-red-900/10'}`}>
+                            <div className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in zoom-in duration-300 ${testResults[asaas.id].ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'}`}>
                                 {testResults[asaas.id].ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                                 {testResults[asaas.id].ok ? 'Conexão estabelecida com sucesso!' : testResults[asaas.id].message}
                             </div>
