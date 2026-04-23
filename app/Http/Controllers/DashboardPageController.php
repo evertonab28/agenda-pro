@@ -17,12 +17,25 @@ class DashboardPageController extends Controller
 
     public function index(\Illuminate\Http\Request $request)
     {
+        $workspace = auth()->user()->workspace;
+        $officialAppUrl = 'https://app.agendanexo.com.br';
+        $publicBookingUrl = $workspace
+            ? $officialAppUrl . '/p/' . $workspace->slug
+            : '';
+
+        $whatsAppConnected = $workspace
+            ? $workspace->integrations()
+                ->where('provider', 'evolution')
+                ->where('status', 'active')
+                ->exists()
+            : false;
+
         return \Inertia\Inertia::render('Dashboard/index', [
             'filters' => [],
             'dashboardData' => [],
             'atRiskCount' => 0,
-            'whatsAppConnected' => false,
-            'publicBookingUrl' => '',
+            'whatsAppConnected' => $whatsAppConnected,
+            'publicBookingUrl' => $publicBookingUrl,
             'can_export' => true
         ]);
     }
