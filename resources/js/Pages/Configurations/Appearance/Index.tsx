@@ -18,11 +18,11 @@ interface PresetOption {
 }
 
 const PRESETS: PresetOption[] = [
-    { id: 'slate', name: 'Slate', description: 'Profissional e neutro', colors: { primary: '#0f172a', background: '#f8fafc', card: '#ffffff', sidebar: '#ffffff' } },
-    { id: 'ocean', name: 'Ocean', description: 'Azul tecnológico', colors: { primary: '#0284c7', background: '#f0f9ff', card: '#ffffff', sidebar: '#f0f9ff' } },
-    { id: 'emerald', name: 'Emerald', description: 'Verde sofisticado', colors: { primary: '#059669', background: '#f0fdf4', card: '#ffffff', sidebar: '#f0fdf4' } },
-    { id: 'violet', name: 'Violet', description: 'Moderno e premium', colors: { primary: '#7c3aed', background: '#f5f3ff', card: '#ffffff', sidebar: '#f5f3ff' } },
-    { id: 'mono', name: 'Mono', description: 'Minimalista puro', colors: { primary: '#18181b', background: '#fafafa', card: '#ffffff', sidebar: '#ffffff' } },
+    { id: 'slate', name: 'Slate', description: 'Profissional e neutro', colors: { primary: '#2563eb', background: '#f8fafc', card: '#ffffff', sidebar: '#1e293b' } },
+    { id: 'ocean', name: 'Ocean', description: 'Azul tecnológico', colors: { primary: '#0284c7', background: '#f0f9ff', card: '#ffffff', sidebar: '#082f49' } },
+    { id: 'emerald', name: 'Emerald', description: 'Verde sofisticado', colors: { primary: '#059669', background: '#f0fdf4', card: '#ffffff', sidebar: '#064e3b' } },
+    { id: 'violet', name: 'Violet', description: 'Moderno e premium', colors: { primary: '#7c3aed', background: '#f5f3ff', card: '#ffffff', sidebar: '#2e1066' } },
+    { id: 'mono', name: 'Mono', description: 'Minimalista puro', colors: { primary: '#18181b', background: '#f4f4f5', card: '#ffffff', sidebar: '#09090b' } },
 ];
 
 export default function AppearanceIndex() {

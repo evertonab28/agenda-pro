@@ -1,7 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import { RankingService, RankingCustomer } from './types';
-
-const money = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 interface Props {
   services: RankingService[];
@@ -9,55 +7,92 @@ interface Props {
 }
 
 export function RankingsPanel({ services, customers }: Props) {
-  return (
-    <div className="grid gap-6 md:grid-cols-2 col-span-full xl:col-span-5">
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3 border-b border-gray-100 dark:border-zinc-800">
-          <CardTitle className="text-base text-gray-700 dark:text-gray-300">Top 10 Serviços (Receita)</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {services.length === 0 ? (
-             <p className="p-6 text-center text-sm text-muted-foreground">Nenhum serviço utilizado no período.</p>
-          ) : (
-            <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
-              {services.map((svc, i) => (
-                <li key={svc.service_id} className="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
-                  <span className="flex items-center justify-center min-w-[28px] h-7 rounded-full bg-gray-100 dark:bg-zinc-800 text-xs font-bold text-gray-500 dark:text-gray-400 shrink-0 mt-1">{i + 1}</span>
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <p className="font-semibold text-base truncate text-gray-800 dark:text-gray-200" title={svc.service_name}>{svc.service_name}</p>
-                    <p className="text-xs text-muted-foreground font-medium">{svc.total_appointments} agendamentos</p>
-                    <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{money(svc.total_revenue)}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+  const [tab, setTab] = useState<'services' | 'customers'>('services');
 
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3 border-b border-gray-100 dark:border-zinc-800">
-          <CardTitle className="text-base text-gray-700 dark:text-gray-300">Top 10 Clientes (Gastos Pagos)</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {customers.length === 0 ? (
-             <p className="p-6 text-center text-sm text-muted-foreground">Nenhum cliente atendeu aos critérios.</p>
-          ) : (
-            <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
-              {customers.map((c, i) => (
-                <li key={c.customer_id} className="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
-                  <span className="flex items-center justify-center min-w-[28px] h-7 rounded-full bg-gray-100 dark:bg-zinc-800 text-xs font-bold text-gray-500 dark:text-gray-400 shrink-0 mt-1">{i + 1}</span>
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <p className="font-semibold text-base truncate text-gray-800 dark:text-gray-200" title={c.customer_name}>{c.customer_name}</p>
-                    <p className="text-xs text-muted-foreground font-medium">{c.total_appointments} agendamentos</p>
-                    <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{money(c.total_spent)}</div>
+  const isServices = tab === 'services';
+  const data = isServices ? services : customers;
+
+  const max = data.length === 0 ? 1 : Math.max(
+    ...data.map(d => isServices ? (d as RankingService).total_revenue : (d as RankingCustomer).total_spent),
+    1
+  );
+
+  const tabs: { key: 'services' | 'customers'; label: string }[] = [
+    { key: 'services', label: 'Top Serviços' },
+    { key: 'customers', label: 'Top Clientes' },
+  ];
+
+  return (
+    <div className="bg-card border border-border rounded-2xl overflow-hidden col-span-full xl:col-span-12">
+      {/* Tab bar */}
+      <div className="px-5 pt-3.5 border-b border-border/60 flex gap-1">
+        {tabs.map(({ key, label }) => {
+          const active = tab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={[
+                'text-xs font-semibold px-3.5 py-[7px] rounded-t-lg cursor-pointer transition-all duration-150 border-b-2',
+                active
+                  ? 'bg-primary/10 text-primary border-primary'
+                  : 'bg-transparent text-muted-foreground border-transparent',
+              ].join(' ')}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Rows */}
+      {data.length === 0 ? (
+        <p className="p-8 text-center text-sm text-muted-foreground">Nenhum dado no período.</p>
+      ) : (
+        <div className="p-5 space-y-3">
+          {data.map((item, i) => {
+            const v = isServices
+              ? (item as RankingService).total_revenue
+              : (item as RankingCustomer).total_spent;
+            const name = isServices
+              ? (item as RankingService).service_name
+              : (item as RankingCustomer).customer_name;
+            const sub = isServices
+              ? `${(item as RankingService).total_appointments} atend.`
+              : `${(item as RankingCustomer).total_appointments} visitas`;
+            const pct = (v / max) * 100;
+
+            return (
+              <div key={i}>
+                <div className="flex items-baseline justify-between mb-1">
+                  <span>
+                    <span className="text-[11px] text-muted-foreground mr-1.5">#{i + 1}</span>
+                    <span className="text-sm font-semibold text-foreground">{name}</span>
+                  </span>
+                  <div className="text-right">
+                    <span className="font-display text-sm font-bold text-primary">
+                      R$&nbsp;{v.toLocaleString('pt-BR')}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground ml-1.5">{sub}</span>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+                </div>
+                {/* Progress bar */}
+                <div className="h-1 rounded-full bg-border/60 mt-1">
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${pct}%`,
+                      borderRadius: 9999,
+                      background: 'linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 50%, transparent))',
+                      transition: 'width .4s ease',
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

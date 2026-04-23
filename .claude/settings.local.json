@@ -22,7 +22,8 @@
       "Bash(git -C /d/saas/agenda-pro log --oneline -10)",
       "Bash(git show *)",
       "Bash(php -r \"echo PHP_VERSION;\")",
-      "Bash(php -r ' *)"
+      "Bash(php -r ' *)",
+      "PowerShell(Get-ChildItem -Path C:\\\\Users\\\\Everton\\\\Downloads\\\\agendaNexos_extracted -Recurse -File | Select-Object FullName, @{Name=\"Size\";Expression={$_.Length}})"
     ]
   }
 }

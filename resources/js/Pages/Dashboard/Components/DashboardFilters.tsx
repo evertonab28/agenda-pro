@@ -1,4 +1,4 @@
-import { Calendar, Download } from 'lucide-react';
+import { Calendar, Filter } from 'lucide-react';
 import { FiltersState } from './types';
 import { router } from '@inertiajs/react';
 
@@ -10,6 +10,14 @@ interface Props {
   canExport?: boolean;
 }
 
+const STATUS_MAP: { value: string; label: string; color: string; colorDim: string }[] = [
+  { value: 'confirmed',  label: 'Confirmado', color: 'var(--success)',           colorDim: 'var(--success-bg)' },
+  { value: 'completed',  label: 'Concluído',  color: 'var(--info)',              colorDim: 'var(--info-bg)' },
+  { value: 'no_show',    label: 'No-Show',    color: 'var(--destructive)',       colorDim: 'var(--destructive-bg)' },
+  { value: 'pending',    label: 'Pendente',   color: 'var(--warning)',           colorDim: 'var(--warning-bg)' },
+  { value: 'canceled',   label: 'Cancelado',  color: 'var(--muted-foreground)',  colorDim: 'var(--muted)' },
+];
+
 export function DashboardFilters({ filterState, setFilterState, exportUrl, baseUrl = '/dashboard', canExport = true }: Props) {
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,80 +27,83 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
   const handleStatusToggle = (val: string) => {
     setFilterState({
       ...filterState,
-      status: filterState.status.includes(val) 
-        ? filterState.status.filter(s => s !== val) 
+      status: filterState.status.includes(val)
+        ? filterState.status.filter(s => s !== val)
         : [...filterState.status, val]
     });
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-        <h1 className="text-2xl font-bold tracking-tight mr-4">Dashboard</h1>
-        
-        <div className="flex gap-2 items-center flex-wrap">
-          <form className="flex flex-wrap items-center gap-2 bg-white dark:bg-zinc-900 p-2 rounded-lg border shadow-sm" onSubmit={handleFilter}>
-            <div className="flex items-center gap-1 border-r pr-2">
-              <Calendar className="w-4 h-4 text-gray-400 mx-2" />
-              <input 
-                type="date" 
-                className="text-sm bg-transparent border-none focus:ring-0 p-1 text-gray-700 dark:text-gray-300 w-32"
-                value={filterState.from || ''}
-                onChange={(e) => setFilterState({ ...filterState, from: e.target.value })}
-              />
-              <span className="text-gray-400 px-1 text-xs">até</span>
-              <input 
-                type="date" 
-                className="text-sm bg-transparent border-none focus:ring-0 p-1 text-gray-700 dark:text-gray-300 w-32"
-                value={filterState.to || ''}
-                onChange={(e) => setFilterState({ ...filterState, to: e.target.value })}
-              />
-            </div>
-            
-            <div className="flex items-center gap-2 px-2">
-              <input 
-                type="number" 
-                placeholder="ID Prof."
-                className="text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-1 w-20 focus:ring-1 focus:ring-primary outline-none"
-                value={filterState.professional_id || ''}
-                onChange={(e) => setFilterState({ ...filterState, professional_id: e.target.value })}
-              />
-  
-              <input 
-                type="number" 
-                placeholder="ID Serv."
-                className="text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-1 w-20 focus:ring-1 focus:ring-primary outline-none"
-                value={filterState.service_id || ''}
-                onChange={(e) => setFilterState({ ...filterState, service_id: e.target.value })}
-              />
-            </div>
-
-            <button type="submit" className="bg-primary hover:bg-primary/90 text-white text-sm px-4 py-1.5 rounded-md font-medium transition-colors ml-auto sm:ml-2">
-              Filtrar
-            </button>
-          </form>
-
-          {canExport && (
-            <a href={exportUrl} target="_blank" className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-sm font-medium px-4 py-2.5 rounded-lg border shadow-sm transition-colors text-zinc-700 dark:text-zinc-200">
-              <Download className="w-4 h-4" />
-              CSV
-            </a>
-          )}
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2 text-sm">
-        <span className="text-muted-foreground flex items-center font-medium mr-2">Status do Serviço:</span>
-        {['confirmed', 'completed', 'no_show', 'pending', 'canceled'].map(status => (
-          <button 
-            key={status} 
-            onClick={() => handleStatusToggle(status)}
-            className={`px-3 py-1 rounded-full border transition-colors capitalize ${filterState.status.includes(status) ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-muted-foreground border-gray-200 dark:border-zinc-700 hover:border-gray-500'}`}
+    <form onSubmit={handleFilter} className="flex flex-wrap items-center gap-2.5">
+      {/* Left: status pills */}
+      <span className="text-xs font-semibold text-muted-foreground mr-2">Status:</span>
+      {STATUS_MAP.map(({ value, label, color, colorDim }) => {
+        const active = filterState.status.includes(value);
+        return (
+          <button
+            key={value}
+            type="button"
+            onClick={() => handleStatusToggle(value)}
+            className="text-xs font-semibold px-3 py-1 rounded-full border cursor-pointer transition-all duration-150"
+            style={
+              active
+                ? { borderColor: color, backgroundColor: colorDim, color }
+                : { borderColor: 'var(--border)', backgroundColor: 'transparent', color: 'var(--muted-foreground)' }
+            }
           >
-            {status.replace('_', ' ')}
+            {active && <span>{'● '}</span>}{label}
           </button>
-        ))}
+        );
+      })}
+
+      {/* Right: controls */}
+      <div className="ml-auto flex flex-wrap items-center gap-2.5">
+        {/* Date range */}
+        <div className="flex items-center gap-1.5 bg-muted border border-input rounded-[10px] px-3 py-1.5">
+          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+          <input
+            type="date"
+            className="text-xs bg-transparent border-none outline-none text-foreground/80 w-28"
+            value={filterState.from || ''}
+            onChange={e => setFilterState({ ...filterState, from: e.target.value })}
+          />
+          <span className="text-muted-foreground text-xs">–</span>
+          <input
+            type="date"
+            className="text-xs bg-transparent border-none outline-none text-foreground/80 w-28"
+            value={filterState.to || ''}
+            onChange={e => setFilterState({ ...filterState, to: e.target.value })}
+          />
+        </div>
+
+        {/* Professional ID */}
+        <input
+          type="number"
+          placeholder="Profissional ID"
+          className="text-xs bg-muted border border-input rounded-[10px] px-3 py-1.5 outline-none text-foreground/80 w-32"
+          value={filterState.professional_id || ''}
+          onChange={e => setFilterState({ ...filterState, professional_id: e.target.value ? Number(e.target.value) : undefined })}
+        />
+
+        {/* Filtrar button */}
+        <button
+          type="submit"
+          className="flex items-center gap-1.5 text-xs font-semibold text-white bg-primary rounded-[10px] px-3.5 py-1.5 cursor-pointer border-none"
+        >
+          <Filter className="w-3.5 h-3.5" /> Filtrar
+        </button>
+
+        {/* CSV button */}
+        {canExport && (
+          <a
+            href={exportUrl}
+            target="_blank"
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground bg-muted border border-input rounded-[10px] px-3 py-1.5"
+          >
+            CSV
+          </a>
+        )}
       </div>
-    </div>
+    </form>
   );
 }

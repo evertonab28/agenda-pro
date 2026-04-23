@@ -22,14 +22,17 @@ import {
   CheckCircle2,
   XCircle,
   PiggyBank,
-  DollarSign
+  DollarSign,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { route } from '@/utils/route';
 import { Link, usePage } from '@inertiajs/react';
 import { useAppearance } from '@/Hooks/useAppearance';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  useAppearance(); // Gerencia a aplicação do tema globalmente
+  const { mode, updateAppearance } = useAppearance(); // Gerencia a aplicação do tema globalmente
+  const isDark = mode === 'dark' || (mode === 'system' && typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
   const { url, props } = usePage<any>();
   const isCurrent = (path: string) => url.startsWith(path);
   const flash = props.flash || {};
@@ -56,23 +59,26 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
-      {/* Sidebar */}
+      {/* Sidebar - CAMADA 1: ESTRUTURA */}
       {!props.auth.hide_nav && (
-        <aside className="w-full md:w-64 border-r bg-sidebar border-border">
-          <div className="h-16 flex items-center px-6 border-b border-border font-bold text-xl text-primary">
-            AgendaNexo
+        <aside className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border hidden md:flex flex-col z-20 shadow-[4px_0_24px_rgba(0,0,0,0.05)] h-screen sticky top-0">
+          <div className="h-16 flex items-center px-6 border-b border-sidebar-border/50">
+            <span className="text-sidebar-primary font-black text-xl tracking-tight">
+              Agenda<span className="text-primary">Nexo</span>
+            </span>
           </div>
-          <nav className="p-4 space-y-2">
+          
+          <nav className="flex-1 overflow-y-auto py-6 space-y-1">
             {[
-              { href: route('dashboard'), icon: LayoutDashboard, label: 'Geral', pattern: '/dashboard', exact: true },
+              { href: route('dashboard'), icon: LayoutDashboard, label: 'Dashboard', pattern: '/dashboard', exact: true },
               { href: route('dashboard.executive'), icon: TrendingUp, label: 'BI Executivo', pattern: '/dashboard/executivo' },
-              { href: route('agenda'), icon: Calendar, label: 'Agenda', pattern: '/agenda' },
+              { href: route('agenda'), icon: Calendar, label: 'Agenda de Serviços', pattern: '/agenda' },
               { href: route('customers.index'), icon: Users, label: 'Clientes', pattern: '/customers' },
               { href: route('waitlist.index'), icon: Users, label: 'Lista de Espera', pattern: '/lista-espera', sub: true },
-              { href: route('packages.index'), icon: Package, label: 'Pacotes', pattern: '/pacotes' },
+              { href: route('packages.index'), icon: Package, label: 'Pacotes & Planos', pattern: '/pacotes' },
               { href: route('finance.dashboard'), icon: Banknote, label: 'Financeiro', pattern: '/financeiro', exact: true },
-              { href: route('finance.charges.index'), icon: Banknote, label: 'Gestão de Cobranças', pattern: '/financeiro/cobrancas', sub: true },
-              { href: route('crm.index'), icon: Users, label: 'CRM & Retenção', pattern: '/crm', sub: true },
+              { href: route('finance.charges.index'), icon: Banknote, label: 'Cobranças', pattern: '/financeiro/cobrancas', sub: true },
+              { href: route('crm.index'), icon: Users, label: 'Marketing & CRM', pattern: '/crm', sub: true },
             ].map((item) => {
               const active = item.exact ? url === item.pattern : url.startsWith(item.pattern);
               const Icon = item.icon;
@@ -81,84 +87,105 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   key={item.label}
                   href={item.href}
                   prefetch
-                  className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                  className={`group relative flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
                     active
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
-                    active ? 'bg-white/20' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary'
-                  }`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <span className="flex-1">{item.label}</span>
+                  <Icon className={`w-5 h-5 transition-colors ${active ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                  <span>{item.label}</span>
                   {active && (
-                    <div className="absolute left-0 w-1 h-6 bg-white rounded-full -translate-x-1" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
                   )}
                 </Link>
               );
             })}
 
-            <div className="pt-4 mt-4 border-t border-border/50">
+            <div className="mt-8 pt-8 border-t border-sidebar-border/30">
+              <div className="px-6 mb-4 text-[10px] font-black uppercase tracking-widest text-sidebar-foreground/50">
+                Administração
+              </div>
               {props.auth.can.manage_users && (
                 <Link 
                   href={route('users.index')} 
                   prefetch
-                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                  className={`group flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
                     url.startsWith('/usuarios') 
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-primary' 
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
-                    url.startsWith('/usuarios') ? 'bg-white/20' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary'
-                  }`}>
-                    <Users className="w-5 h-5" />
-                  </div>
-                  Usuários
+                  <Users className={`w-5 h-5 ${url.startsWith('/usuarios') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                  Equipe
                 </Link>
               )}
               {props.auth.can.manage_settings && (
                 <Link 
                   href={route('configuracoes.general.index')} 
                   prefetch
-                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                  className={`group flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
                     url.startsWith('/configuracoes') 
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-primary' 
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
-                    url.startsWith('/configuracoes') ? 'bg-white/20' : 'bg-muted group-hover:bg-primary/10 group-hover:text-primary'
-                  }`}>
-                    <Settings className="w-5 h-5" />
-                  </div>
+                  <Settings className={`w-5 h-5 ${url.startsWith('/configuracoes') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   Configurações
                 </Link>
               )}
             </div>
           </nav>
+
+          {/* User Section at bottom */}
+          <div className="p-4 border-t border-sidebar-border/30 bg-sidebar-accent/20">
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary font-bold text-xs border border-primary/30">
+                {props.auth.user.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-sidebar-primary truncate">{props.auth.user.name}</p>
+                <p className="text-[10px] text-sidebar-foreground truncate uppercase tracking-tighter">{props.auth.user.role}</p>
+              </div>
+            </div>
+          </div>
         </aside>
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      {/* Main Content Area - CAMADA 2: CANVAS */}
+      <div className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden relative">
         {!props.auth.hide_nav && (
-          <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
-            <div className="font-medium text-foreground">Visão Geral</div>
+          <header className="h-16 flex-shrink-0 bg-card border-b border-border flex items-center justify-between px-8 z-10">
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                U
-              </div>
-              <Link 
-                href={route('logout')} 
-                method="post" 
-                as="button" 
-                className="p-1.5 rounded-lg text-muted-foreground cursor-pointer hover:text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-              </Link>
+              <h1 className="text-lg font-black text-foreground tracking-tight">{props.title || ''}</h1>
+            </div>
+            
+            <div className="flex items-center gap-6">
+               <div className="h-8 w-px bg-border/60" />
+               <button
+                 onClick={() => updateAppearance({ theme_mode: isDark ? 'light' : 'dark' })}
+                 className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                 aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}
+               >
+                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+               </button>
+               <div className="h-8 w-px bg-border/60" />
+               <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest hidden sm:block">Status:</span>
+                  <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-success/10 text-success text-[10px] font-black uppercase border border-success/20">
+                      <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                      Online
+                  </span>
+               </div>
+               <div className="h-8 w-px bg-border/60" />
+               <Link 
+                 href={route('logout')} 
+                 method="post" 
+                 as="button" 
+                 className="p-1.5 rounded-lg text-muted-foreground cursor-pointer hover:text-destructive hover:bg-destructive/10 transition-colors"
+               >
+                 <LogOut className="w-5 h-5" />
+               </Link>
             </div>
           </header>
         )}

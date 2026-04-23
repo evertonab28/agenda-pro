@@ -64,6 +64,23 @@ export interface RankingCustomer {
   total_spent: number;
 }
 
+export interface TodayAppointment {
+  id: number;
+  name: string;
+  service: string;
+  time: string;
+  professional: string;
+  status: 'confirmed' | 'pending' | 'completed' | 'noshow' | 'cancelled';
+  value: number;
+}
+
+export interface AtRiskCustomer {
+  id: number;
+  name: string;
+  days_without_appointment: number;
+  last_service: string;
+}
+
 export interface DashboardProps {
   filters: FiltersState;
   range: { from: string; to: string };
