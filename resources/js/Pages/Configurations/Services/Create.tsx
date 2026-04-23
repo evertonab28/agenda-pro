@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import ServiceForm from './Components/ServiceForm';
 import { route } from '@/utils/route';
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Create() {
     return (
-        <ConfigLayout title="Novo Serviço">
+        <>
             <Head title="Novo Serviço - Configurações" />
             
             <div className="space-y-6">
@@ -33,6 +35,12 @@ export default function Create() {
                     <ServiceForm />
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Create.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Novo Serviço">{page}</ConfigLayout>
+    </AppLayout>
+);

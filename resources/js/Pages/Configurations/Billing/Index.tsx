@@ -67,6 +67,8 @@ interface Props {
     availablePlans: Plan[];
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Index({ subscription, stats, invoices, availablePlans }: Props) {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
     const [isCancelModalOpen, setIsCancelModalOpen] = React.useState(false);
@@ -74,13 +76,14 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
 
     if (!subscription) {
         return (
-            <ConfigLayout title="Assinatura">
+            <>
+                <Head title="Assinatura - Configurações" />
                 <div className="p-12 text-center">
                     <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
                     <h3 className="text-xl font-bold">Nenhuma assinatura encontrada</h3>
                     <p className="text-gray-500">Entre em contato com o suporte para ativar sua conta.</p>
                 </div>
-            </ConfigLayout>
+            </>
         );
     }
 
@@ -164,7 +167,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
     };
 
     return (
-        <ConfigLayout title="Faturamento e Assinatura">
+        <>
             <Head title="Assinatura - Configurações" />
 
             <div className="max-w-4xl space-y-8">
@@ -401,6 +404,12 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                     </div>
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Faturamento e Assinatura">{page}</ConfigLayout>
+    </AppLayout>
+);

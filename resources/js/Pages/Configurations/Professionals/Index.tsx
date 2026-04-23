@@ -24,9 +24,11 @@ interface Props {
     };
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Index({ professionals }: Props) {
     return (
-        <ConfigLayout title="Profissionais">
+        <>
             <Head title="Profissionais - Configurações" />
             
             <div className="space-y-6">
@@ -59,6 +61,12 @@ export default function Index({ professionals }: Props) {
                     </div>
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Profissionais">{page}</ConfigLayout>
+    </AppLayout>
+);

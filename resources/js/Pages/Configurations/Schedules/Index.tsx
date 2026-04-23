@@ -26,6 +26,8 @@ interface Props {
     schedules: Schedule[];
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Index({ professionals, selectedProfessionalId, schedules }: Props) {
     const handleProfessionalChange = (value: string) => {
         // @ts-expect-error
@@ -36,7 +38,7 @@ export default function Index({ professionals, selectedProfessionalId, schedules
     };
 
     return (
-        <ConfigLayout title="Horários de Trabalho">
+        <>
             <Head title="Horários - Configurações" />
             
             <div className="space-y-6">
@@ -56,13 +58,18 @@ export default function Index({ professionals, selectedProfessionalId, schedules
                     <div className="w-full md:w-64">
                         <Select 
                             value={selectedProfessionalId.toString()} 
-                            onChange={(e: any) => handleProfessionalChange(e.target.value)}
+                            onValueChange={handleProfessionalChange}
                         >
-                            {professionals.map((pro) => (
-                                <SelectItem key={pro.id} value={pro.id.toString()}>
-                                    {pro.name}
-                                </SelectItem>
-                            ))}
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione um profissional" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {professionals.map((pro) => (
+                                    <SelectItem key={pro.id} value={pro.id.toString()}>
+                                        {pro.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -80,7 +87,13 @@ export default function Index({ professionals, selectedProfessionalId, schedules
                     )}
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Horários de Trabalho">{page}</ConfigLayout>
+    </AppLayout>
+);
 

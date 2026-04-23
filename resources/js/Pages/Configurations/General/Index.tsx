@@ -21,6 +21,8 @@ interface Props {
     };
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Index({ settings }: Props) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         company_name: settings.company_name || '',
@@ -40,7 +42,7 @@ export default function Index({ settings }: Props) {
     };
 
     return (
-        <ConfigLayout title="Configurações Gerais">
+        <>
             <Head title="Geral - Configurações" />
             
             <div className="max-w-4xl space-y-8">
@@ -138,14 +140,18 @@ export default function Index({ settings }: Props) {
                                 <div className="space-y-2">
                                     <Label htmlFor="timezone">Timezone (Fuso Horário)</Label>
                                     <Select 
-                                        id="timezone"
                                         value={data.timezone} 
-                                        onChange={(e) => setData('timezone', e.target.value)}
+                                        onValueChange={(val) => setData('timezone', val)}
                                     >
-                                        <SelectItem value="America/Sao_Paulo">Brasília (BRT)</SelectItem>
-                                        <SelectItem value="America/Cuiaba">Cuiabá (AMT)</SelectItem>
-                                        <SelectItem value="America/Manaus">Manaus (AMT)</SelectItem>
-                                        <SelectItem value="UTC">UTC</SelectItem>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione o fuso" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="America/Sao_Paulo">Brasília (BRT)</SelectItem>
+                                            <SelectItem value="America/Cuiaba">Cuiabá (AMT)</SelectItem>
+                                            <SelectItem value="America/Manaus">Manaus (AMT)</SelectItem>
+                                            <SelectItem value="UTC">UTC</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                     {errors.timezone && <p className="text-xs text-red-500">{errors.timezone}</p>}
                                 </div>
@@ -153,13 +159,17 @@ export default function Index({ settings }: Props) {
                                 <div className="space-y-2">
                                     <Label htmlFor="currency">Moeda (Símbolo)</Label>
                                     <Select 
-                                        id="currency"
                                         value={data.currency} 
-                                        onChange={(e) => setData('currency', e.target.value)}
+                                        onValueChange={(val) => setData('currency', val)}
                                     >
-                                        <SelectItem value="BRL">Real (R$)</SelectItem>
-                                        <SelectItem value="USD">Dólar (US$)</SelectItem>
-                                        <SelectItem value="EUR">Euro (€)</SelectItem>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Moeda" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="BRL">Real (R$)</SelectItem>
+                                            <SelectItem value="USD">Dólar (US$)</SelectItem>
+                                            <SelectItem value="EUR">Euro (€)</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                     <p className="text-[10px] text-gray-500">Moeda padrão para cobranças e relatórios.</p>
                                     {errors.currency && <p className="text-xs text-red-500">{errors.currency}</p>}
@@ -225,6 +235,12 @@ export default function Index({ settings }: Props) {
                     </div>
                 </form>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Configurações Gerais">{page}</ConfigLayout>
+    </AppLayout>
+);

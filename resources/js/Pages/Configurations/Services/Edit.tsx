@@ -21,9 +21,11 @@ interface Props {
     service: Service;
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Edit({ service }: Props) {
     return (
-        <ConfigLayout title="Editar Serviço">
+        <>
             <Head title={`Editar ${service.name} - Configurações`} />
 
             <div className="space-y-6">
@@ -59,6 +61,12 @@ export default function Edit({ service }: Props) {
                     <ServiceForm service={service} />
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Edit.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Editar Serviço">{page}</ConfigLayout>
+    </AppLayout>
+);

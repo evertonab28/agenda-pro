@@ -63,6 +63,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <nav className="p-4 space-y-1">
             <Link 
               href={route('dashboard')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/dashboard') && !isCurrent('/dashboard/executivo')
                   ? 'bg-primary/10 text-primary' 
@@ -74,6 +75,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('dashboard.executive')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/dashboard/executivo') 
                   ? 'bg-primary/10 text-primary' 
@@ -85,6 +87,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('agenda')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/agenda') 
                   ? 'bg-primary/10 text-primary' 
@@ -96,6 +99,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('customers.index')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/customers') 
                   ? 'bg-primary/10 text-primary' 
@@ -107,6 +111,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('waitlist.index')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/lista-espera') 
                   ? 'bg-primary/10 text-primary' 
@@ -118,6 +123,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('packages.index')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/pacotes') 
                   ? 'bg-primary/10 text-primary' 
@@ -129,6 +135,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('finance.dashboard')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 url === '/financeiro' 
                   ? 'bg-primary/10 text-primary' 
@@ -140,6 +147,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('finance.charges.index')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/financeiro/cobrancas') 
                   ? 'bg-primary/10 text-primary' 
@@ -151,6 +159,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link 
               href={route('crm.index')} 
+              prefetch
               className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                 isCurrent('/crm') 
                   ? 'bg-primary/10 text-primary' 
@@ -163,6 +172,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             {props.auth.can.manage_users && (
               <Link 
                 href={route('users.index')} 
+                prefetch
                 className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                   isCurrent('/usuarios') 
                     ? 'bg-primary/10 text-primary' 
@@ -175,7 +185,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             )}
             {props.auth.can.manage_settings && (
               <Link 
-                href={route('configuracoes.services.index')} 
+                href={route('configuracoes.general.index')} 
+                prefetch
                 className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                   isCurrent('/configuracoes') 
                     ? 'bg-primary/10 text-primary' 

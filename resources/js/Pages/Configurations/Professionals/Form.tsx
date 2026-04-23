@@ -28,6 +28,8 @@ interface Props {
     services: Service[];
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Form({ professional, services }: Props) {
     const { data, setData, post, put, processing, errors } = useForm({
         name: professional?.name || '',
@@ -61,7 +63,7 @@ export default function Form({ professional, services }: Props) {
     };
 
     return (
-        <ConfigLayout title={professional?.id ? 'Editar Profissional' : 'Novo Profissional'}>
+        <>
             <Head title={`${professional?.id ? 'Editar' : 'Novo'} Profissional - Configurações`} />
             
             <div className="space-y-6">
@@ -205,6 +207,12 @@ export default function Form({ professional, services }: Props) {
                     </div>
                 </form>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Form.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title={page.props.professional?.id ? 'Editar Profissional' : 'Novo Profissional'}>{page}</ConfigLayout>
+    </AppLayout>
+);

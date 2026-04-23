@@ -49,6 +49,7 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
                                 <Link
                                     key={tab.name}
                                     href={tab.href}
+                                    prefetch
                                     className={`
                                         group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
                                         ${active 

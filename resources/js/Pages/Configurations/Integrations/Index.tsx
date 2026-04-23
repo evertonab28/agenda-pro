@@ -29,6 +29,8 @@ interface Props {
     integrations: Integration[];
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Index({ integrations }: Props) {
     const [testingId, setTestingId] = useState<number | null>(null);
     const [testResults, setTestResults] = useState<Record<number, { ok: boolean; message?: string }>>({});
@@ -102,7 +104,7 @@ export default function Index({ integrations }: Props) {
     };
 
     return (
-        <ConfigLayout title="Integrações">
+        <>
             <Head title="Integrações - Configurações" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl">
@@ -321,6 +323,12 @@ export default function Index({ integrations }: Props) {
                     </div>
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Integrações">{page}</ConfigLayout>
+    </AppLayout>
+);

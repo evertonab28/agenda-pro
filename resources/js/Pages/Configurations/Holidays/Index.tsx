@@ -31,6 +31,8 @@ interface Props {
     professionals: Professional[];
 }
 
+import AppLayout from '@/Layouts/AppLayout';
+
 export default function Index({ holidays, professionals }: Props) {
     const [editing, setEditing] = React.useState<Holiday | null>(null);
 
@@ -74,7 +76,7 @@ export default function Index({ holidays, professionals }: Props) {
     };
 
     return (
-        <ConfigLayout title="Feriados e Datas Bloqueadas">
+        <>
             <Head title="Feriados - Configurações" />
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -115,12 +117,17 @@ export default function Index({ holidays, professionals }: Props) {
                                 <Label htmlFor="professional_id">Escopo (Opcional)</Label>
                                 <Select 
                                     value={data.professional_id?.toString() || 'global'} 
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('professional_id', e.target.value === 'global' ? null : parseInt(e.target.value))}
+                                    onValueChange={(val) => setData('professional_id', val === 'global' ? null : parseInt(val))}
                                 >
-                                    <SelectItem value="global">Global (Todo o Sistema)</SelectItem>
-                                    {professionals.map(pro => (
-                                        <SelectItem key={pro.id} value={pro.id.toString()}>{pro.name}</SelectItem>
-                                    ))}
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione o escopo" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="global">Global (Todo o Sistema)</SelectItem>
+                                        {professionals.map(pro => (
+                                            <SelectItem key={pro.id} value={pro.id.toString()}>{pro.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
                                 </Select>
                                 <p className="text-[10px] text-gray-500">Deixe global para bloquear a agenda inteira.</p>
                             </div>
@@ -150,7 +157,7 @@ export default function Index({ holidays, professionals }: Props) {
                     </div>
 
                     <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/20 flex gap-3 text-amber-800 dark:text-amber-200">
-                        <Info className="w-5 h-5 shrink-0 mt-0.5" />
+                        <span className="shrink-0 mt-0.5"><Info className="w-5 h-5" /></span>
                         <p className="text-xs font-medium leading-relaxed">
                             Agendamentos não podem ser realizados em datas bloqueadas ou feriados globais. 
                             Bloqueios por profissional afetam apenas a escala do próprio.
@@ -213,6 +220,12 @@ export default function Index({ holidays, professionals }: Props) {
                     </div>
                 </div>
             </div>
-        </ConfigLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => (
+    <AppLayout>
+        <ConfigLayout title="Feriados e Datas Bloqueadas">{page}</ConfigLayout>
+    </AppLayout>
+);
