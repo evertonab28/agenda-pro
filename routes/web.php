@@ -24,8 +24,8 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name(
 
 
 Route::get('/', function () {
-    return redirect('/dashboard');
-});
+    return view('landing');
+})->name('home');
 
 Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::resource('usuarios', \App\Http\Controllers\UserController::class)->names('users');
