@@ -10,9 +10,13 @@ export function BookingLinkBanner({ publicBookingUrl }: BookingLinkBannerProps) 
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(publicBookingUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    try {
+      await navigator.clipboard.writeText(publicBookingUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // clipboard API falhou (browser antigo ou permissão negada) — sem ação visível necessária
+    }
   };
 
   return (

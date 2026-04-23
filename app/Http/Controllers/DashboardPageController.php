@@ -28,7 +28,10 @@ class DashboardPageController extends Controller
         $dashboardData['daily_actions'] = $this->dashboardService->getDailyActions();
 
         $workspace = auth()->user()->workspace;
-        $publicBookingUrl = 'https://app.agendanexo.com.br/p/' . $workspace->slug;
+        $officialAppUrl = 'https://app.agendanexo.com.br';
+        $publicBookingUrl = $workspace
+            ? $officialAppUrl . '/p/' . $workspace->slug
+            : '';
 
         return Inertia::render('Dashboard/index', array_merge([
             'filters' => $filters,
