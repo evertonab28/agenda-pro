@@ -44,6 +44,10 @@ class DashboardPageController extends Controller
             'atRiskCount' => $atRiskCount,
             'whatsAppConnected' => $whatsAppConnected,
             
+            // Novos painéis mapeados corretamente
+            'today_appointments' => \Inertia\Inertia::defer(fn() => $this->dashboardService->getTodayAppointments()),
+            'at_risk_customers' => \Inertia\Inertia::defer(fn() => $this->dashboardService->getAtRiskCustomers()),
+
             // Estes blocos serão carregados em segundo plano
             'dashboardData' => \Inertia\Inertia::defer(fn() => $this->dashboardService->getDashboardData($filters)),
             'daily_actions' => \Inertia\Inertia::defer(fn() => $this->dashboardService->getDailyActions()),

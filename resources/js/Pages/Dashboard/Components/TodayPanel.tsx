@@ -1,5 +1,6 @@
 import { TodayAppointment } from './types';
 import { StatusPill } from './StatusPill';
+import { Link } from '@inertiajs/react';
 
 interface Props {
   appointments: TodayAppointment[];
@@ -8,7 +9,7 @@ interface Props {
 const initials = (name: string) =>
   name.split(' ').map((w: string) => w[0]).slice(0, 2).join('');
 
-export function TodayPanel({ appointments }: Props) {
+export function TodayPanel({ appointments = [] }: Props) {
   const confirmed = appointments.filter(a => a.status === 'confirmed').length;
   const totalRev = appointments
     .filter(a => a.status === 'confirmed' || a.status === 'completed')
@@ -26,9 +27,12 @@ export function TodayPanel({ appointments }: Props) {
             {confirmed} confirmados · {formattedRev} esperado
           </p>
         </div>
-        <button className="text-xs font-semibold text-primary bg-primary/10 border-none rounded-lg px-3 py-1.5 cursor-pointer">
+        <Link
+          href={route('agenda')}
+          className="text-xs font-semibold text-primary bg-primary/10 border-none rounded-lg px-3 py-1.5 cursor-pointer no-underline"
+        >
           + Agendar
-        </button>
+        </Link>
       </div>
 
       {/* List */}

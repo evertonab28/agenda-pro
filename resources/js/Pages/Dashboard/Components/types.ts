@@ -28,6 +28,7 @@ export interface FiltersState {
 
 export interface TimeseriesItem {
   date: string;
+  full_date: string;
   appointments: number;
   revenue: number;
 }

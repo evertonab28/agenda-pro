@@ -1,4 +1,5 @@
 import { AtRiskCustomer } from './types';
+import { Link } from '@inertiajs/react';
 
 interface Props {
   customers: AtRiskCustomer[];
@@ -19,7 +20,7 @@ function riskBg(days: number): string {
   return 'var(--info-bg)';
 }
 
-export function AtRiskPanel({ customers }: Props) {
+export function AtRiskPanel({ customers = [] }: Props) {
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden">
       {/* Header */}
@@ -79,9 +80,12 @@ export function AtRiskPanel({ customers }: Props) {
 
           {/* Footer button */}
           <div className="px-5 py-2.5">
-            <button className="w-full py-2 rounded-lg text-xs font-semibold text-primary bg-primary/10 cursor-pointer border-none">
+            <Link
+              href={route('crm.segment', 'Em Risco')}
+              className="w-full py-2 rounded-lg text-xs font-semibold text-primary bg-primary/10 cursor-pointer border-none no-underline flex items-center justify-center"
+            >
               Ver todos os clientes em risco
-            </button>
+            </Link>
           </div>
         </>
       )}

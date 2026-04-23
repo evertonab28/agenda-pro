@@ -727,4 +727,66 @@ class DashboardService
             ->values()
             ->toArray();
     }
+
+    /**
+     * getTodayAppointments
+     */
+    public function getTodayAppointments(): array
+    {
+        $today = now()->startOfDay();
+        $tomorrow = (clone $today)->endOfDay();
+
+        return Appointment::with(['customer', 'service', 'professional', 'charge'])
+            ->whereBetween('starts_at', [$today, $tomorrow])
+            ->where('status', '!=', 'canceled')
+            ->orderBy('starts_at', 'asc')
+            ->get()
+            ->map(fn($a) => [
+                'id' => $a->id,
+                'name' => $a->customer?->name ?? 'Desconhecido',
+                'service' => $a->service?->name ?? 'Serviço',
+                'time' => $a->starts_at ? $a->starts_at->format('H:i') : '--:--',
+                'professional' => $a->professional?->name ?? 'N/A',
+                'status' => $this->mapStatus($a->status),
+                'value' => (float) ($a->charge?->amount ?? 0)
+            ])
+            ->toArray();
+    }
+
+    /**
+     * getAtRiskCustomers
+     */
+    public function getAtRiskCustomers(): array
+    {
+        return \App\Models\Customer::where('current_segment', 'Em Risco')
+            ->where('is_active', true)
+            ->with(['appointments' => fn($q) => $q->where('status', 'completed')->latest('starts_at')])
+            ->limit(10)
+            ->get()
+            ->map(function($c) {
+                $lastApp = $c->appointments->first();
+                return [
+                    'id' => $c->id,
+                    'name' => $c->name,
+                    'days_without_appointment' => $lastApp ? (int) $lastApp->starts_at->diffInDays(now()) : 0,
+                    'last_service' => $lastApp?->service?->name ?? 'N/A'
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Map backend status to frontend status pill keys
+     */
+    private function mapStatus(string $status): string
+    {
+        $map = [
+            'scheduled' => 'pending',
+            'confirmed' => 'confirmed',
+            'completed' => 'completed',
+            'no_show'   => 'noshow',
+            'canceled'  => 'cancelled'
+        ];
+        return $map[$status] ?? 'pending';
+    }
 }

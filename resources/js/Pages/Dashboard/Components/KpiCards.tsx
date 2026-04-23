@@ -131,7 +131,8 @@ interface KpiCardsProps {
   atRiskCount: number;
 }
 
-export function KpiCards({ cards, deltas, timeseries, atRiskCount }: KpiCardsProps) {
+export function KpiCards({ cards, deltas, timeseries = [], atRiskCount = 0 }: KpiCardsProps) {
+  if (!cards || !deltas) return null;
   const safeTimeseries = timeseries ?? [];
   const appointmentsSpark = safeTimeseries.map((d) => d.appointments);
   const revenueSpark = safeTimeseries.map((d) => d.revenue);

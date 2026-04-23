@@ -24,6 +24,7 @@ interface Props {
 }
 
 export function PendingChargesTable({ data, filterState, setFilterState }: Props) {
+  if (!data || !data.data) return null;
   
   const [searchTerm, setSearchTerm] = useState(filterState.pending_search || '');
 

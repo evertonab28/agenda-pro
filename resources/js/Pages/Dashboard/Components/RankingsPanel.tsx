@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { RankingService, RankingCustomer } from './types';
 
 interface Props {
-  services: RankingService[];
-  customers: RankingCustomer[];
+  services?: RankingService[];
+  customers?: RankingCustomer[];
 }
 
-export function RankingsPanel({ services, customers }: Props) {
+export function RankingsPanel({ services = [], customers = [] }: Props) {
   const [tab, setTab] = useState<'services' | 'customers'>('services');
 
   const isServices = tab === 'services';

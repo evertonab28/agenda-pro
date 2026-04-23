@@ -30,14 +30,14 @@ export function BarChart({ data, metric, onBarClick }: BarChartProps) {
                     const bh = (v / max) * H * 0.88;
                     const y = H - bh;
                     const isHov = hover === i;
-                    const label = new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
+                    const label = new Date(d.full_date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
 
                     return (
                         <g
                             key={i}
                             onMouseEnter={() => setHover(i)}
                             onMouseLeave={() => setHover(null)}
-                            onClick={() => onBarClick?.(d.date)}
+                            onClick={() => onBarClick?.(d.full_date)}
                             style={{ cursor: onBarClick ? 'pointer' : 'default' }}
                         >
                             {/* hit area */}

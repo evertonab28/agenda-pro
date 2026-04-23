@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Deferred } from '@inertiajs/react';
+import { Deferred, Link } from '@inertiajs/react';
 import { FiltersState } from './Components/types';
 import { DashboardFilters } from './Components/DashboardFilters';
 import { KpiCards } from './Components/KpiCards';
@@ -18,7 +18,7 @@ import { Plus } from 'lucide-react';
 
 export default function DashboardIndex({
   filters = {},
-  dashboardData = {},
+  dashboardData,
   daily_actions = [],
   can_export = true,
   errors = {},
@@ -85,9 +85,12 @@ export default function DashboardIndex({
           <h1 className="font-display text-[22px] font-extrabold text-foreground tracking-tight">Dashboard</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{dateLabel}</p>
         </div>
-        <button className="flex items-center gap-1.5 text-sm font-bold text-white bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)]">
+        <Link
+          href={route('agenda')}
+          className="flex items-center gap-1.5 text-sm font-bold text-white bg-primary border-none rounded-xl px-4 py-2.5 cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_25%,transparent)] no-underline"
+        >
           <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Novo agendamento
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -158,8 +161,12 @@ export default function DashboardIndex({
 
         {/* Right column */}
         <div className="flex flex-col gap-4">
-          <TodayPanel appointments={today_appointments} />
-          <AtRiskPanel customers={at_risk_customers} />
+          <Deferred data="today_appointments" fallback={<SkeletonBlock />}>
+            <TodayPanel appointments={today_appointments} />
+          </Deferred>
+          <Deferred data="at_risk_customers" fallback={<SkeletonBlock />}>
+            <AtRiskPanel customers={at_risk_customers} />
+          </Deferred>
         </div>
       </div>
 
