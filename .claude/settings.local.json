@@ -20,7 +20,9 @@
       "Bash(git -C /d/saas/agenda-pro commit -m \"feat\\(agenda\\): adiciona AppointmentModal com criação, edição, status e exclusão\")",
       "Bash(npm run *)",
       "Bash(git -C /d/saas/agenda-pro log --oneline -10)",
-      "Bash(git show *)"
+      "Bash(git show *)",
+      "Bash(php -r \"echo PHP_VERSION;\")",
+      "Bash(php -r ' *)"
     ]
   }
 }
