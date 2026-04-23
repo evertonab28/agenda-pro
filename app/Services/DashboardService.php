@@ -727,7 +727,7 @@ class DashboardService
                 'customer_name' => $a->customer?->name ?? 'Desconhecido',
                 'customer_phone' => $a->customer?->phone,
                 'amount' => 0,
-                'due_date' => $a->created_at->format('d/m'),
+                'due_date' => $a->created_at ? $a->created_at->format('d/m') : '?',
                 'priority' => $a->priority,
                 'suggestion' => $a->title . ': ' . $a->description,
                 'action_label' => 'Ver Cliente',

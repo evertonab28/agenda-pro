@@ -179,16 +179,16 @@ export default function Index({
                         </p>
                     </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                    <Button type="button" variant="outline" className="gap-2" onClick={copyPublicLink}>
-                        <Copy className="w-4 h-4" /> {copied ? 'Link copiado' : 'Copiar link público'}
+                <div className="flex flex-wrap gap-2 mt-2">
+                    <Button type="button" variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={copyPublicLink}>
+                        <Copy className="w-4 h-4" /> {copied ? 'Link copiado' : 'Copiar link'}
                     </Button>
-                    <Button type="button" variant="outline" className="gap-2" onClick={() => window.open(publicBookingPath, '_blank')}>
-                        <ExternalLink className="w-4 h-4" /> Abrir página pública
+                    <Button type="button" variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={() => window.open(publicBookingPath, '_blank')}>
+                        <ExternalLink className="w-4 h-4" /> Abrir portal
                     </Button>
-                    <Link href={route('agenda')}>
-                        <Button className="gap-2 w-full sm:w-auto">
-                            Abrir agenda interna <ArrowRight className="w-4 h-4" />
+                    <Link href={route('agenda')} className="w-full sm:w-auto">
+                        <Button className="gap-2 w-full">
+                            Abrir agenda <ArrowRight className="w-4 h-4" />
                         </Button>
                     </Link>
                 </div>
