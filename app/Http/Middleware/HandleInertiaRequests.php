@@ -67,14 +67,14 @@ class HandleInertiaRequests extends Middleware
                     'view_finance'    => in_array($request->user()->role, ['admin', 'manager']),
                     'manage_settings' => in_array($request->user()->role, ['admin', 'manager']),
                 ] : [],
-                'hide_nav' => $request->user() && 
-                             (in_array($request->user()->role, ['admin', 'manager'])) && 
+                'hide_nav' => $request->user() &&
+                             in_array($request->user()->role, ['admin', 'manager']) &&
                              \Illuminate\Support\Facades\Cache::remember('onboarding_checks_' . auth()->id(), 600, function() {
-                                 return !\App\Models\Service::exists() || 
-                                        !\App\Models\Professional::exists() || 
+                                 return !\App\Models\Service::exists() ||
+                                        !\App\Models\Professional::exists() ||
                                         !\App\Models\ProfessionalSchedule::exists();
                              }) &&
-                             ($request->routeIs('onboarding.*') || $request->routeIs('configuracoes.*')),
+                             $request->routeIs('onboarding.*'),
             ],
             'ziggy' => fn () => [
                 ...(new \Tighten\Ziggy\Ziggy)->toArray(),
