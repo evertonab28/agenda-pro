@@ -85,7 +85,7 @@ export default function ChargeShow({ charge }: Props) {
     const progress = Math.min(100, Math.round((received / charge.amount) * 100));
 
     return (
-        <AppLayout>
+        <>
             <Head title={`Detalhes da Cobrança #${charge.id}`} />
 
             <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
@@ -331,11 +331,13 @@ export default function ChargeShow({ charge }: Props) {
                 </div>
             </div>
 
-            <ReceivePaymentModal 
-                isOpen={isPaymentModalOpen} 
-                onClose={() => setIsPaymentModalOpen(false)} 
-                charge={charge} 
+            <ReceivePaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                charge={charge}
             />
-        </AppLayout>
+        </>
     );
 }
+
+ChargeShow.layout = (page: any) => <AppLayout>{page}</AppLayout>;

@@ -56,16 +56,16 @@ export default function Show({
 
   if (!customer) {
     return (
-      <AppLayout>
+      <>
         <div className="max-w-7xl mx-auto p-12 text-center text-muted-foreground">
           Cliente não encontrado ou dados incompletos.
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <Head title={`${customer.name} - Perfil do Cliente`} />
 
       <div className="max-w-7xl mx-auto space-y-8 pb-12">
@@ -286,6 +286,8 @@ export default function Show({
           </form>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 }
+
+Show.layout = (page: any) => <AppLayout>{page}</AppLayout>;

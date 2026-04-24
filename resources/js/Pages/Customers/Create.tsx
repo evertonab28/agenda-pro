@@ -8,7 +8,7 @@ import CustomerForm from './Components/CustomerForm';
 
 export default function Create() {
   return (
-    <AppLayout>
+    <>
       <Head title="Novo Cliente - AgendaNexo" />
 
       <div className="max-w-5xl mx-auto space-y-8 pb-12">
@@ -38,6 +38,8 @@ export default function Create() {
         {/* Form Section */}
         <CustomerForm />
       </div>
-    </AppLayout>
+    </>
   );
 }
+
+Create.layout = (page: any) => <AppLayout>{page}</AppLayout>;

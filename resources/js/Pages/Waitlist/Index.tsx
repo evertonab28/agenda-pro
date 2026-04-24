@@ -111,7 +111,7 @@ export default function WaitlistIndex({ entries, customers, services, profession
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Lista de Espera" />
 
             <div className="space-y-6">
@@ -314,6 +314,8 @@ export default function WaitlistIndex({ entries, customers, services, profession
                     </form>
                 </DialogContent>
             </Dialog>
-        </AppLayout>
+        </>
     );
 }
+
+WaitlistIndex.layout = (page: any) => <AppLayout>{page}</AppLayout>;

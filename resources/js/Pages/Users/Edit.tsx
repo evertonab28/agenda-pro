@@ -31,7 +31,7 @@ export default function Edit({ user }: { user: User }) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title={`Editar Usuário - ${user.name}`} />
 
             <div className="max-w-3xl mx-auto space-y-6">
@@ -154,8 +154,10 @@ export default function Edit({ user }: { user: User }) {
                     </form>
                 </SectionCard>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Edit.layout = (page: any) => <AppLayout>{page}</AppLayout>;
 
 declare var route: any;

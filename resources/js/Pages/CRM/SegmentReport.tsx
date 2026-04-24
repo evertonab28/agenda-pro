@@ -18,7 +18,7 @@ export default function SegmentReport({ segment, customers }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title={`Segmento: ${segment}`} />
 
             <div className="space-y-6">
@@ -74,6 +74,8 @@ export default function SegmentReport({ segment, customers }: Props) {
                     )}
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+SegmentReport.layout = (page: any) => <AppLayout>{page}</AppLayout>;

@@ -23,7 +23,7 @@ export default function Create() {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Novo Membro - Equipe" />
 
             <div className="max-w-3xl mx-auto space-y-6">
@@ -137,8 +137,10 @@ export default function Create() {
                     </form>
                 </SectionCard>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Create.layout = (page: any) => <AppLayout>{page}</AppLayout>;
 
 declare var route: any;

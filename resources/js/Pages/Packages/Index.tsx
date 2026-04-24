@@ -98,7 +98,7 @@ export default function PackageIndex({ packages, services, customers }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Gestão de Pacotes" />
 
             <div className="space-y-6">
@@ -287,6 +287,8 @@ export default function PackageIndex({ packages, services, customers }: Props) {
                     </form>
                 </DialogContent>
             </Dialog>
-        </AppLayout>
+        </>
     );
 }
+
+PackageIndex.layout = (page: any) => <AppLayout>{page}</AppLayout>;

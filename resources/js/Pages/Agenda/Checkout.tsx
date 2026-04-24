@@ -73,7 +73,7 @@ export default function Checkout({
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title={`Checkout - ${customer.name}`} />
 
             <div className="max-w-5xl mx-auto py-6 space-y-6">
@@ -329,6 +329,8 @@ export default function Checkout({
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Checkout.layout = (page: any) => <AppLayout>{page}</AppLayout>;

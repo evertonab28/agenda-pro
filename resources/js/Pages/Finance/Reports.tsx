@@ -52,7 +52,7 @@ export default function Reports({ financialTrend, servicePerformance, customerIn
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Relatórios & BI" />
 
             <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
@@ -219,6 +219,8 @@ export default function Reports({ financialTrend, servicePerformance, customerIn
                     </Card>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Reports.layout = (page: any) => <AppLayout>{page}</AppLayout>;

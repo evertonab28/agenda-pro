@@ -40,7 +40,7 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="BI Executivo - Performance" />
 
             <div className="space-y-8 pb-12">
@@ -215,6 +215,8 @@ export default function ExecutiveDashboard({ heatmap, revenue, noShowRanking, re
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+ExecutiveDashboard.layout = (page: any) => <AppLayout>{page}</AppLayout>;

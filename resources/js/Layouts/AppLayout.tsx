@@ -32,8 +32,19 @@ import { Link, usePage } from '@inertiajs/react';
 import { useAppearance } from '@/Hooks/useAppearance';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { mode, updateAppearance } = useAppearance(); // Gerencia a aplicação do tema globalmente
-  const isDark = mode === 'dark' || (mode === 'system' && typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  const { updateAppearance } = useAppearance();
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   const { url, props } = usePage<any>();
   const isCurrent = (path: string) => url.startsWith(path);
   const flash = props.flash || {};

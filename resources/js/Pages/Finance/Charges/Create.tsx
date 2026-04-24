@@ -8,7 +8,7 @@ import { Customer } from '@/types';
 
 export default function ChargeCreate() {
     return (
-        <AppLayout>
+        <>
             <Head title="Nova Cobrança" />
 
             <div className="max-w-3xl mx-auto py-8 sm:px-6 lg:px-8">
@@ -28,6 +28,8 @@ export default function ChargeCreate() {
 
                 <ChargeForm />
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+ChargeCreate.layout = (page: any) => <AppLayout>{page}</AppLayout>;

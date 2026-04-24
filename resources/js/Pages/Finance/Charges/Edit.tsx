@@ -18,7 +18,7 @@ export default function ChargeEdit({ charge }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title={`Editar Cobrança #${charge.id}`} />
 
             <div className="max-w-3xl mx-auto py-8 sm:px-6 lg:px-8">
@@ -61,6 +61,8 @@ export default function ChargeEdit({ charge }: Props) {
                     <ChargeForm charge={charge} />
                 )}
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+ChargeEdit.layout = (page: any) => <AppLayout>{page}</AppLayout>;
