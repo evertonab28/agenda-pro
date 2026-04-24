@@ -88,58 +88,58 @@ export default function Index({ holidays, professionals }: Props) {
                     >
                         <form onSubmit={handleSubmit} className="space-y-6 py-2">
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Descrição / Nome</Label>
+                                <Label htmlFor="name" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Descrição / Nome</Label>
                                 <Input
                                     id="name"
-                                    className="h-11 rounded-xl bg-muted/30"
+                                    className="h-12 rounded-xl bg-muted/30 text-base"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     placeholder="Ex: Feriado Local"
                                     required
                                 />
-                                {errors.name && <p className="text-[10px] text-destructive font-bold uppercase tracking-wider mt-1 ml-1">{errors.name}</p>}
+                                {errors.name && <p className="text-sm text-destructive font-bold uppercase tracking-wider mt-1 ml-1">{errors.name}</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="date" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Data do Bloqueio</Label>
+                                <Label htmlFor="date" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Data do Bloqueio</Label>
                                 <Input
                                     id="date"
                                     type="date"
-                                    className="h-11 rounded-xl bg-muted/30"
+                                    className="h-12 rounded-xl bg-muted/30 text-base"
                                     value={data.date}
                                     onChange={(e) => setData('date', e.target.value)}
                                     required
                                 />
-                                {errors.date && <p className="text-[10px] text-destructive font-bold uppercase tracking-wider mt-1 ml-1">{errors.date}</p>}
+                                {errors.date && <p className="text-sm text-destructive font-bold uppercase tracking-wider mt-1 ml-1">{errors.date}</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="professional_id" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Escopo de Bloqueio</Label>
+                                <Label htmlFor="professional_id" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Escopo de Bloqueio</Label>
                                 <Select 
                                     value={data.professional_id?.toString() || 'global'} 
                                     onValueChange={(val) => setData('professional_id', val === 'global' ? null : parseInt(val))}
                                 >
-                                    <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-border/40">
+                                    <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-border/40 text-sm font-bold">
                                         <SelectValue placeholder="Selecione o escopo" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="global">
                                             <div className="flex items-center gap-2">
-                                                <Globe className="w-3.5 h-3.5" />
+                                                <Globe className="w-4 h-4" />
                                                 Todo o Estabelecimento
                                             </div>
                                         </SelectItem>
                                         {professionals.map(pro => (
                                             <SelectItem key={pro.id} value={pro.id.toString()}>
                                                 <div className="flex items-center gap-2">
-                                                    <User className="w-3.5 h-3.5" />
+                                                    <User className="w-4 h-4" />
                                                     {pro.name}
                                                 </div>
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest ml-1 mt-1">Afeta apenas o profissional selecionado ou todos.</p>
+                                <p className="text-xs text-muted-foreground uppercase font-black tracking-widest ml-1 mt-1">Afeta apenas o profissional selecionado ou todos.</p>
                             </div>
 
                             <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-2xl border border-border/40 cursor-pointer group" onClick={() => setData('repeats_yearly', !data.repeats_yearly)}>
@@ -154,10 +154,10 @@ export default function Index({ holidays, professionals }: Props) {
                                     <div className="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                                 </div>
                                 <div>
-                                    <Label htmlFor="repeats_yearly" className="text-xs font-black text-foreground tracking-tight cursor-pointer">
+                                    <Label htmlFor="repeats_yearly" className="text-sm font-black text-foreground tracking-tight cursor-pointer leading-none">
                                         Repete Anualmente
                                     </Label>
-                                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Útil para feriados fixos</p>
+                                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mt-0.5">Útil para feriados fixos</p>
                                 </div>
                             </div>
 
@@ -193,10 +193,10 @@ export default function Index({ holidays, professionals }: Props) {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-muted/30 border-b border-border/40">
-                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Data do Bloqueio</th>
-                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Descrição</th>
-                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Escopo / Aplicação</th>
-                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
+                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Data do Bloqueio</th>
+                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Descrição</th>
+                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Escopo / Aplicação</th>
+                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border/40">

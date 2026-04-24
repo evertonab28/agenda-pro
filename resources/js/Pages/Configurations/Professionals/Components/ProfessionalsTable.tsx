@@ -26,12 +26,12 @@ export default function ProfessionalsTable({ professionals }: Props) {
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="bg-muted/30 border-b border-border/40">
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Especialista</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contatos Diretos</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Especialidade</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Serviços Ativos</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Gestão</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Especialista</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Contatos Diretos</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Especialidade</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Serviços Ativos</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-right">Gestão</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40 bg-card">
@@ -59,21 +59,21 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                             <span className="font-black text-sm text-foreground tracking-tight truncate">
                                                 {pro.name}
                                             </span>
-                                            <span className="text-[9px] font-bold uppercase text-muted-foreground opacity-60 tracking-wider">ID: #{pro.id}</span>
+                                            <span className="text-[10px] font-bold uppercase text-muted-foreground opacity-60 tracking-wider leading-none mt-0.5">ID: #{pro.id}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-5">
-                                    <div className="flex flex-col gap-1">
+                                    <div className="flex flex-col gap-1.5">
                                         {pro.email && (
-                                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/80 truncate">
-                                                <Mail className="w-3 h-3 text-primary/40" />
+                                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground truncate">
+                                                <Mail className="w-3.5 h-3.5 text-primary/40" />
                                                 {pro.email.toLowerCase()}
                                             </div>
                                         )}
                                         {pro.phone && (
-                                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/80">
-                                                <Phone className="w-3 h-3 text-primary/40" />
+                                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                                                <Phone className="w-3.5 h-3.5 text-primary/40" />
                                                 {pro.phone}
                                             </div>
                                         )}
@@ -81,8 +81,8 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                 </td>
                                 <td className="px-6 py-5">
                                     <div className="flex items-center gap-2">
-                                        <Award className="w-3.5 h-3.5 text-info-text opacity-40" />
-                                        <span className="text-[11px] font-black uppercase text-foreground tracking-tight">
+                                        <Award className="w-4 h-4 text-info-text opacity-40" />
+                                        <span className="text-xs font-black uppercase text-foreground tracking-tight">
                                             {pro.specialty || 'GERAL'}
                                         </span>
                                     </div>
@@ -90,15 +90,15 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                 <td className="px-6 py-5">
                                     <div className="flex flex-wrap gap-1.5 max-w-[220px]">
                                         {pro.services.slice(0, 3).map(svc => (
-                                            <Badge key={svc.id} variant="outline" className="text-[9px] py-0.5 px-2 bg-muted/30 text-foreground/70 border-border/40 font-bold uppercase tracking-widest rounded-lg">
+                                            <Badge key={svc.id} variant="outline" className="text-[10px] py-0.5 px-2 bg-muted/30 text-foreground/70 border-border/40 font-bold uppercase tracking-widest rounded-lg">
                                                 {svc.name}
                                             </Badge>
                                         ))}
                                         {pro.services.length > 3 && (
-                                            <span className="text-[10px] text-muted-foreground/40 font-black tracking-widest pl-1">+{pro.services.length - 3}</span>
+                                            <span className="text-xs text-muted-foreground/40 font-black tracking-widest pl-1">+{pro.services.length - 3}</span>
                                         )}
                                         {pro.services.length === 0 && (
-                                            <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Sem serviços</span>
+                                            <span className="text-xs font-bold text-muted-foreground/40 uppercase tracking-widest italic">Sem serviços</span>
                                         )}
                                     </div>
                                 </td>
@@ -106,7 +106,7 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                     <StatusPill 
                                         label={pro.is_active ? 'ATIVO' : 'INATIVO'} 
                                         variant={pro.is_active ? 'success' : 'muted'} 
-                                        className="font-black text-[9px] tracking-widest"
+                                        className="font-black text-[10px] tracking-widest"
                                     />
                                 </td>
                                 <td className="px-6 py-5 text-right">

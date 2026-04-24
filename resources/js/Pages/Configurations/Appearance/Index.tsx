@@ -48,8 +48,8 @@ export default function AppearanceIndex() {
                                     <Palette className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h4 className="font-black text-foreground tracking-tight uppercase text-xs">Paleta de Cores Coletiva</h4>
-                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Afeta todos os usuários do ambiente</p>
+                                    <h4 className="font-black text-foreground tracking-tight uppercase text-sm">Paleta de Cores Coletiva</h4>
+                                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Afeta todos os usuários do ambiente</p>
                                 </div>
                             </div>
                             {!canManageWorkspace && (
@@ -100,10 +100,10 @@ export default function AppearanceIndex() {
 
                                     <div className="mt-3 px-1 flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <span className={`text-[11px] font-black uppercase tracking-widest transition-colors ${preset === p.id ? 'text-primary' : 'text-foreground'}`}>
+                                            <span className={`text-sm font-black uppercase tracking-widest transition-colors ${preset === p.id ? 'text-primary' : 'text-foreground'}`}>
                                                 {p.name}
                                             </span>
-                                            <span className="text-[9px] font-bold uppercase text-muted-foreground opacity-60 tracking-wider mt-0.5">{p.description}</span>
+                                            <span className="text-xs font-bold uppercase text-muted-foreground opacity-60 tracking-wider mt-1">{p.description}</span>
                                         </div>
                                         {preset === p.id && (
                                             <div className="bg-primary text-white rounded-full p-0.5 shadow-lg shadow-primary/20">
@@ -128,8 +128,8 @@ export default function AppearanceIndex() {
                                 <MonitorSmartphone className="w-5 h-5" />
                             </div>
                             <div>
-                                <h4 className="font-black text-foreground tracking-tight uppercase text-xs">Modo de Interface</h4>
-                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Sua preferência pessoal de conforto</p>
+                                <h4 className="font-black text-foreground tracking-tight uppercase text-sm">Modo de Interface</h4>
+                                <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Sua preferência pessoal de conforto</p>
                             </div>
                         </div>
 
@@ -160,8 +160,8 @@ export default function AppearanceIndex() {
                                             <Icon className="w-7 h-7" strokeWidth={2} />
                                         </div>
                                         <div>
-                                            <span className="text-[11px] font-black tracking-widest uppercase block">{m.name}</span>
-                                            <span className="text-[9px] font-bold uppercase opacity-50 tracking-wider mt-1 block">{m.desc}</span>
+                                            <span className="text-sm font-black tracking-widest uppercase block">{m.name}</span>
+                                            <span className="text-xs font-bold uppercase opacity-50 tracking-wider mt-1 block">{m.desc}</span>
                                         </div>
                                     </button>
                                 );

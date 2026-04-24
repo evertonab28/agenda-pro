@@ -33,12 +33,12 @@ export default function ServicesTable({ services }: Props) {
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="bg-muted/30 border-b border-border/40">
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Serviço / Descrição</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Duração</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Investimento</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Cor Agenda</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Serviço / Descrição</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Duração</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Investimento</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Cor Agenda</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40 bg-card">
@@ -63,15 +63,15 @@ export default function ServicesTable({ services }: Props) {
                                             {service.name}
                                         </span>
                                         {service.description && (
-                                            <span className="text-[10px] font-bold uppercase text-muted-foreground/60 tracking-wider line-clamp-1 mt-0.5">
+                                            <span className="text-[11px] font-bold uppercase text-muted-foreground/60 tracking-wider line-clamp-1 mt-0.5">
                                                 {service.description}
                                             </span>
                                         )}
                                     </div>
                                 </td>
                                 <td className="px-6 py-5 text-center">
-                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-muted/40 text-[10px] font-black text-foreground border border-border/40 uppercase tracking-widest">
-                                        <Clock className="w-3 h-3 text-primary/60" />
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-muted/40 text-[11px] font-black text-foreground border border-border/40 uppercase tracking-widest">
+                                        <Clock className="w-3.5 h-3.5 text-primary/60" />
                                         {service.duration_minutes} min
                                     </div>
                                 </td>
@@ -92,7 +92,7 @@ export default function ServicesTable({ services }: Props) {
                                     <StatusPill 
                                         label={service.is_active ? 'ATIVO' : 'INATIVO'} 
                                         variant={service.is_active ? 'success' : 'muted'} 
-                                        className="font-black text-[9px] tracking-widest"
+                                        className="font-black text-[10px] tracking-widest"
                                     />
                                 </td>
                                 <td className="px-6 py-5 text-right">

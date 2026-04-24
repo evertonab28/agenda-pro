@@ -83,10 +83,10 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-muted/30 border-b border-border/40">
-                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dia da Semana</th>
-                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Expediente</th>
-                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Intervalo de Descanso</th>
+                            <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Dia da Semana</th>
+                            <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Status Operacional</th>
+                            <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Expediente de Trabalho</th>
+                            <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Intervalo de Descanso</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border/40">
@@ -115,24 +115,24 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
                                         <div className="relative">
-                                            <LogIn className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <LogIn className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
                                             <Input
                                                 type="time"
                                                 value={day.start_time}
                                                 disabled={!day.is_active}
                                                 onChange={(e) => handleTimeChange(idx, 'start_time', e.target.value)}
-                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                                className="h-10 pl-8 w-28 rounded-xl bg-muted/30 border-border/40 font-bold text-xs"
                                             />
                                         </div>
-                                        <span className="text-[10px] font-black text-muted-foreground/40 px-1">ATÉ</span>
+                                        <span className="text-[11px] font-black text-muted-foreground/40 px-1 uppercase tracking-widest">Até</span>
                                         <div className="relative">
-                                            <LogOut className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <LogOut className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
                                             <Input
                                                 type="time"
                                                 value={day.end_time}
                                                 disabled={!day.is_active}
                                                 onChange={(e) => handleTimeChange(idx, 'end_time', e.target.value)}
-                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                                className="h-10 pl-8 w-28 rounded-xl bg-muted/30 border-border/40 font-bold text-xs"
                                             />
                                         </div>
                                     </div>
@@ -140,24 +140,24 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
                                         <div className="relative">
-                                            <Coffee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <Coffee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
                                             <Input
                                                 type="time"
                                                 value={day.break_start || ''}
                                                 disabled={!day.is_active}
                                                 onChange={(e) => handleTimeChange(idx, 'break_start', e.target.value)}
-                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                                className="h-10 pl-8 w-28 rounded-xl bg-muted/30 border-border/40 font-bold text-xs"
                                             />
                                         </div>
-                                        <span className="text-[10px] font-black text-muted-foreground/40 px-1">—</span>
+                                        <span className="text-[11px] font-black text-muted-foreground/40 px-1">—</span>
                                         <div className="relative">
-                                            <Coffee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <Coffee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
                                             <Input
                                                 type="time"
                                                 value={day.break_end || ''}
                                                 disabled={!day.is_active}
                                                 onChange={(e) => handleTimeChange(idx, 'break_end', e.target.value)}
-                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                                className="h-10 pl-8 w-28 rounded-xl bg-muted/30 border-border/40 font-bold text-xs"
                                             />
                                         </div>
                                     </div>
@@ -171,7 +171,7 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
             <div className="flex items-center justify-between p-6 border-t border-border/40 bg-muted/5 rounded-b-2xl">
                 <div>
                     {recentlySuccessful && (
-                        <div className="flex items-center gap-2 text-success font-black uppercase text-[10px] tracking-widest animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div className="flex items-center gap-2 text-success font-black uppercase text-xs tracking-widest animate-in fade-in slide-in-from-left-2 duration-300">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             Escala salva com sucesso!
                         </div>
