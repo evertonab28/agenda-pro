@@ -9,7 +9,12 @@ class Workspace extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'status', 'theme_preset'];
+    protected $fillable = ['name', 'slug', 'status', 'theme_preset', 'min_advance_hours', 'max_advance_days'];
+
+    protected $casts = [
+        'min_advance_hours' => 'integer',
+        'max_advance_days'  => 'integer',
+    ];
 
     public function services()
     {
