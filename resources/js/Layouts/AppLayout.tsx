@@ -96,30 +96,30 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <Icon className={`w-4.5 h-4.5 transition-colors ${active ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                  <Icon className={`w-5 h-5 transition-colors ${active ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   <span>{item.label}</span>
                   {active && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary shadow-[0_0_8px_var(--primary)]" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary shadow-[2px_0_12px_var(--primary)]" />
                   )}
                 </Link>
               );
             })}
 
             <div className="mt-6 pt-6 border-t border-sidebar-border/50">
-              <div className="px-6 mb-3 text-[10px] font-black uppercase tracking-widest text-sidebar-foreground/50">
+              <div className="px-6 mb-4 text-xs font-black uppercase tracking-[0.2em] text-sidebar-foreground/40">
                 Administração
               </div>
               {props.auth.can.manage_users && (
                 <Link 
                   href={route('users.index')} 
                   prefetch
-                  className={`group flex items-center gap-3 px-6 py-2.5 text-sm font-bold transition-all duration-150 ${
+                  className={`group flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
                     url.startsWith('/usuarios') 
                       ? 'bg-sidebar-accent text-sidebar-primary' 
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <Users className={`w-4.5 h-4.5 ${url.startsWith('/usuarios') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                    <Users className={`w-5 h-5 ${url.startsWith('/usuarios') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   Equipe
                 </Link>
               )}
@@ -127,13 +127,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <Link 
                   href={route('configuracoes.general.index')} 
                   prefetch
-                  className={`group flex items-center gap-3 px-6 py-2.5 text-sm font-bold transition-all duration-150 ${
+                  className={`group flex items-center gap-3 px-6 py-3 text-sm font-bold transition-all duration-150 ${
                     url.startsWith('/configuracoes') 
                       ? 'bg-sidebar-accent text-sidebar-primary' 
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary'
                   }`}
                 >
-                  <Settings className={`w-4.5 h-4.5 ${url.startsWith('/configuracoes') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
+                    <Settings className={`w-5 h-5 ${url.startsWith('/configuracoes') ? 'text-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-primary'}`} />
                   Configurações
                 </Link>
               )}
@@ -149,8 +149,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   <Building2 className="w-4 h-4 text-sidebar-primary/70" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-black text-sidebar-foreground/40 uppercase tracking-widest leading-none mb-1">Unidade</p>
-                  <p className="text-xs font-bold text-sidebar-primary truncate">{props.auth.workspace?.name || 'Sede Principal'}</p>
+                  <p className="text-[11px] font-black text-sidebar-foreground/30 uppercase tracking-[0.15em] leading-none mb-1.5">Unidade / Filial</p>
+                  <p className="text-sm font-bold text-sidebar-primary truncate">{props.auth.workspace?.name || 'Sede Principal'}</p>
                 </div>
               </div>
             </div>
@@ -170,9 +170,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 </>
               )}
               <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success text-[10px] font-black uppercase border border-success/20">
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 text-success text-xs font-black uppercase border border-success/20 tracking-tight">
                       <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                      Sistema Operacional
+                      Operacional
                   </span>
               </div>
             </div>
@@ -205,12 +205,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                <div className="h-6 w-px bg-border/40 mx-2" />
 
                <div className="relative group">
-                  <button className="flex items-center gap-3 pl-2 py-1.5 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+                  <button className="flex items-center gap-3 pl-2 py-1.5 rounded-xl hover:bg-muted transition-colors cursor-pointer outline-none">
                     <div className="flex flex-col items-end hidden sm:flex">
-                        <span className="text-xs font-black text-foreground leading-none">{props.auth.user.name}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{props.auth.user.role}</span>
+                        <span className="text-sm font-black text-foreground leading-none">{props.auth.user.name}</span>
+                        <span className="text-[11px] text-muted-foreground uppercase tracking-widest mt-1.5">{props.auth.user.role}</span>
                     </div>
-                    <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs shadow-inner">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-sm shadow-inner transition-transform group-hover:scale-105">
                         {props.auth.user.name.charAt(0)}
                     </div>
                   </button>

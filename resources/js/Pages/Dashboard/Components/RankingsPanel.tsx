@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { RankingService, RankingCustomer } from './types';
+import { SectionCard } from '@/components/Shared/SectionCard';
+import { Trophy, Users, Palette } from 'lucide-react';
 
 interface Props {
   services?: RankingService[];
@@ -17,39 +19,44 @@ export function RankingsPanel({ services = [], customers = [] }: Props) {
     1
   );
 
-  const tabs: { key: 'services' | 'customers'; label: string }[] = [
-    { key: 'services', label: 'Top Serviços' },
-    { key: 'customers', label: 'Top Clientes' },
+  const tabs: { key: 'services' | 'customers'; label: string; icon: any }[] = [
+    { key: 'services', label: 'Top Serviços', icon: Palette },
+    { key: 'customers', label: 'Top Clientes', icon: Users },
   ];
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden col-span-full xl:col-span-12">
-      {/* Tab bar */}
-      <div className="px-5 pt-3.5 border-b border-border/60 flex gap-1">
-        {tabs.map(({ key, label }) => {
-          const active = tab === key;
-          return (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={[
-                'text-xs font-semibold px-3.5 py-[7px] rounded-t-lg cursor-pointer transition-all duration-150 border-b-2',
-                active
-                  ? 'bg-primary/10 text-primary border-primary'
-                  : 'bg-transparent text-muted-foreground border-transparent',
-              ].join(' ')}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Rows */}
+    <SectionCard
+      title="Ranking de Performance"
+      subtitle="Serviços e clientes que mais impulsionam seu negócio"
+      headerAction={
+        <div className="flex gap-1 p-1 bg-muted rounded-xl">
+          {tabs.map(({ key, label, icon: Icon }) => {
+            const active = tab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all cursor-pointer border-none ${
+                  active 
+                    ? 'bg-card text-primary shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                <Icon size={14} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      }
+    >
       {data.length === 0 ? (
-        <p className="p-8 text-center text-sm text-muted-foreground">Nenhum dado no período.</p>
+        <div className="p-12 text-center">
+            <Trophy className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground font-medium opacity-60 italic">Nenhum dado de performance no período.</p>
+        </div>
       ) : (
-        <div className="p-5 space-y-3">
+        <div className="space-y-6">
           {data.map((item, i) => {
             const v = isServices
               ? (item as RankingService).total_revenue
@@ -58,33 +65,37 @@ export function RankingsPanel({ services = [], customers = [] }: Props) {
               ? (item as RankingService).service_name
               : (item as RankingCustomer).customer_name;
             const sub = isServices
-              ? `${(item as RankingService).total_appointments} atend.`
-              : `${(item as RankingCustomer).total_appointments} visitas`;
+              ? `${(item as RankingService).total_appointments} agendamentos`
+              : `${(item as RankingCustomer).total_appointments} visitas realizadas`;
             const pct = (v / max) * 100;
 
             return (
-              <div key={i}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <span>
-                    <span className="text-[11px] text-muted-foreground mr-1.5">#{i + 1}</span>
-                    <span className="text-sm font-semibold text-foreground">{name}</span>
-                  </span>
-                  <div className="text-right">
-                    <span className="font-display text-sm font-bold text-primary">
-                      R$&nbsp;{v.toLocaleString('pt-BR')}
+              <div key={i} className="group">
+                <div className="flex items-baseline justify-between mb-2">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-xs font-black text-muted-foreground/30 font-mono tracking-tighter">
+                      {(i + 1).toString().padStart(2, '0')}
                     </span>
-                    <span className="text-[10px] text-muted-foreground ml-1.5">{sub}</span>
+                    <span className="font-black text-sm text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">
+                      {name}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-base text-primary tracking-tight">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)}
+                    </p>
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                        {sub}
+                    </p>
                   </div>
                 </div>
                 {/* Progress bar */}
-                <div className="h-1 rounded-full bg-border/60 mt-1">
+                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                   <div
+                    className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
                     style={{
-                      height: '100%',
                       width: `${pct}%`,
-                      borderRadius: 9999,
-                      background: 'linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 50%, transparent))',
-                      transition: 'width .4s ease',
+                      background: 'linear-gradient(90deg, var(--primary), #818cf8)',
                     }}
                   />
                 </div>
@@ -93,6 +104,6 @@ export function RankingsPanel({ services = [], customers = [] }: Props) {
           })}
         </div>
       )}
-    </div>
+    </SectionCard>
   );
 }

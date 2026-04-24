@@ -4,6 +4,8 @@ import { Edit2, Trash2, Clock, DollarSign, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { route } from '@/utils/route';
 import { StatusPill } from '@/components/Shared/StatusPill';
+import { EmptyState } from '@/components/Shared/EmptyState';
+import { Palette as PaletteIcon } from 'lucide-react';
 
 interface Service {
     id: number;
@@ -33,25 +35,23 @@ export default function ServicesTable({ services }: Props) {
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="bg-muted/30 border-b border-border/40">
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Serviço / Descrição</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Duração</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Investimento</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Cor Agenda</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Serviço / Descrição</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Duração</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Investimento</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Cor Agenda</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40 bg-card">
                     {services.length === 0 ? (
                         <tr>
-                            <td colSpan={6} className="px-6 py-20 text-center">
-                                <div className="flex flex-col items-center justify-center text-muted-foreground gap-3 opacity-30">
-                                    <Palette className="w-10 h-10" />
-                                    <div className="flex flex-col gap-1">
-                                        <p className="font-black text-[10px] uppercase tracking-widest">Catálogo vazio</p>
-                                        <p className="text-[10px] font-bold uppercase tracking-tighter">Adicione seu primeiro serviço para habilitar agendamentos.</p>
-                                    </div>
-                                </div>
+                            <td colSpan={6} className="px-6 py-20">
+                                <EmptyState 
+                                    icon={PaletteIcon}
+                                    title="Catálogo vazio"
+                                    description="Adicione seu primeiro serviço para habilitar agendamentos e começar a vender."
+                                />
                             </td>
                         </tr>
                     ) : (
@@ -59,25 +59,25 @@ export default function ServicesTable({ services }: Props) {
                             <tr key={service.id} className="hover:bg-muted/20 transition-all group">
                                 <td className="px-6 py-5">
                                     <div className="flex flex-col min-w-0">
-                                        <span className="font-black text-sm text-foreground tracking-tight uppercase">
+                                        <span className="font-black text-base text-foreground tracking-tight uppercase">
                                             {service.name}
                                         </span>
                                         {service.description && (
-                                            <span className="text-[11px] font-bold uppercase text-muted-foreground/60 tracking-wider line-clamp-1 mt-0.5">
+                                            <span className="text-xs font-bold uppercase text-muted-foreground/60 tracking-widest line-clamp-1 mt-1">
                                                 {service.description}
                                             </span>
                                         )}
                                     </div>
                                 </td>
                                 <td className="px-6 py-5 text-center">
-                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-muted/40 text-[11px] font-black text-foreground border border-border/40 uppercase tracking-widest">
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/40 text-xs font-black text-foreground border border-border/40 uppercase tracking-widest">
                                         <Clock className="w-3.5 h-3.5 text-primary/60" />
                                         {service.duration_minutes} min
                                     </div>
                                 </td>
                                 <td className="px-6 py-5 text-center">
                                     <div className="flex flex-col items-center">
-                                        <span className="text-xs font-black text-foreground tracking-tighter">
+                                        <span className="text-sm font-black text-foreground tracking-widest uppercase">
                                             {formatPrice(service.price)}
                                         </span>
                                     </div>
@@ -92,7 +92,6 @@ export default function ServicesTable({ services }: Props) {
                                     <StatusPill 
                                         label={service.is_active ? 'ATIVO' : 'INATIVO'} 
                                         variant={service.is_active ? 'success' : 'muted'} 
-                                        className="font-black text-[10px] tracking-widest"
                                     />
                                 </td>
                                 <td className="px-6 py-5 text-right">

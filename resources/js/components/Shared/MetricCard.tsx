@@ -28,7 +28,7 @@ function TrendBadge({ delta, reverseColors = false }: TrendBadgeProps) {
 
   return (
     <span
-      className="text-[11px] font-bold px-2 py-0.5 rounded-full inline-block transition-colors duration-200"
+      className="text-xs font-black px-2.5 py-1 rounded-full inline-block transition-colors duration-200 uppercase tracking-tighter"
       style={{ color, backgroundColor: bg }}
     >
       {arrow} {Math.abs(delta.percentage)}%
@@ -65,10 +65,10 @@ export function MetricCard({
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      className={`bg-card border rounded-2xl p-5 transition-all duration-300 cursor-default flex flex-col h-full ${className}`}
+      className={`bg-card border border-border/60 rounded-2xl p-6 transition-all duration-300 cursor-default flex flex-col h-full ${className}`}
       style={{
-        borderColor: hov ? `color-mix(in srgb, ${color}, transparent 70%)` : 'var(--border)',
-        boxShadow: hov ? `0 8px 32px color-mix(in srgb, ${color}, transparent 88%)` : 'none',
+        borderColor: hov ? `color-mix(in srgb, ${color}, transparent 50%)` : 'var(--border)',
+        boxShadow: hov ? `0 16px 48px color-mix(in srgb, ${color}, transparent 80%)` : 'none',
         background: hov ? 'color-mix(in srgb, var(--muted) 40%, transparent)' : undefined,
       }}
     >
@@ -89,7 +89,7 @@ export function MetricCard({
       </div>
 
       {/* Label */}
-      <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-[.08em] mb-1">
+      <div className="text-sm font-black text-muted-foreground uppercase tracking-[.15em] mb-1.5 opacity-60">
         {label}
       </div>
 
@@ -101,7 +101,7 @@ export function MetricCard({
 
       {/* Subtext */}
       {sub && (
-        <div className="text-xs text-muted-foreground mt-1.5 font-medium">{sub}</div>
+        <div className="text-sm text-muted-foreground mt-2 font-medium italic opacity-70">{sub}</div>
       )}
 
       {/* Sparkline */}

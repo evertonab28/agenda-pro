@@ -41,13 +41,13 @@ export function ProfessionalFilter({
           <button
             key={p.id}
             onClick={() => onToggle(p.id)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${
-              visible ? 'opacity-100 shadow-sm' : 'opacity-40 grayscale'
+            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border transition-all ${
+              visible ? 'opacity-100 shadow-md scale-105' : 'opacity-30 grayscale hover:opacity-50'
             }`}
-            style={{ borderColor: color, color, backgroundColor: `${color}18` }}
+            style={{ borderColor: color, color, backgroundColor: `${color}12` }}
           >
-            <span
-              className="w-2 h-2 rounded-full"
+            <div
+              className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor]"
               style={{ backgroundColor: color }}
             />
             {p.name}

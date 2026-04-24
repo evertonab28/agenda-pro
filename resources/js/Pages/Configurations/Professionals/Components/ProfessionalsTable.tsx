@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { route } from '@/utils/route';
 import { Badge } from '@/components/ui/badge';
 import { StatusPill } from '@/components/Shared/StatusPill';
+import { EmptyState } from '@/components/Shared/EmptyState';
+import { UserCircle2 } from 'lucide-react';
 
 interface Professional {
     id: number;
@@ -26,25 +28,23 @@ export default function ProfessionalsTable({ professionals }: Props) {
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="bg-muted/30 border-b border-border/40">
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Especialista</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Contatos Diretos</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Especialidade</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground">Serviços Ativos</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
-                        <th className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-right">Gestão</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Especialista</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Contatos Diretos</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Especialidade</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Serviços Ativos</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-right">Gestão</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40 bg-card">
                     {professionals.length === 0 ? (
                         <tr>
-                            <td colSpan={6} className="px-6 py-20 text-center">
-                                <div className="flex flex-col items-center justify-center text-muted-foreground gap-3 opacity-40">
-                                    <UserCircle className="w-10 h-10" />
-                                    <div className="flex flex-col gap-1">
-                                        <p className="font-black text-[10px] uppercase tracking-widest">Nenhum profissional listado</p>
-                                        <p className="text-[10px] font-bold uppercase tracking-tighter">Inicie a escala adicionando o primeiro membro.</p>
-                                    </div>
-                                </div>
+                            <td colSpan={6} className="px-6 py-20">
+                                <EmptyState 
+                                    icon={UserCircle2}
+                                    title="Nenhum especialista listado"
+                                    description="Inicie sua escala cadastrando o primeiro membro da sua equipe para liberar agendamentos."
+                                />
                             </td>
                         </tr>
                     ) : (
@@ -56,24 +56,24 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                             <UserCircle className="w-5 h-5" />
                                         </div>
                                         <div className="flex flex-col min-w-0">
-                                            <span className="font-black text-sm text-foreground tracking-tight truncate">
+                                            <span className="font-black text-base text-foreground tracking-tight truncate uppercase">
                                                 {pro.name}
                                             </span>
-                                            <span className="text-[10px] font-bold uppercase text-muted-foreground opacity-60 tracking-wider leading-none mt-0.5">ID: #{pro.id}</span>
+                                            <span className="text-xs font-bold uppercase text-muted-foreground opacity-60 tracking-wider leading-none mt-1">ID: #{pro.id}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-5">
-                                    <div className="flex flex-col gap-1.5">
+                                    <div className="flex flex-col gap-2">
                                         {pro.email && (
-                                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground truncate">
-                                                <Mail className="w-3.5 h-3.5 text-primary/40" />
+                                            <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground truncate">
+                                                <Mail className="w-4 h-4 text-primary opacity-40" />
                                                 {pro.email.toLowerCase()}
                                             </div>
                                         )}
                                         {pro.phone && (
-                                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-                                                <Phone className="w-3.5 h-3.5 text-primary/40" />
+                                            <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
+                                                <Phone className="w-4 h-4 text-primary opacity-40" />
                                                 {pro.phone}
                                             </div>
                                         )}
@@ -81,8 +81,8 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                 </td>
                                 <td className="px-6 py-5">
                                     <div className="flex items-center gap-2">
-                                        <Award className="w-4 h-4 text-info-text opacity-40" />
-                                        <span className="text-xs font-black uppercase text-foreground tracking-tight">
+                                        <Award className="w-4 h-4 text-primary opacity-40" />
+                                        <span className="text-sm font-black uppercase text-foreground tracking-widest">
                                             {pro.specialty || 'GERAL'}
                                         </span>
                                     </div>
@@ -106,7 +106,6 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                     <StatusPill 
                                         label={pro.is_active ? 'ATIVO' : 'INATIVO'} 
                                         variant={pro.is_active ? 'success' : 'muted'} 
-                                        className="font-black text-[10px] tracking-widest"
                                     />
                                 </td>
                                 <td className="px-6 py-5 text-right">

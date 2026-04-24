@@ -18,7 +18,7 @@ export function StatusPill({ label, variant = 'muted', className = '' }: StatusP
 
   return (
     <span
-      className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center justify-center whitespace-nowrap ${className}`}
+      className={`text-xs font-black px-2.5 py-1 rounded-full inline-flex items-center justify-center whitespace-nowrap uppercase tracking-widest ${className}`}
       style={{ color: style.color, backgroundColor: style.bg }}
     >
       {label}

@@ -62,7 +62,7 @@ export function AgendaToolbar({
             <Button variant="ghost" size="icon" onClick={() => onNavigate('prev')} className="h-8 w-8">
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => onNavigate('today')} className="h-8 px-3 text-[11px] font-bold uppercase tracking-wider">
+            <Button variant="ghost" size="sm" onClick={() => onNavigate('today')} className="h-8 px-4 text-xs font-black uppercase tracking-widest">
               Hoje
             </Button>
             <Button variant="ghost" size="icon" onClick={() => onNavigate('next')} className="h-8 w-8">
@@ -85,7 +85,7 @@ export function AgendaToolbar({
               <button
                 key={v}
                 onClick={() => onViewChange(v)}
-                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
+                className={`px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-md transition-all ${
                   currentView === v
                     ? 'bg-card shadow-sm text-primary'
                     : 'text-muted-foreground hover:text-foreground'

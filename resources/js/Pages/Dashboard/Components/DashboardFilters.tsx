@@ -36,7 +36,7 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
   return (
     <form onSubmit={handleFilter} className="flex flex-wrap items-center gap-2.5">
       {/* Left: status pills */}
-      <span className="text-xs font-semibold text-muted-foreground mr-2">Status:</span>
+      <span className="text-xs font-black text-muted-foreground/50 uppercase tracking-[0.2em] mr-2">Status:</span>
       {STATUS_MAP.map(({ value, label, color, colorDim }) => {
         const active = filterState.status.includes(value);
         return (
@@ -44,14 +44,16 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
             key={value}
             type="button"
             onClick={() => handleStatusToggle(value)}
-            className="text-xs font-semibold px-3 py-1 rounded-full border cursor-pointer transition-all duration-150"
+            className={`text-xs font-black px-4 py-1.5 rounded-full border cursor-pointer transition-all duration-200 uppercase tracking-widest ${
+              active ? 'shadow-md scale-105' : 'hover:border-border/80'
+            }`}
             style={
               active
                 ? { borderColor: color, backgroundColor: colorDim, color }
                 : { borderColor: 'var(--border)', backgroundColor: 'transparent', color: 'var(--muted-foreground)' }
             }
           >
-            {active && <span>{'● '}</span>}{label}
+            {active && <span className="mr-1">●</span>}{label}
           </button>
         );
       })}
@@ -59,18 +61,18 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
       {/* Right: controls */}
       <div className="ml-auto flex flex-wrap items-center gap-2.5">
         {/* Date range */}
-        <div className="flex items-center gap-1.5 bg-muted border border-input rounded-[10px] px-3 py-1.5">
-          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+        <div className="flex items-center gap-2 bg-muted/50 border border-border/60 rounded-xl px-4 py-2 hover:bg-muted transition-colors">
+          <Calendar className="w-4 h-4 text-primary opacity-50" />
           <input
             type="date"
-            className="text-xs bg-transparent border-none outline-none text-foreground/80 w-28"
+            className="text-xs bg-transparent border-none outline-none text-foreground font-black uppercase tracking-widest w-32"
             value={filterState.from || ''}
             onChange={e => setFilterState({ ...filterState, from: e.target.value })}
           />
-          <span className="text-muted-foreground text-xs">–</span>
+          <span className="text-muted-foreground text-xs opacity-30 mx-1">–</span>
           <input
             type="date"
-            className="text-xs bg-transparent border-none outline-none text-foreground/80 w-28"
+            className="text-xs bg-transparent border-none outline-none text-foreground font-black uppercase tracking-widest w-32"
             value={filterState.to || ''}
             onChange={e => setFilterState({ ...filterState, to: e.target.value })}
           />
@@ -88,9 +90,9 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
         {/* Filtrar button */}
         <button
           type="submit"
-          className="flex items-center gap-1.5 text-xs font-semibold text-white bg-primary rounded-[10px] px-3.5 py-1.5 cursor-pointer border-none"
+          className="flex items-center gap-2 text-xs font-black text-white bg-primary rounded-xl px-5 py-2.5 cursor-pointer border-none shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest"
         >
-          <Filter className="w-3.5 h-3.5" /> Filtrar
+          <Filter className="w-4 h-4" /> Filtrar
         </button>
 
         {/* CSV button */}

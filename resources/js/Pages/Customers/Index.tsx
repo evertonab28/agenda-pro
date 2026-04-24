@@ -85,6 +85,7 @@ export default function Index({ customers, filters, stats }: Props) {
         <SectionCard 
           noPadding 
           title="Listagem de Clientes"
+          contentClassName="overflow-x-auto"
           footer={
             <div className="flex justify-center">
               <Pagination links={customers.links} />

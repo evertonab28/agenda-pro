@@ -11,11 +11,11 @@ export function PageHeader({ title, subtitle, action, className = '' }: PageHead
   return (
     <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 ${className}`}>
       <div>
-        <h1 className="font-display text-[22px] font-extrabold text-foreground tracking-tight leading-none">
+        <h1 className="font-display text-[26px] font-black text-foreground tracking-tight leading-none uppercase">
           {title}
         </h1>
         {subtitle && (
-          <div className="text-xs text-muted-foreground mt-1.5 font-medium">
+          <div className="text-sm text-muted-foreground mt-2 font-medium opacity-70">
             {subtitle}
           </div>
         )}

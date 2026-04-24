@@ -51,14 +51,14 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
                                 key={tab.name}
                                 href={tab.href}
                                 className={`
-                                    group flex items-center py-2.5 px-5 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200
+                                    group flex items-center py-3 px-6 rounded-xl font-black text-xs whitespace-nowrap transition-all duration-200 uppercase tracking-widest
                                     ${active 
-                                        ? 'bg-card text-primary shadow-sm ring-1 ring-border/60' 
+                                        ? 'bg-card text-primary shadow-md ring-1 ring-border/60 scale-105' 
                                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                     }
                                 `}
                             >
-                                <Icon className={`h-4 w-4 mr-2.5 ${active ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                                <Icon className={`h-4 h-4 mr-2.5 ${active ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
                                 {tab.name}
                             </Link>
                         );

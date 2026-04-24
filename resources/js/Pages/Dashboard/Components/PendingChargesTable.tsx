@@ -4,16 +4,17 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FiltersState, PendingChargesData } from './types';
 import { router } from '@inertiajs/react';
-import { Search } from 'lucide-react';
+import { Search, Wallet } from 'lucide-react';
+import { EmptyState } from '@/components/Shared/EmptyState';
 
 const money = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'paid': return <Badge className="bg-emerald-500">Pago</Badge>;
-    case 'pending': return <Badge className="bg-amber-500">Pendente</Badge>;
-    case 'overdue': return <Badge variant="destructive">Vencido</Badge>;
-    default: return <Badge variant="outline">{status}</Badge>;
+    case 'paid': return <Badge className="bg-success text-white font-black uppercase tracking-widest text-[10px] rounded-lg">Pago</Badge>;
+    case 'pending': return <Badge className="bg-warning text-white font-black uppercase tracking-widest text-[10px] rounded-lg">Pendente</Badge>;
+    case 'overdue': return <Badge variant="destructive" className="font-black uppercase tracking-widest text-[10px] rounded-lg">Vencido</Badge>;
+    default: return <Badge variant="outline" className="font-black uppercase tracking-widest text-[10px] rounded-lg">{status}</Badge>;
   }
 };
 
@@ -56,17 +57,17 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
       <CardHeader className="pb-3 border-b border-gray-100 dark:border-zinc-800">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <CardTitle>Pendências Financeiras</CardTitle>
-            <CardDescription>Próximos vencimentos e atrasos</CardDescription>
+            <CardTitle className="text-base font-black uppercase tracking-tight">Pendências Financeiras</CardTitle>
+            <CardDescription className="text-sm font-medium opacity-70">Próximos vencimentos e atrasos</CardDescription>
           </div>
           
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-muted-foreground" />
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-primary opacity-40" />
               <input 
                 type="text" 
                 placeholder="Buscar cliente..." 
-                className="pl-9 pr-3 py-1.5 text-sm rounded-md border border-gray-200 dark:border-zinc-700 bg-transparent focus:ring-1 focus:ring-primary w-48"
+                className="pl-10 pr-4 py-2 text-xs font-bold rounded-xl border border-border/60 bg-muted/30 focus:ring-1 focus:ring-primary w-52 uppercase tracking-widest placeholder:opacity-50"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -89,33 +90,37 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
       </CardHeader>
       <CardContent className="flex-1 overflow-auto p-0">
         {data.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
-            {filterState.pending_search 
-              ? <p>Nenhum resultado para "{filterState.pending_search}"</p> 
-              : <p>Nenhuma pendência encontrada no período filtrado.</p>}
-          </div>
+          <EmptyState 
+            icon={Wallet}
+            title="Tudo em dia!"
+            description={filterState.pending_search 
+              ? `Nenhuma pendência encontrada para "${filterState.pending_search}"` 
+              : "Nenhuma pendência financeira encontrada no período selecionado."}
+          />
         ) : (
           <div>
             <Table>
-              <TableHeader className="bg-gray-50/50 dark:bg-zinc-900/50">
+              <TableHeader className="bg-muted/30 border-b border-border/40">
                 <TableRow>
-                  <TableHead className="pl-6">Cliente</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right pr-6">Valor</TableHead>
+                  <TableHead className="pl-6 text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Cliente</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Vencimento</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Status</TableHead>
+                  <TableHead className="text-right pr-6 text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Valor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.data.map((charge) => (
-                  <TableRow key={charge.id}>
-                    <TableCell className="pl-6 font-medium truncate max-w-[150px]" title={charge.customer_name}>
-                      {charge.customer_name}
+                  <TableRow key={charge.id} className="hover:bg-muted/20 transition-colors border-b border-border/40">
+                    <TableCell className="pl-6 py-4">
+                        <span className="font-black text-sm text-foreground uppercase tracking-tight truncate max-w-[200px] block" title={charge.customer_name}>
+                            {charge.customer_name}
+                        </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 text-sm font-bold text-muted-foreground">
                       {charge.due_date ? charge.due_date.split('-').reverse().join('/') : '-'}
                     </TableCell>
-                    <TableCell>{getStatusBadge(charge.status)}</TableCell>
-                    <TableCell className="text-right pr-6 whitespace-nowrap font-medium text-muted-foreground">{money(charge.amount)}</TableCell>
+                    <TableCell className="py-4">{getStatusBadge(charge.status)}</TableCell>
+                    <TableCell className="text-right pr-6 py-4 whitespace-nowrap font-black text-base text-foreground">{money(charge.amount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

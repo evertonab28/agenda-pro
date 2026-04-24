@@ -146,8 +146,10 @@ export default function DashboardIndex({
               }
             >
               <BarChart
-                data={dashboardData?.timeseries ?? []}
-                metric={chartMetric}
+                data={(dashboardData?.timeseries ?? []).map((d: any) => ({
+                  ...d,
+                  value: chartMetric === 'revenue' ? d.revenue : d.appointments
+                }))}
                 onBarClick={setSelectedDay}
                 formatValue={v => chartMetric === 'revenue' ? `R$ ${v.toLocaleString('pt-BR')}` : String(v)}
               />
@@ -156,8 +158,8 @@ export default function DashboardIndex({
 
           <Deferred data="dashboardData" fallback={<div className="h-[300px] bg-muted/50 rounded-2xl animate-pulse" />}>
             <RankingsPanel
-              services={dashboardData?.ranking_services}
-              customers={dashboardData?.ranking_customers}
+              services={dashboardData?.ranking_services || []}
+              customers={dashboardData?.ranking_customers || []}
             />
           </Deferred>
         </div>
@@ -165,7 +167,10 @@ export default function DashboardIndex({
         {/* Right column: Today + At Risk */}
         <div className="flex flex-col gap-4">
           <Deferred data="today_appointments" fallback={<SkeletonBlock />}>
-            <TodayPanel appointments={today_appointments} />
+            <TodayPanel 
+              appointments={today_appointments} 
+              atRiskCount={atRiskCount}
+            />
           </Deferred>
           <Deferred data="at_risk_customers" fallback={<SkeletonBlock />}>
             <AtRiskPanel customers={at_risk_customers} />
@@ -176,7 +181,7 @@ export default function DashboardIndex({
       {/* Pending charges below the grid */}
       <Deferred data="dashboardData" fallback={<SkeletonBlock />}>
         <PendingChargesTable
-          data={dashboardData?.pending_charges}
+          data={dashboardData?.pending_charges || { data: [], meta: { current_page: 1, last_page: 1, per_page: 10, total: 0 } }}
           filterState={filterState}
           setFilterState={setFilterState}
         />
