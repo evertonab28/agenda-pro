@@ -259,7 +259,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                         {mainCTALabel()}
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-4xl rounded-[2.5rem] border-border/20 shadow-2xl p-8">
+                                <DialogContent className="w-full !max-w-[1200px] sm:!max-w-[1200px] rounded-[2.5rem] border-border/20 shadow-2xl p-6 md:p-10">
                                     <DialogHeader className="pb-6">
                                         <DialogTitle className="text-3xl font-black tracking-tightest uppercase text-center">
                                             {isTrial ? 'Escolha sua Jornada' : 'Upgrade de Escala'}
@@ -277,7 +277,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                             return (
                                                 <div
                                                     key={plan.id}
-                                                    className={`p-8 rounded-[2rem] border-2 transition-all duration-500 flex flex-col relative group ${
+                                                    className={`p-6 rounded-[2rem] border-2 transition-all duration-500 flex flex-col relative group ${
                                                         isCurrent
                                                             ? 'border-primary bg-primary/[0.03] shadow-2xl shadow-primary/10'
                                                             : 'border-border/60 hover:border-primary/30 bg-card hover:shadow-xl'
@@ -297,16 +297,25 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                                                     </div>
                                                     
                                                     <div className="space-y-3 mb-8 flex-1">
-                                                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                                            <TrendingUp className="w-3 h-3 text-primary" />
+                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-5 flex items-center gap-2.5">
+                                                            <TrendingUp className="w-4 h-4 text-primary" />
                                                             Entregas do Plano
                                                         </p>
-                                                        {Object.entries(plan.features).slice(0, 5).map(([key, val]) => (
-                                                            <div key={key} className="flex items-center gap-3 text-[11px] font-bold text-foreground/70 uppercase tracking-tighter">
-                                                                <ShieldCheck className="w-4 h-4 text-primary shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                                                <span className="truncate">{key.replace(/_/g, ' ')}</span>
-                                                            </div>
-                                                        ))}
+                                                        {Object.entries(plan.features)
+                                                            .filter(([_, val]) => val !== false)
+                                                            .map(([key, val]) => {
+                                                                let displayValue = key.replace(/_/g, ' ');
+                                                                if (typeof val === 'number' || (typeof val === 'string' && !isNaN(Number(val)))) {
+                                                                    displayValue = `${val} ${displayValue}`;
+                                                                }
+                                                                return (
+                                                                    <div key={key} className="flex items-start gap-3 text-xs font-bold text-foreground/70 uppercase tracking-tighter leading-tight">
+                                                                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 opacity-40 group-hover:opacity-100 transition-opacity mt-0.5" />
+                                                                        <span>{displayValue}</span>
+                                                                    </div>
+                                                                );
+                                                            })
+                                                            .slice(0, 7)}
                                                     </div>
 
                                                     <Button
