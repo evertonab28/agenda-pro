@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -32,6 +32,18 @@ export default function ServiceForm({ service, onSubmitSuccess }: Props) {
         is_active: service?.is_active ?? true,
         description: service?.description || '',
     });
+
+    useEffect(() => {
+        setData({
+            name: service?.name || '',
+            duration_minutes: service?.duration_minutes || 30,
+            buffer_minutes: service?.buffer_minutes || 0,
+            price: service?.price || '',
+            color: service?.color || '#3b82f6',
+            is_active: service?.is_active ?? true,
+            description: service?.description || '',
+        });
+    }, [service, setData]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

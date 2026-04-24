@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import ConfigLayout from '../Layout';
 import { UserCircle, ArrowLeft, Check } from 'lucide-react';
@@ -39,6 +39,17 @@ export default function Form({ professional, services }: Props) {
         is_active: professional?.is_active ?? true,
         services: professional?.services.map(s => s.id) || [] as number[],
     });
+
+    useEffect(() => {
+        setData({
+            name: professional?.name || '',
+            email: professional?.email || '',
+            phone: professional?.phone || '',
+            specialty: professional?.specialty || '',
+            is_active: professional?.is_active ?? true,
+            services: professional?.services.map((s) => s.id) || [],
+        });
+    }, [professional, setData]);
 
     const isServiceSelected = (id: number) => data.services.includes(id);
 
