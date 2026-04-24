@@ -11,10 +11,10 @@ const money = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency',
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'paid': return <Badge className="bg-success text-white font-black uppercase tracking-widest text-[10px] rounded-lg">Pago</Badge>;
-    case 'pending': return <Badge className="bg-warning text-white font-black uppercase tracking-widest text-[10px] rounded-lg">Pendente</Badge>;
-    case 'overdue': return <Badge variant="destructive" className="font-black uppercase tracking-widest text-[10px] rounded-lg">Vencido</Badge>;
-    default: return <Badge variant="outline" className="font-black uppercase tracking-widest text-[10px] rounded-lg">{status}</Badge>;
+    case 'paid': return <Badge className="bg-success text-white font-semibold uppercase tracking-widest text-[10px] rounded-lg">Pago</Badge>;
+    case 'pending': return <Badge className="bg-warning text-white font-semibold uppercase tracking-widest text-[10px] rounded-lg">Pendente</Badge>;
+    case 'overdue': return <Badge variant="destructive" className="font-semibold uppercase tracking-widest text-[10px] rounded-lg">Vencido</Badge>;
+    default: return <Badge variant="outline" className="font-semibold uppercase tracking-widest text-[10px] rounded-lg">{status}</Badge>;
   }
 };
 
@@ -54,10 +54,10 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
 
   return (
     <Card className="shadow-sm flex flex-col col-span-full xl:col-span-8">
-      <CardHeader className="pb-3 border-b border-gray-100 dark:border-zinc-800">
+      <CardHeader className="pb-3 border-b border-border/40">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <CardTitle className="text-base font-black uppercase tracking-tight">Pendências Financeiras</CardTitle>
+            <CardTitle className="text-base font-bold tracking-tight">Pendências Financeiras</CardTitle>
             <CardDescription className="text-sm font-medium opacity-70">Próximos vencimentos e atrasos</CardDescription>
           </div>
           
@@ -67,7 +67,7 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
               <input 
                 type="text" 
                 placeholder="Buscar cliente..." 
-                className="pl-10 pr-4 py-2 text-xs font-bold rounded-xl border border-border/60 bg-muted/30 focus:ring-1 focus:ring-primary w-52 uppercase tracking-widest placeholder:opacity-50"
+                className="pl-10 pr-4 py-2 text-xs font-medium rounded-xl border border-border/60 bg-muted/30 focus:ring-1 focus:ring-primary w-52 placeholder:opacity-50"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -102,17 +102,17 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
             <Table>
               <TableHeader className="bg-muted/30 border-b border-border/40">
                 <TableRow>
-                  <TableHead className="pl-6 text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Cliente</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Vencimento</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Status</TableHead>
-                  <TableHead className="text-right pr-6 text-xs font-black uppercase tracking-widest text-muted-foreground py-4">Valor</TableHead>
+                  <TableHead className="pl-6 text-xs font-semibold uppercase tracking-widest text-muted-foreground py-4">Cliente</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-widest text-muted-foreground py-4">Vencimento</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-widest text-muted-foreground py-4">Status</TableHead>
+                  <TableHead className="text-right pr-6 text-xs font-semibold uppercase tracking-widest text-muted-foreground py-4">Valor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.data.map((charge) => (
                   <TableRow key={charge.id} className="hover:bg-muted/20 transition-colors border-b border-border/40">
                     <TableCell className="pl-6 py-4">
-                        <span className="font-black text-sm text-foreground uppercase tracking-tight truncate max-w-[200px] block" title={charge.customer_name}>
+                        <span className="font-bold text-sm text-foreground truncate max-w-[200px] block" title={charge.customer_name}>
                             {charge.customer_name}
                         </span>
                     </TableCell>
@@ -129,18 +129,18 @@ export function PendingChargesTable({ data, filterState, setFilterState }: Props
         )}
       </CardContent>
       {data.meta.last_page > 1 && (
-        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/30 dark:bg-zinc-900/30">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-border/40 bg-gray-50/30 dark:bg-zinc-900/30">
           <p className="text-xs text-muted-foreground">Página {data.meta.current_page} de {data.meta.last_page} ({data.meta.total} totais)</p>
           <div className="flex gap-2">
             <button 
               disabled={data.meta.current_page === 1}
               onClick={() => handlePageChange(data.meta.current_page - 1)}
-              className="px-3 py-1 text-xs font-medium border rounded-md bg-white dark:bg-zinc-950 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50"
+              className="px-3 py-1 text-xs font-medium border rounded-md bg-card hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50"
             >Anterior</button>
             <button 
               disabled={data.meta.current_page === data.meta.last_page}
               onClick={() => handlePageChange(data.meta.current_page + 1)}
-              className="px-3 py-1 text-xs font-medium border rounded-md bg-white dark:bg-zinc-950 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50"
+              className="px-3 py-1 text-xs font-medium border rounded-md bg-card hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50"
             >Próxima</button>
           </div>
         </div>

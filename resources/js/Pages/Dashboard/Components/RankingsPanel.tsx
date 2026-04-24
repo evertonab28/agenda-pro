@@ -51,9 +51,9 @@ export function RankingsPanel({ services = [], customers = [] }: Props) {
       }
     >
       {data.length === 0 ? (
-        <div className="p-12 text-center">
-            <Trophy className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-            <p className="text-sm text-muted-foreground font-medium opacity-60 italic">Nenhum dado de performance no período.</p>
+        <div className="p-8 text-center">
+            <Trophy className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground font-medium">Nenhum dado de performance no período.</p>
         </div>
       ) : (
         <div className="space-y-6">

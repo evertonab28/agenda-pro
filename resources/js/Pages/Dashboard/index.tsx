@@ -72,7 +72,7 @@ export default function DashboardIndex({
   );
 
   return (
-    <div className="space-y-4 pb-12 max-w-[1600px] mx-auto">
+    <div className="space-y-4 pb-6 max-w-[1600px] mx-auto">
       {/* Banners */}
       <BookingLinkBanner publicBookingUrl={publicBookingUrl} />
       <AtRiskBanner atRiskCount={atRiskCount} />

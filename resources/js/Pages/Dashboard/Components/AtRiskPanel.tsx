@@ -20,7 +20,7 @@ export function AtRiskPanel({ customers = [] }: Props) {
   const footer = (
     <Link
       href={route('crm.segment', 'Em Risco')}
-      className="w-full py-3 rounded-xl text-xs font-black text-primary bg-primary/5 cursor-pointer border border-primary/10 no-underline flex items-center justify-center transition-all hover:bg-primary/10 uppercase tracking-widest"
+      className="w-full py-3 rounded-xl text-xs font-semibold text-primary bg-primary/5 cursor-pointer border border-primary/10 no-underline flex items-center justify-center transition-all hover:bg-primary/10 uppercase tracking-widest"
     >
       Ver Gestão de Retenção
     </Link>
@@ -41,8 +41,8 @@ export function AtRiskPanel({ customers = [] }: Props) {
     >
       <div className="flex flex-col">
         {customers.length === 0 ? (
-          <div className="p-12 text-center">
-             <p className="text-sm text-muted-foreground font-medium opacity-60 italic">Nenhum cliente em risco no momento.</p>
+          <div className="p-8 text-center">
+             <p className="text-sm text-muted-foreground font-medium">Nenhum cliente em risco no momento.</p>
           </div>
         ) : (
           <div className="max-h-[340px] overflow-y-auto custom-scrollbar pb-4">
@@ -57,7 +57,7 @@ export function AtRiskPanel({ customers = [] }: Props) {
                 >
                   {/* Avatar */}
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 shadow-inner transition-transform group-hover:scale-105"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-inner transition-transform group-hover:scale-105"
                     style={{ color, backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
                   >
                     {initials(customer.name)}
@@ -72,7 +72,7 @@ export function AtRiskPanel({ customers = [] }: Props) {
                   {/* Days badge */}
                   <div className="flex flex-col items-end">
                     <span
-                      className="text-[10px] font-black px-2 py-0.5 rounded-lg flex-shrink-0 uppercase tracking-widest border shadow-sm"
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-lg flex-shrink-0 uppercase tracking-widest border shadow-sm"
                       style={{ color, backgroundColor: `${color}10`, borderColor: `${color}20` }}
                     >
                       {days} dias

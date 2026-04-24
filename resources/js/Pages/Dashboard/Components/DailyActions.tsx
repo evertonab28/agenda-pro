@@ -69,8 +69,8 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
       headerAction={
         <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20">
           <Zap className="w-3.5 h-3.5 text-primary animate-pulse" />
-          <span className="text-xs font-black text-primary tracking-widest">
-            {actions.length} RECOMENDAÇÕES
+          <span className="text-xs font-semibold text-primary tracking-wide">
+            {actions.length} recomendações
           </span>
         </div>
       }
@@ -83,15 +83,15 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
           >
             {/* Header: Priority + Date */}
             <div className="flex justify-between items-center mb-4">
-              <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getPriorityColor(action.priority)}`}>
+              <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border ${getPriorityColor(action.priority)}`}>
                 {action.priority === 'high' ? 'Crítico' : action.priority === 'medium' ? 'Importante' : 'Sugestão'}
               </span>
-              <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">Vence {action.due_date}</span>
+              <span className="text-[10px] font-medium text-muted-foreground/40">Vence {action.due_date}</span>
             </div>
             
             {/* Content */}
             <div className="mb-6 flex-1">
-              <h4 className="font-black text-base text-foreground mb-1 uppercase tracking-tight truncate">{action.customer_name}</h4>
+              <h4 className="font-bold text-base text-foreground mb-1 tracking-tight truncate">{action.customer_name}</h4>
               <p className="text-sm text-muted-foreground font-medium leading-relaxed opacity-70 line-clamp-2">
                 {action.suggestion}
               </p>
@@ -118,7 +118,7 @@ export const DailyActions: React.FC<DailyActionsProps> = ({ actions }) => {
             </Button>
             
             {((action.action_type === 'whatsapp_reminder' || action.action_type === 'crm_action') && !action.customer_phone) && (
-              <p className="text-[9px] text-destructive mt-2 text-center font-black uppercase tracking-tighter opacity-70">⚠️ Telefone não cadastrado</p>
+              <p className="text-[10px] text-destructive mt-2 text-center font-medium opacity-70">⚠️ Telefone não cadastrado</p>
             )}
           </div>
         ))}

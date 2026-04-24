@@ -34,7 +34,7 @@ export function TodayPanel({ appointments = [] }: Props) {
   const capitalizedDay = weekDay.charAt(0).toUpperCase() + weekDay.slice(1);
 
   const headerAction = (
-    <div className="bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-md">
+    <div className="bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-md">
       {safeAppointments.length} agendados
     </div>
   );
@@ -45,7 +45,7 @@ export function TodayPanel({ appointments = [] }: Props) {
       subtitle={`Hoje, ${capitalizedDay}`}
       headerAction={headerAction}
       className="shadow-xl shadow-primary/5"
-      titleClassName="text-xl font-black text-foreground tracking-tight normal-case"
+      titleClassName="text-xl font-bold text-foreground tracking-tight normal-case"
       subtitleClassName="text-xs font-bold text-muted-foreground/60 mb-0.5"
       noPadding
     >
@@ -65,8 +65,8 @@ export function TodayPanel({ appointments = [] }: Props) {
         {/* Appointment List - With explicit GAP for spacing */}
         <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar pl-1 pr-2 pb-2" style={{ maxHeight: '264px' }}>
             {safeAppointments.length === 0 ? (
-                <div className="py-10 px-4 text-center text-sm text-muted-foreground font-medium bg-white/40 dark:bg-transparent rounded-2xl border border-dashed border-border/40">
-                    Nenhum agendamento para hoje.
+                <div className="p-8 text-center">
+                    <p className="text-sm text-muted-foreground font-medium">Nenhum agendamento para hoje.</p>
                 </div>
             ) : (
                 safeAppointments.map((appt, idx) => {
@@ -97,7 +97,7 @@ export function TodayPanel({ appointments = [] }: Props) {
 
                             {/* Right Side */}
                             <div className="flex items-center gap-3">
-                                <span className="text-[13px] font-black text-foreground/80 tracking-tight">
+                                <span className="text-[13px] font-bold text-foreground/80 tracking-tight">
                                     {appt.time}
                                 </span>
                                 <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
