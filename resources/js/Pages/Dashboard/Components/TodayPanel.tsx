@@ -4,7 +4,6 @@ import { CheckCircle2 } from 'lucide-react';
 
 interface Props {
   appointments?: TodayAppointment[];
-  atRiskCount?: number;
 }
 
 const INDICATOR_COLORS = [
@@ -15,18 +14,20 @@ const INDICATOR_COLORS = [
   '#ef4444', // Vermelho
 ];
 
-export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
+export function TodayPanel({ appointments = [] }: Props) {
   const safeAppointments = Array.isArray(appointments) ? appointments : [];
 
-  const totalRev = safeAppointments
-    .filter(a => a?.status === 'confirmed' || a?.status === 'completed')
+  const confirmedCount = safeAppointments.filter(a => a?.status === 'confirmed').length;
+
+  const estimatedRev = safeAppointments
+    .filter(a => a?.status !== 'cancelled' && a?.status !== 'noshow')
     .reduce((s, a) => s + (a?.value || 0), 0);
 
-  const formattedRev = new Intl.NumberFormat('pt-BR', { 
-    style: 'currency', 
+  const formattedRev = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
     currency: 'BRL',
-    maximumFractionDigits: 0 
-  }).format(totalRev);
+    maximumFractionDigits: 0
+  }).format(estimatedRev);
 
   const today = new Date();
   const weekDay = today.toLocaleDateString('pt-BR', { weekday: 'long' });
@@ -51,13 +52,13 @@ export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
       <div className="p-6 flex flex-col">
         {/* KPI Row */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-card px-4 py-3.5 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
-                <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">Receita hoje</p>
-                <p className="text-lg font-black text-foreground tracking-tight">{formattedRev}</p>
+            <div className="bg-card px-4 py-3 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
+                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest mb-1">Confirmados</p>
+                <p className="text-sm font-black text-foreground tracking-tight">{confirmedCount}</p>
             </div>
-            <div className="bg-card px-4 py-3.5 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
-                <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">Em risco</p>
-                <p className="text-lg font-black text-foreground tracking-tight">{atRiskCount || 0} clientes</p>
+            <div className="bg-card px-4 py-3 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
+                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest mb-1">Estimado</p>
+                <p className="text-sm font-black text-foreground tracking-tight">{formattedRev}</p>
             </div>
         </div>
 

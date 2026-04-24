@@ -167,10 +167,7 @@ export default function DashboardIndex({
         {/* Right column: Today + At Risk */}
         <div className="flex flex-col gap-4">
           <Deferred data="today_appointments" fallback={<SkeletonBlock />}>
-            <TodayPanel 
-              appointments={today_appointments} 
-              atRiskCount={atRiskCount}
-            />
+            <TodayPanel appointments={today_appointments} />
           </Deferred>
           <Deferred data="at_risk_customers" fallback={<SkeletonBlock />}>
             <AtRiskPanel customers={at_risk_customers} />
