@@ -33,7 +33,7 @@ export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
   const capitalizedDay = weekDay.charAt(0).toUpperCase() + weekDay.slice(1);
 
   const headerAction = (
-    <div className="bg-[#1e3a5f] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-md">
+    <div className="bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-md">
       {safeAppointments.length} agendados
     </div>
   );
@@ -43,26 +43,26 @@ export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
       title="Agenda do dia"
       subtitle={`Hoje, ${capitalizedDay}`}
       headerAction={headerAction}
-      className="border border-border/60 shadow-xl shadow-primary/5 bg-[#f3f6fb] dark:bg-zinc-950/20"
-      titleClassName="text-xl font-black text-[#1e293b] dark:text-foreground tracking-tight normal-case"
+      className="shadow-xl shadow-primary/5"
+      titleClassName="text-xl font-black text-foreground tracking-tight normal-case"
       subtitleClassName="text-xs font-bold text-muted-foreground/60 mb-0.5"
       noPadding
     >
-      <div className="p-6 flex flex-col h-full min-h-0">
-        {/* KPI Row - Slimmer & Premium */}
-        <div className="grid grid-cols-2 gap-3 mb-6 shrink-0">
-            <div className="bg-white dark:bg-zinc-900/40 px-4 py-3.5 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
+      <div className="p-6 flex flex-col">
+        {/* KPI Row */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-card px-4 py-3.5 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
                 <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">Receita hoje</p>
-                <p className="text-lg font-black text-[#1e293b] dark:text-foreground tracking-tight">{formattedRev}</p>
+                <p className="text-lg font-black text-foreground tracking-tight">{formattedRev}</p>
             </div>
-            <div className="bg-white dark:bg-zinc-900/40 px-4 py-3.5 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
+            <div className="bg-card px-4 py-3.5 rounded-2xl border border-border/20 shadow-sm transition-transform hover:scale-[1.02]">
                 <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">Em risco</p>
-                <p className="text-lg font-black text-[#1e293b] dark:text-foreground tracking-tight">{atRiskCount || 0} clientes</p>
+                <p className="text-lg font-black text-foreground tracking-tight">{atRiskCount || 0} clientes</p>
             </div>
         </div>
 
         {/* Appointment List - With explicit GAP for spacing */}
-        <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar px-1 pb-12 min-h-0">
+        <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar pl-1 pr-2 pb-2" style={{ maxHeight: '264px' }}>
             {safeAppointments.length === 0 ? (
                 <div className="py-10 px-4 text-center text-sm text-muted-foreground font-medium bg-white/40 dark:bg-transparent rounded-2xl border border-dashed border-border/40">
                     Nenhum agendamento para hoje.
@@ -76,7 +76,7 @@ export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
                     return (
                         <div
                             key={appt.id || idx}
-                            className="group flex items-center gap-3 bg-white dark:bg-zinc-900/40 py-3 px-4 rounded-xl border border-border/40 shadow-sm transition-all hover:shadow-md hover:border-primary/20 relative overflow-hidden mx-0.5"
+                            className="group flex items-center gap-3 bg-card py-2.5 px-4 rounded-xl border border-border/40 shadow-sm transition-all hover:shadow-md hover:border-primary/20 relative mx-0.5"
                         >
                             {/* Slim Vertical Indicator */}
                             <div 
@@ -86,7 +86,7 @@ export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
 
                             {/* Content */}
                             <div className="flex-1 min-w-0 pl-1">
-                                <p className="font-bold text-[13px] text-[#1e293b] dark:text-foreground truncate tracking-tight">
+                                <p className="font-bold text-[13px] text-foreground truncate tracking-tight">
                                     {appt.name}
                                 </p>
                                 <p className="text-[11px] text-muted-foreground/60 font-medium truncate">
@@ -96,7 +96,7 @@ export function TodayPanel({ appointments = [], atRiskCount = 0 }: Props) {
 
                             {/* Right Side */}
                             <div className="flex items-center gap-3">
-                                <span className="text-[13px] font-black text-[#1e293b] dark:text-foreground/80 tracking-tight">
+                                <span className="text-[13px] font-black text-foreground/80 tracking-tight">
                                     {appt.time}
                                 </span>
                                 <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${

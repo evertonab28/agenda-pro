@@ -165,7 +165,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <div className="flex items-center gap-4">
               {props.title && (
                 <>
-                  <h1 className="text-lg font-black text-foreground tracking-tight">{props.title}</h1>
+                  <p className="text-lg font-bold text-foreground tracking-tight">{props.title}</p>
                   <div className="h-6 w-px bg-border/40" />
                 </>
               )}

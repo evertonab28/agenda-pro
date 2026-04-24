@@ -89,12 +89,12 @@ export function MetricCard({
       </div>
 
       {/* Label */}
-      <div className="text-sm font-black text-muted-foreground uppercase tracking-[.15em] mb-1.5 opacity-60">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-[.15em] mb-1.5">
         {label}
       </div>
 
       {/* Value */}
-      <div className="font-display text-[26px] font-extrabold tracking-tight leading-tight text-foreground">
+      <div className="font-display text-[26px] font-black tracking-tight leading-tight text-foreground">
         {value}
       </div>
 

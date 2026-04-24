@@ -120,7 +120,7 @@ export default function DashboardIndex({
       </Deferred>
 
       {/* Main two-column grid */}
-      <div className="grid gap-4 grid-cols-1 xl:grid-cols-[1fr_340px]">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-[1fr_340px] items-start">
         {/* Left column: Chart + Rankings */}
         <div className="flex flex-col gap-4">
           <Deferred data="dashboardData" fallback={<div className="h-[320px] bg-muted/50 rounded-2xl animate-pulse" />}>

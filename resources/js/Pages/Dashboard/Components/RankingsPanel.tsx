@@ -36,7 +36,7 @@ export function RankingsPanel({ services = [], customers = [] }: Props) {
               <button
                 key={key}
                 onClick={() => setTab(key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all cursor-pointer border-none ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all cursor-pointer border-none ${
                   active 
                     ? 'bg-card text-primary shadow-sm' 
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -73,10 +73,10 @@ export function RankingsPanel({ services = [], customers = [] }: Props) {
               <div key={i} className="group">
                 <div className="flex items-baseline justify-between mb-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="text-xs font-black text-muted-foreground/30 font-mono tracking-tighter">
+                    <span className="text-xs font-medium text-muted-foreground/40 font-mono tracking-tighter">
                       {(i + 1).toString().padStart(2, '0')}
                     </span>
-                    <span className="font-black text-sm text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">
+                    <span className="font-bold text-sm text-foreground tracking-tight group-hover:text-primary transition-colors">
                       {name}
                     </span>
                   </div>

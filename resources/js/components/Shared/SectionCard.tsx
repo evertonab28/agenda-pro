@@ -37,7 +37,7 @@ export function SectionCard({
               </div>
             )}
             {title && (
-              <p className={`font-display text-base font-black text-foreground tracking-tight truncate ${titleClassName}`}>
+              <p className={`font-display text-base font-bold text-foreground tracking-tight truncate ${titleClassName}`}>
                 {title}
               </p>
             )}

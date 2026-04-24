@@ -36,7 +36,7 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
   return (
     <form onSubmit={handleFilter} className="flex flex-wrap items-center gap-2.5">
       {/* Left: status pills */}
-      <span className="text-xs font-black text-muted-foreground/50 uppercase tracking-[0.2em] mr-2">Status:</span>
+      <span className="text-xs font-medium text-muted-foreground/60 uppercase tracking-[0.2em] mr-2">Status:</span>
       {STATUS_MAP.map(({ value, label, color, colorDim }) => {
         const active = filterState.status.includes(value);
         return (
@@ -44,7 +44,7 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
             key={value}
             type="button"
             onClick={() => handleStatusToggle(value)}
-            className={`text-xs font-black px-4 py-1.5 rounded-full border cursor-pointer transition-all duration-200 uppercase tracking-widest ${
+            className={`text-xs font-semibold px-4 py-1.5 rounded-full border cursor-pointer transition-all duration-200 uppercase tracking-widest ${
               active ? 'shadow-md scale-105' : 'hover:border-border/80'
             }`}
             style={
@@ -65,14 +65,14 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
           <Calendar className="w-4 h-4 text-primary opacity-50" />
           <input
             type="date"
-            className="text-xs bg-transparent border-none outline-none text-foreground font-black uppercase tracking-widest w-32"
+            className="text-xs bg-transparent border-none outline-none text-foreground font-medium w-32"
             value={filterState.from || ''}
             onChange={e => setFilterState({ ...filterState, from: e.target.value })}
           />
           <span className="text-muted-foreground text-xs opacity-30 mx-1">–</span>
           <input
             type="date"
-            className="text-xs bg-transparent border-none outline-none text-foreground font-black uppercase tracking-widest w-32"
+            className="text-xs bg-transparent border-none outline-none text-foreground font-medium w-32"
             value={filterState.to || ''}
             onChange={e => setFilterState({ ...filterState, to: e.target.value })}
           />
@@ -82,7 +82,7 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
         <input
           type="number"
           placeholder="Profissional ID"
-          className="text-xs bg-muted border border-input rounded-[10px] px-3 py-1.5 outline-none text-foreground/80 w-32"
+          className="text-xs bg-muted border border-input rounded-xl px-3 py-1.5 outline-none text-foreground/80 w-32"
           value={filterState.professional_id || ''}
           onChange={e => setFilterState({ ...filterState, professional_id: e.target.value ? Number(e.target.value) : undefined })}
         />
@@ -100,7 +100,7 @@ export function DashboardFilters({ filterState, setFilterState, exportUrl, baseU
           <a
             href={exportUrl}
             target="_blank"
-            className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground bg-muted border border-input rounded-[10px] px-3 py-1.5"
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground bg-muted border border-input rounded-xl px-3 py-1.5"
           >
             CSV
           </a>

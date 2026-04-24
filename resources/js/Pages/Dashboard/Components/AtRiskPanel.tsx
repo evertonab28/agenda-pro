@@ -29,13 +29,11 @@ export function AtRiskPanel({ customers = [] }: Props) {
   return (
     <SectionCard
       title="Retenção de Clientes"
-      subtitle="Clientes que não retornam há algum tempo"
+      subtitle="Sem retorno nos últimos dias"
       headerAction={
-        <div className="flex items-center gap-2 bg-destructive/10 px-3 py-1.5 rounded-lg border border-destructive/20">
+        <div className="flex items-center gap-1.5 bg-destructive/10 px-2.5 py-1.5 rounded-lg border border-destructive/20">
           <UserX className="w-3.5 h-3.5 text-destructive" />
-          <span className="text-xs font-black text-destructive tracking-widest">
-            {customers.length} EM RISCO
-          </span>
+          <span className="text-sm font-black text-destructive">{customers.length}</span>
         </div>
       }
       footer={footer}
@@ -67,7 +65,7 @@ export function AtRiskPanel({ customers = [] }: Props) {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-black text-sm text-foreground truncate uppercase tracking-tight">{customer.name}</p>
+                    <p className="font-bold text-sm text-foreground truncate tracking-tight">{customer.name}</p>
                     <p className="text-xs text-muted-foreground font-medium truncate opacity-70 mt-0.5">{customer.last_service}</p>
                   </div>
 
@@ -79,7 +77,7 @@ export function AtRiskPanel({ customers = [] }: Props) {
                     >
                       {days} dias
                     </span>
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-tighter mt-1">sem retorno</span>
+                    <span className="text-[10px] font-medium text-muted-foreground/50 mt-1">sem retorno</span>
                   </div>
                 </div>
               );
