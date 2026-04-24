@@ -30,7 +30,20 @@ export interface Professional {
 }
 
 export interface BookingFormData {
-    name: string;
-    email: string;
+    /** First name — required */
+    firstName: string;
+    /** Last name — optional */
+    lastName: string;
+    /** Phone / WhatsApp — required */
     phone: string;
+    /** Email — optional */
+    email: string;
+}
+
+/**
+ * Compute the full name string sent to the backend.
+ * Backend receives a single `name` field.
+ */
+export function fullName(data: BookingFormData): string {
+    return [data.firstName, data.lastName].filter(Boolean).join(' ').trim();
 }

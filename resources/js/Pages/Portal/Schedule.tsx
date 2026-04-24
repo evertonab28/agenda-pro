@@ -3,13 +3,14 @@ import { Head } from '@inertiajs/react';
 import { toast, Toaster } from 'sonner';
 import { format, startOfToday } from 'date-fns';
 
-import PublicHeader      from './Scheduling/PublicHeader';
-import PublicHero        from './Scheduling/PublicHero';
-import ServiceSelector   from './Scheduling/ServiceSelector';
-import BookingWizard     from './Scheduling/BookingWizard';
+import PublicHeader       from './Scheduling/PublicHeader';
+import PublicHero         from './Scheduling/PublicHero';
+import ServiceSelector    from './Scheduling/ServiceSelector';
+import BookingWizard      from './Scheduling/BookingWizard';
 import SocialProofSection from './Scheduling/SocialProofSection';
-import LocationSection   from './Scheduling/LocationSection';
+import LocationSection    from './Scheduling/LocationSection';
 
+import { fullName } from './Scheduling/types';
 import type { Workspace, Customer, Service, Professional, BookingFormData } from './Scheduling/types';
 
 interface Props {
@@ -17,27 +18,48 @@ interface Props {
     customer?: Customer;
 }
 
+// ── Step constants — single source of truth ───────────────────────────────────
+// Changing STEP_* here is the only change needed if the wizard order ever shifts.
+const STEP_SERVICE      = 1;
+const STEP_PROFESSIONAL = 2;
+const STEP_DATE         = 3;
+const STEP_TIME         = 4;
+const STEP_CONTACT      = 5;
+const STEP_REVIEW       = 6;
+const STEP_SUCCESS      = 7;
+
+/** Split a full name string into [firstName, lastName] for form initialisation */
+function splitName(fullNameStr: string): [string, string] {
+    const parts = fullNameStr.trim().split(/\s+/);
+    if (parts.length === 0) return ['', ''];
+    const first = parts[0];
+    const last  = parts.slice(1).join(' ');
+    return [first, last];
+}
+
 export default function Schedule({ workspace, customer }: Props) {
     // ── UI mode ──────────────────────────────────────────────────────────────
     const [isWizardOpen, setIsWizardOpen] = useState(false);
 
     // ── Wizard step ──────────────────────────────────────────────────────────
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(STEP_SERVICE);
 
     // ── Data ─────────────────────────────────────────────────────────────────
-    const [services,            setServices]            = useState<Service[]>([]);
-    const [selectedService,     setSelectedService]     = useState<Service | null>(null);
-    const [professionals,       setProfessionals]       = useState<Professional[]>([]);
-    const [selectedProfessional,setSelectedProfessional]= useState<Professional | null>(null);
-    const [selectedDate,        setSelectedDate]        = useState<Date>(startOfToday());
-    const [availableSlots,      setAvailableSlots]      = useState<string[]>([]);
-    const [selectedSlot,        setSelectedSlot]        = useState<string | null>(null);
-    const [loading,             setLoading]             = useState(false);
+    const [services,             setServices]             = useState<Service[]>([]);
+    const [selectedService,      setSelectedService]      = useState<Service | null>(null);
+    const [professionals,        setProfessionals]        = useState<Professional[]>([]);
+    const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
+    const [selectedDate,         setSelectedDate]         = useState<Date>(startOfToday());
+    const [availableSlots,       setAvailableSlots]       = useState<string[]>([]);
+    const [selectedSlot,         setSelectedSlot]         = useState<string | null>(null);
+    const [loading,              setLoading]              = useState(false);
 
+    const [firstName, lastName] = splitName(customer?.name ?? '');
     const [formData, setFormData] = useState<BookingFormData>({
-        name:  customer?.name  || '',
-        email: customer?.email || '',
+        firstName,
+        lastName,
         phone: customer?.phone || '',
+        email: customer?.email || '',
     });
 
     // ── Load services on mount ───────────────────────────────────────────────
@@ -50,9 +72,9 @@ export default function Schedule({ workspace, customer }: Props) {
             .catch(() => toast.error('Erro ao carregar serviços. Tente novamente.'));
     }, [workspace.slug]);
 
-    // ── Load professionals when service selected at step 2 ───────────────────
+    // ── Load professionals when entering Step 2 ──────────────────────────────
     useEffect(() => {
-        if (!selectedService || step !== 2) return;
+        if (!selectedService || step !== STEP_PROFESSIONAL) return;
 
         setSelectedProfessional(null);
         setSelectedSlot(null);
@@ -62,12 +84,17 @@ export default function Schedule({ workspace, customer }: Props) {
             .get(`/p/${workspace.slug}/scheduling/services/${selectedService.id}/professionals`)
             .then((res: any) => {
                 setProfessionals(res.data);
-                if (res.data.length > 0) setSelectedProfessional(res.data[0]);
+                // Auto-select when only one professional — the user will still
+                // click "Escolher data" to explicitly proceed.
+                if (res.data.length === 1) setSelectedProfessional(res.data[0]);
             })
             .catch(() => toast.error('Erro ao carregar profissionais. Tente novamente.'));
     }, [selectedService, step, workspace.slug]);
 
-    // ── Load availability when professional, date or service changes at step 2
+    // ── Load availability when entering Step 4 ───────────────────────────────
+    // Also re-runs if the user navigates back to step 3 (date) and changes
+    // the date, then returns to step 4 — because `selectedDate` and `step`
+    // both appear in the dependency array.
     const loadAvailability = useCallback(() => {
         if (!selectedProfessional || !selectedService) return;
 
@@ -88,14 +115,15 @@ export default function Schedule({ workspace, customer }: Props) {
     }, [selectedProfessional, selectedService, selectedDate, workspace.slug]);
 
     useEffect(() => {
-        if (selectedProfessional && selectedDate && step === 2) {
+        if (step === STEP_TIME && selectedProfessional && selectedService) {
             loadAvailability();
         }
-    }, [selectedProfessional, selectedDate, selectedService, step]);
+    }, [step, selectedProfessional, selectedDate, selectedService]);
 
     // ── Open wizard ──────────────────────────────────────────────────────────
-    // When called with a service, jump straight to step 2 (date/time selection).
-    // When called without, open at step 1 (service selection).
+    // When called with a service (from profile service card), jump straight to
+    // the Professional step — service is already decided.
+    // When called without, start from step 1 (service selection).
     const openWizard = useCallback((service?: Service) => {
         setSelectedProfessional(null);
         setSelectedSlot(null);
@@ -104,10 +132,10 @@ export default function Schedule({ workspace, customer }: Props) {
 
         if (service) {
             setSelectedService(service);
-            setStep(2);
+            setStep(STEP_PROFESSIONAL);
         } else {
             setSelectedService(null);
-            setStep(1);
+            setStep(STEP_SERVICE);
         }
 
         setIsWizardOpen(true);
@@ -117,7 +145,7 @@ export default function Schedule({ workspace, customer }: Props) {
     // ── Close wizard / reset ─────────────────────────────────────────────────
     const closeWizard = useCallback(() => {
         setIsWizardOpen(false);
-        setStep(1);
+        setStep(STEP_SERVICE);
         setSelectedService(null);
         setSelectedProfessional(null);
         setSelectedSlot(null);
@@ -125,28 +153,30 @@ export default function Schedule({ workspace, customer }: Props) {
         setProfessionals([]);
     }, []);
 
-    // ── Booking submission ───────────────────────────────────────────────────
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    // ── Booking submission (POST) ─────────────────────────────────────────────
+    const handleConfirm = () => {
         setLoading(true);
 
         (window as any).axios
             .post(`/p/${workspace.slug}/scheduling/book`, {
-                ...formData,
+                // Backend expects a single `name` field — composed from firstName + lastName
+                name:            fullName(formData),
+                email:           formData.email,
+                phone:           formData.phone,
                 service_id:      selectedService?.id,
                 professional_id: selectedProfessional?.id,
                 start_time:      `${format(selectedDate, 'yyyy-MM-dd')} ${selectedSlot}`,
             })
             .then((res: any) => {
-                if (res.data.ok) setStep(4);
+                if (res.data.ok) setStep(STEP_SUCCESS);
             })
             .catch((err: any) => {
                 if (err.response?.status === 409) {
                     toast.error(
-                        'Esse horário acabou de ficar indisponível. Atualizamos a lista para você escolher outro.',
+                        'Esse horário acabou de ficar indisponível. Escolha outro horário.',
                     );
-                    // Go back to time selection and refresh slots
-                    setStep(2);
+                    // Return user to time step and reload slots
+                    setStep(STEP_TIME);
                     loadAvailability();
                     return;
                 }
@@ -159,9 +189,10 @@ export default function Schedule({ workspace, customer }: Props) {
     };
 
     // ── Wizard navigation ────────────────────────────────────────────────────
-    const handleNext = () => setStep((s) => s + 1);
-    const handleBack = () => {
-        if (step <= 1) {
+    const handleNext    = () => setStep((s) => s + 1);
+    const handleGoToStep = (target: number) => setStep(target);
+    const handleBack    = () => {
+        if (step <= STEP_SERVICE) {
             closeWizard();
         } else {
             setStep((s) => s - 1);
@@ -179,7 +210,7 @@ export default function Schedule({ workspace, customer }: Props) {
                 workspace={workspace}
                 customer={customer}
                 isWizardOpen={isWizardOpen}
-                onCloseWizard={step < 4 ? closeWizard : undefined}
+                onCloseWizard={step < STEP_SUCCESS ? closeWizard : undefined}
             />
 
             {isWizardOpen ? (
@@ -203,18 +234,17 @@ export default function Schedule({ workspace, customer }: Props) {
                         onSelectDate={setSelectedDate}
                         onSelectSlot={setSelectedSlot}
                         onFormChange={setFormData}
-                        onSubmit={handleSubmit}
+                        onConfirm={handleConfirm}
                         onNext={handleNext}
                         onBack={handleBack}
+                        onGoToStep={handleGoToStep}
                     />
                 </main>
             ) : (
                 // ── Profile / landing mode ───────────────────────────────────
                 <main className="flex-1">
-                    {/* Hero */}
                     <PublicHero workspace={workspace} onBookNow={() => openWizard()} />
 
-                    {/* Services preview — clicking a card opens the wizard at step 2 */}
                     <section className="bg-white border-t border-slate-100 py-14 px-4">
                         <div className="max-w-5xl mx-auto">
                             <div className="flex items-center justify-between mb-6 gap-4">
@@ -226,6 +256,7 @@ export default function Schedule({ workspace, customer }: Props) {
                                     Ver todos →
                                 </button>
                             </div>
+                            {/* Clicking a service card opens wizard at Professional step */}
                             <ServiceSelector
                                 services={services}
                                 selected={null}

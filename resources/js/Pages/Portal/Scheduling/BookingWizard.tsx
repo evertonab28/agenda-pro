@@ -3,15 +3,15 @@ import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addDays, startOfToday } from 'date-fns';
 
-import WizardProgress      from './WizardProgress';
-import ServiceSelector     from './ServiceSelector';
+import WizardProgress       from './WizardProgress';
+import ServiceSelector      from './ServiceSelector';
 import ProfessionalSelector from './ProfessionalSelector';
-import DateSelector        from './DateSelector';
-import TimeSlotGrid        from './TimeSlotGrid';
-import BookingSummary      from './BookingSummary';
-import BookingReview       from './BookingReview';
-import ContactStep         from './ContactStep';
-import BookingSuccess      from './BookingSuccess';
+import DateSelector         from './DateSelector';
+import TimeSlotGrid         from './TimeSlotGrid';
+import BookingSummary       from './BookingSummary';
+import ContactStep          from './ContactStep';
+import BookingReview        from './BookingReview';
+import BookingSuccess       from './BookingSuccess';
 
 import type { Workspace, Customer, Service, Professional, BookingFormData } from './types';
 
@@ -35,14 +35,15 @@ interface Props {
     formData: BookingFormData;
 
     // Handlers
-    onSelectService: (s: Service) => void;
-    onSelectProfessional: (p: Professional) => void;
-    onSelectDate: (d: Date) => void;
-    onSelectSlot: (slot: string) => void;
-    onFormChange: (data: BookingFormData) => void;
-    onSubmit: (e: React.FormEvent) => void;
-    onNext: () => void;
-    onBack: () => void;
+    onSelectService:      (s: Service)       => void;
+    onSelectProfessional: (p: Professional)  => void;
+    onSelectDate:         (d: Date)          => void;
+    onSelectSlot:         (slot: string)     => void;
+    onFormChange:         (data: BookingFormData) => void;
+    onConfirm:            () => void;
+    onNext:               () => void;
+    onBack:               () => void;
+    onGoToStep:           (step: number)     => void;
 }
 
 export default function BookingWizard({
@@ -52,11 +53,11 @@ export default function BookingWizard({
     selectedDate, availableSlots, selectedSlot,
     loading, formData,
     onSelectService, onSelectProfessional, onSelectDate, onSelectSlot,
-    onFormChange, onSubmit, onNext, onBack,
+    onFormChange, onConfirm, onNext, onBack, onGoToStep,
 }: Props) {
 
-    // ── Step 4: success (full-width, no sidebar, no progress bar) ──────────
-    if (step === 4) {
+    // ── Step 7: success — full-width, no progress, no back ───────────────────
+    if (step === 7) {
         return (
             <div className="max-w-5xl mx-auto px-4">
                 <BookingSuccess
@@ -74,128 +75,234 @@ export default function BookingWizard({
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
-            {/* Step indicator */}
+            {/* Progress bar — visible on steps 1–6 */}
             <WizardProgress step={step} />
 
-            {/* ── Step 1: Service selection ─────────────────────────────────── */}
+            {/* ── Step 1: Service ──────────────────────────────────────────── */}
             {step === 1 && (
                 <ServiceSelector
                     services={services}
                     selected={selectedService}
                     onSelect={(s) => { onSelectService(s); onNext(); }}
                     title="Qual serviço você precisa?"
-                    description="Clique em um serviço para ver os horários disponíveis."
+                    description="Clique em um serviço para continuar."
                 />
             )}
 
-            {/* ── Step 2: Professional + Date + Time ───────────────────────── */}
+            {/* ── Step 2: Professional ─────────────────────────────────────── */}
             {step === 2 && (
-                <>
-                    <BackButton onClick={onBack} label="Alterar serviço" />
+                <StepLayout
+                    back={<BackButton onClick={onBack} label="Alterar serviço" />}
+                    sidebar={
+                        <BookingSummary
+                            service={selectedService}
+                            professional={null}
+                            date={null}
+                            slot={null}
+                        />
+                    }
+                    mobileSummary={null}
+                >
+                    <div className="space-y-6">
+                        <StepHeading
+                            title="Com quem você prefere?"
+                            sub={selectedService?.name}
+                        />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
-                        {/* Main content */}
-                        <div className="space-y-7">
+                        {professionals.length === 0 ? (
+                            <div className="py-10 text-center text-slate-400 text-sm">
+                                Carregando profissionais...
+                            </div>
+                        ) : (
                             <ProfessionalSelector
                                 professionals={professionals}
                                 selected={selectedProfessional}
                                 onSelect={onSelectProfessional}
                             />
+                        )}
 
-                            <DateSelector
-                                days={DAYS}
-                                selected={selectedDate}
-                                onSelect={onSelectDate}
-                            />
-
-                            <TimeSlotGrid
-                                slots={availableSlots}
-                                selected={selectedSlot}
-                                loading={loading}
-                                noProfessionals={professionals.length === 0}
-                                onSelect={onSelectSlot}
-                            />
-
-                            {/* Inline summary on mobile (hidden on desktop) */}
-                            <div className="lg:hidden">
-                                <BookingSummary
-                                    service={selectedService}
-                                    professional={selectedProfessional}
-                                    date={selectedDate}
-                                    slot={selectedSlot}
-                                />
-                            </div>
-
-                            <Button
-                                className="w-full h-12 text-base font-semibold shadow-md shadow-indigo-100"
-                                disabled={!selectedSlot || professionals.length === 0}
-                                onClick={onNext}
-                            >
-                                Continuar para dados
-                            </Button>
-                        </div>
-
-                        {/* Sticky sidebar (desktop only) */}
-                        <SidebarSummary
-                            service={selectedService}
-                            professional={selectedProfessional}
-                            date={selectedDate}
-                            slot={selectedSlot}
-                        />
+                        <Button
+                            className="w-full h-12 text-base font-semibold shadow-md shadow-indigo-100"
+                            disabled={!selectedProfessional}
+                            onClick={onNext}
+                        >
+                            Escolher data
+                        </Button>
                     </div>
-                </>
+                </StepLayout>
             )}
 
-            {/* ── Step 3: Contact form + review ────────────────────────────── */}
+            {/* ── Step 3: Date ─────────────────────────────────────────────── */}
             {step === 3 && (
-                <>
-                    <BackButton onClick={onBack} label="Alterar horário" />
+                <StepLayout
+                    back={<BackButton onClick={onBack} label="Alterar profissional" />}
+                    sidebar={
+                        <BookingSummary
+                            service={selectedService}
+                            professional={selectedProfessional}
+                            date={null}
+                            slot={null}
+                        />
+                    }
+                    mobileSummary={
+                        <BookingSummary
+                            service={selectedService}
+                            professional={selectedProfessional}
+                            date={null}
+                            slot={null}
+                        />
+                    }
+                >
+                    <div className="space-y-6">
+                        <StepHeading
+                            title="Qual data prefere?"
+                            sub={`com ${selectedProfessional?.name}`}
+                        />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
-                        {/* Main content */}
-                        <div className="space-y-6">
-                            <div>
-                                <h2 className="text-xl font-bold text-slate-900 mb-1">Seus dados</h2>
-                                <p className="text-sm text-slate-500">
-                                    {customer
-                                        ? `Olá ${customer.name}, confirme para concluir.`
-                                        : 'Preencha seus dados para concluir o agendamento.'}
-                                </p>
-                            </div>
+                        <DateSelector days={DAYS} selected={selectedDate} onSelect={onSelectDate} />
 
-                            {/* Inline booking review (compact) */}
-                            <BookingReview
-                                service={selectedService}
-                                professional={selectedProfessional}
-                                date={selectedDate}
-                                slot={selectedSlot}
-                                onEdit={onBack}
-                            />
+                        <Button
+                            className="w-full h-12 text-base font-semibold shadow-md shadow-indigo-100"
+                            onClick={onNext}
+                        >
+                            Ver horários disponíveis
+                        </Button>
+                    </div>
+                </StepLayout>
+            )}
 
-                            <ContactStep
-                                customer={customer}
-                                formData={formData}
-                                onChange={onFormChange}
-                                onSubmit={onSubmit}
-                                loading={loading}
-                            />
-                        </div>
+            {/* ── Step 4: Time slot ────────────────────────────────────────── */}
+            {step === 4 && (
+                <StepLayout
+                    back={<BackButton onClick={onBack} label="Alterar data" />}
+                    sidebar={
+                        <BookingSummary
+                            service={selectedService}
+                            professional={selectedProfessional}
+                            date={selectedDate}
+                            slot={null}
+                        />
+                    }
+                    mobileSummary={
+                        <BookingSummary
+                            service={selectedService}
+                            professional={selectedProfessional}
+                            date={selectedDate}
+                            slot={null}
+                        />
+                    }
+                >
+                    <div className="space-y-6">
+                        <StepHeading
+                            title="Qual horário?"
+                            sub={selectedProfessional?.name}
+                        />
 
-                        {/* Sticky sidebar (desktop only) */}
-                        <SidebarSummary
+                        <TimeSlotGrid
+                            slots={availableSlots}
+                            selected={selectedSlot}
+                            loading={loading}
+                            noProfessionals={professionals.length === 0}
+                            onSelect={onSelectSlot}
+                        />
+
+                        <Button
+                            className="w-full h-12 text-base font-semibold shadow-md shadow-indigo-100"
+                            disabled={!selectedSlot}
+                            onClick={onNext}
+                        >
+                            Continuar
+                        </Button>
+                    </div>
+                </StepLayout>
+            )}
+
+            {/* ── Step 5: Contact ──────────────────────────────────────────── */}
+            {step === 5 && (
+                <StepLayout
+                    back={<BackButton onClick={onBack} label="Alterar horário" />}
+                    sidebar={
+                        <BookingSummary
                             service={selectedService}
                             professional={selectedProfessional}
                             date={selectedDate}
                             slot={selectedSlot}
                         />
+                    }
+                    mobileSummary={
+                        <BookingSummary
+                            service={selectedService}
+                            professional={selectedProfessional}
+                            date={selectedDate}
+                            slot={selectedSlot}
+                        />
+                    }
+                >
+                    <div className="space-y-2">
+                        <StepHeading
+                            title="Seus dados"
+                            sub="Para confirmar o agendamento"
+                        />
+                        <ContactStep
+                            customer={customer}
+                            formData={formData}
+                            onChange={onFormChange}
+                            onNext={onNext}
+                        />
                     </div>
-                </>
+                </StepLayout>
+            )}
+
+            {/* ── Step 6: Review + Confirm ─────────────────────────────────── */}
+            {step === 6 && (
+                <div className="max-w-lg mx-auto">
+                    <BackButton onClick={onBack} label="Editar dados" />
+                    <BookingReview
+                        service={selectedService}
+                        professional={selectedProfessional}
+                        date={selectedDate}
+                        slot={selectedSlot}
+                        formData={formData}
+                        onEditStep={onGoToStep}
+                        onConfirm={onConfirm}
+                        loading={loading}
+                    />
+                </div>
             )}
         </div>
     );
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────────
+// ── Internal layout helpers ───────────────────────────────────────────────────
+
+interface StepLayoutProps {
+    back: React.ReactNode;
+    sidebar: React.ReactNode;
+    /** Shown inline on mobile above the main content. Pass null to suppress. */
+    mobileSummary: React.ReactNode;
+    children: React.ReactNode;
+}
+
+function StepLayout({ back, sidebar, mobileSummary, children }: StepLayoutProps) {
+    return (
+        <>
+            {back}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+                <div className="space-y-0">
+                    {children}
+                    {/* Mobile-only inline summary */}
+                    {mobileSummary && (
+                        <div className="lg:hidden mt-6">{mobileSummary}</div>
+                    )}
+                </div>
+                {/* Desktop sticky sidebar */}
+                <div className="hidden lg:block">
+                    <div className="sticky top-24">{sidebar}</div>
+                </div>
+            </div>
+        </>
+    );
+}
 
 function BackButton({ onClick, label }: { onClick: () => void; label: string }) {
     return (
@@ -210,12 +317,11 @@ function BackButton({ onClick, label }: { onClick: () => void; label: string }) 
     );
 }
 
-function SidebarSummary(props: React.ComponentProps<typeof BookingSummary>) {
+function StepHeading({ title, sub }: { title: string; sub?: string | null }) {
     return (
-        <div className="hidden lg:block">
-            <div className="sticky top-24">
-                <BookingSummary {...props} />
-            </div>
+        <div className="mb-2">
+            <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+            {sub && <p className="text-sm text-slate-500 mt-0.5">{sub}</p>}
         </div>
     );
 }

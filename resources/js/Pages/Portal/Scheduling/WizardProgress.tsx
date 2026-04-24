@@ -1,59 +1,80 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-const STEPS = [
-    { label: 'Serviço', short: '1' },
-    { label: 'Horário', short: '2' },
-    { label: 'Dados',   short: '3' },
+export const WIZARD_STEPS = [
+    { label: 'Serviço',      short: 'Serviço'      },
+    { label: 'Profissional', short: 'Profissional'  },
+    { label: 'Data',         short: 'Data'          },
+    { label: 'Horário',      short: 'Horário'       },
+    { label: 'Seus dados',   short: 'Dados'         },
+    { label: 'Revisão',      short: 'Revisão'       },
 ];
 
 interface Props {
-    /** Current wizard step (1–3). Step 4 (success) does not render this component. */
+    /**
+     * Current active step (1-based). Steps beyond WIZARD_STEPS.length
+     * (i.e. the success screen) should not render this component at all.
+     */
     step: number;
 }
 
 export default function WizardProgress({ step }: Props) {
+    const total   = WIZARD_STEPS.length;
+    const pct     = Math.round(((step - 1) / (total - 1)) * 100);
+    const current = WIZARD_STEPS[step - 1];
+
     return (
-        <div className="flex items-center justify-center gap-0 mb-10">
-            {STEPS.map((s, i) => {
-                const num     = i + 1;
-                const isActive = num === step;
-                const isDone   = num < step;
+        <div className="mb-10 select-none">
+            {/* Label row */}
+            <div className="flex items-center justify-between mb-2.5">
+                <span className="text-sm font-semibold text-slate-800">
+                    {current?.label}
+                </span>
+                <span className="text-xs font-medium text-slate-400 tabular-nums">
+                    {step} de {total}
+                </span>
+            </div>
 
-                return (
-                    <React.Fragment key={num}>
-                        <div className="flex flex-col items-center">
+            {/* Track */}
+            <div className="relative h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                    className={cn(
+                        'absolute inset-y-0 left-0 rounded-full bg-indigo-500 transition-all duration-500 ease-out',
+                    )}
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
+
+            {/* Step dots — always 6, fills/highlights based on current step */}
+            <div className="flex justify-between mt-2.5 px-px">
+                {WIZARD_STEPS.map((s, i) => {
+                    const num     = i + 1;
+                    const isDone  = num < step;
+                    const isActive = num === step;
+
+                    return (
+                        <div key={num} className="flex flex-col items-center gap-1">
                             <div
                                 className={cn(
-                                    'h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-200',
-                                    isActive && 'bg-indigo-600 border-indigo-600 text-white scale-110',
-                                    isDone   && 'bg-indigo-500 border-indigo-500 text-white',
-                                    !isActive && !isDone && 'border-slate-200 text-slate-400 bg-white',
-                                )}
-                            >
-                                {isDone ? '✓' : num}
-                            </div>
-                            <span
-                                className={cn(
-                                    'mt-1.5 text-xs font-medium transition-colors',
-                                    isActive ? 'text-indigo-700' : isDone ? 'text-indigo-400' : 'text-slate-400',
-                                )}
-                            >
-                                {s.label}
-                            </span>
-                        </div>
-
-                        {i < STEPS.length - 1 && (
-                            <div
-                                className={cn(
-                                    'h-0.5 w-12 sm:w-20 mx-2 mb-5 transition-all duration-300',
-                                    isDone ? 'bg-indigo-400' : 'bg-slate-200',
+                                    'h-2 w-2 rounded-full transition-all duration-300',
+                                    isDone   && 'bg-indigo-500',
+                                    isActive && 'bg-indigo-600 scale-125',
+                                    !isDone && !isActive && 'bg-slate-200',
                                 )}
                             />
-                        )}
-                    </React.Fragment>
-                );
-            })}
+                            {/* Label: always hidden on xs, visible md+ */}
+                            <span
+                                className={cn(
+                                    'hidden md:block text-[10px] font-medium transition-colors leading-tight',
+                                    isActive ? 'text-indigo-600' : isDone ? 'text-indigo-300' : 'text-slate-300',
+                                )}
+                            >
+                                {s.short}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }
