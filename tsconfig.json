@@ -17,7 +17,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["resources/js/*"]
+      "@/*": ["resources/js/*"],
+      "ziggy-js": ["vendor/tightenco/ziggy"]
     }
   },
   "include": [
