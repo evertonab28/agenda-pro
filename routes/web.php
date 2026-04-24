@@ -102,8 +102,12 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
 
     // Módulo de Configurações
     Route::prefix('configuracoes')->name('configuracoes.')->group(function () {
-        Route::resource('servicos', \App\Http\Controllers\ServiceController::class)->names('services');
-        Route::resource('profissionais', \App\Http\Controllers\ProfessionalController::class)->names('professionals');
+        Route::resource('servicos', \App\Http\Controllers\ServiceController::class)
+            ->names('services')
+            ->parameters(['servicos' => 'service']);
+        Route::resource('profissionais', \App\Http\Controllers\ProfessionalController::class)
+            ->names('professionals')
+            ->parameters(['profissionais' => 'professional']);
 
         // Schedules
         Route::get('horarios', [\App\Http\Controllers\ScheduleController::class, 'index'])->name('schedules.index');
