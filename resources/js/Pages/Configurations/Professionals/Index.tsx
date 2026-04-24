@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import ProfessionalsTable from './Components/ProfessionalsTable';
 import Pagination from '@/components/Pagination';
 import { route } from '@/utils/route';
+import AppLayout from '@/Layouts/AppLayout';
+import { SectionCard } from '@/components/Shared/SectionCard';
 
 interface Professional {
     id: number;
@@ -24,43 +26,31 @@ interface Props {
     };
 }
 
-import AppLayout from '@/Layouts/AppLayout';
-
 export default function Index({ professionals }: Props) {
     return (
         <>
             <Head title="Profissionais - Configurações" />
             
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                            <UserCircle className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-foreground">Lista de Profissionais</h2>
-                            <p className="text-sm text-muted-foreground">
-                                {professionals.data.length} profissionais cadastrados
-                            </p>
-                        </div>
-                    </div>
-                    
+            <SectionCard 
+                title="Gestão de Profissionais"
+                subtitle="Visualize e gerencie a equipe de atendimento do seu estabelecimento."
+                headerAction={
                     <Link href={route('configuracoes.professionals.create')}>
-                        <Button className="gap-2">
-                            <Plus className="w-4 h-4" />
+                        <Button className="bg-primary hover:bg-primary/90 text-white h-9 px-4 text-xs font-bold uppercase tracking-wider">
+                            <Plus className="w-4 h-4 mr-1.5" />
                             Novo Profissional
                         </Button>
                     </Link>
-                </div>
-
-                <div className="space-y-4">
-                    <ProfessionalsTable professionals={professionals.data} />
-                    
-                    <div className="flex justify-center mt-6">
+                }
+                noPadding
+                footer={
+                    <div className="flex justify-center">
                         <Pagination links={professionals.links} />
                     </div>
-                </div>
-            </div>
+                }
+            >
+                <ProfessionalsTable professionals={professionals.data} />
+            </SectionCard>
         </>
     );
 }

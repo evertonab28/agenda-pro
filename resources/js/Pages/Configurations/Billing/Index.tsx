@@ -11,6 +11,9 @@ import {
     HardHat,
     ArrowUpCircle,
     Sparkles,
+    TrendingUp,
+    ShieldCheck,
+    Receipt
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useForm, router } from '@inertiajs/react';
@@ -24,6 +27,9 @@ import {
     DialogDescription
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import AppLayout from '@/Layouts/AppLayout';
+import { SectionCard } from '@/components/Shared/SectionCard';
+import { StatusPill } from '@/components/Shared/StatusPill';
 
 interface Subscription {
     id: number;
@@ -67,8 +73,6 @@ interface Props {
     availablePlans: Plan[];
 }
 
-import AppLayout from '@/Layouts/AppLayout';
-
 export default function Index({ subscription, stats, invoices, availablePlans }: Props) {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
     const [isCancelModalOpen, setIsCancelModalOpen] = React.useState(false);
@@ -78,10 +82,10 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
         return (
             <>
                 <Head title="Assinatura - Configurações" />
-                <div className="p-12 text-center">
-                    <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-foreground">Nenhuma assinatura encontrada</h3>
-                    <p className="text-muted-foreground">Entre em contato com o suporte para ativar sua conta.</p>
+                <div className="p-12 text-center bg-muted/20 rounded-3xl border border-dashed border-border/60">
+                    <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4 opacity-40" />
+                    <h3 className="text-xl font-black text-foreground tracking-tight uppercase">Nenhuma assinatura ativa</h3>
+                    <p className="text-muted-foreground font-medium mt-2">Entre em contato com o suporte para ativar sua conta.</p>
                 </div>
             </>
         );
@@ -131,26 +135,32 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
     };
 
     const mainCTALabel = (): string => {
-        if (isCanceled) return 'Reativar / Upgrade';
-        if (isTrial)    return `Assinar plano ${subscription.plan.name}`;
-        return 'Alterar Plano';
+        if (isCanceled) return 'Reativar Plano';
+        if (isTrial)    return `Assinar ${subscription.plan.name}`;
+        return 'Mudar de Plano';
     };
 
     const UsageBar = ({ label, current, limit, icon: Icon }: any) => {
         const percent = Math.min((current / limit) * 100, 100);
         const isFull  = current >= limit;
         return (
-            <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                    <div className="flex items-center gap-2 font-medium text-foreground">
-                        <Icon className="w-4 h-4 text-muted-foreground" />
-                        {label}
+            <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground border border-border/40">
+                            <Icon className="w-4 h-4" />
+                        </div>
+                        <span className="text-[10px] font-black text-foreground uppercase tracking-widest">{label}</span>
                     </div>
-                    <span className="text-muted-foreground">{current} / {limit}</span>
+                    <div className="text-[11px] font-black tracking-tighter">
+                        <span className={isFull ? 'text-destructive' : 'text-primary'}>{current}</span>
+                        <span className="mx-1 text-muted-foreground opacity-40">/</span>
+                        <span className="text-muted-foreground">{limit}</span>
+                    </div>
                 </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-2.5 bg-muted/30 rounded-full overflow-hidden p-0.5 border border-border/20 shadow-inner">
                     <div
-                        className={`h-full transition-all duration-500 ${isFull ? 'bg-destructive' : 'bg-primary'}`}
+                        className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${isFull ? 'bg-destructive' : 'bg-primary'}`}
                         style={{ width: `${percent}%` }}
                     />
                 </div>
@@ -160,232 +170,266 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
 
     return (
         <>
-            <Head title="Assinatura - Configurações" />
+            <Head title="Faturamento - Configurações" />
 
-            <div className="max-w-4xl space-y-8">
-                {/* Overdue Alert */}
+            <div className="max-w-6xl space-y-6">
+                {/* Alerts Section */}
                 {isOverdue && (
-                    <div className="p-4 bg-destructive-bg border border-destructive/20 text-destructive-text rounded-xl flex items-center gap-3">
-                        <AlertTriangle className="w-5 h-5 shrink-0" />
-                        <div className="text-sm font-medium">
-                            Sua assinatura está em atraso. Regularize o pagamento para evitar o bloqueio total dos recursos operacionais.
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded-2xl flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
+                            <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <div className="text-xs font-black uppercase tracking-widest">
+                            Assinatura em atraso — Regularize seu faturamento para evitar bloqueios automáticos.
                         </div>
                     </div>
                 )}
 
-                {/* Trial info banner */}
                 {isTrial && (
-                    <div className="p-4 bg-warning-bg border border-warning/20 text-warning-text rounded-xl flex items-center gap-3">
-                        <Sparkles className="w-5 h-5 shrink-0" />
-                        <div className="text-sm font-medium">
-                            Você está no período de teste gratuito. Ative sua assinatura para continuar usando após o trial.
+                    <div className="p-4 bg-info-bg/10 border border-info-bg/20 text-info-text rounded-2xl flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="w-10 h-10 rounded-xl bg-info-bg/20 flex items-center justify-center">
+                            <Sparkles className="w-6 h-6" />
+                        </div>
+                        <div className="text-xs font-black uppercase tracking-widest">
+                            Aproveite seu período experimental — Ative o plano definitivo para manter seus dados.
                         </div>
                     </div>
                 )}
 
-                {/* Status Card */}
-                <div className={`p-6 rounded-2xl border flex flex-col md:flex-row gap-6 items-center justify-between ${
-                    isActive
-                        ? 'bg-success-bg/30 border-success/20'
-                        : 'bg-destructive-bg/30 border-destructive/20'
-                }`}>
-                    <div className="flex gap-4 items-center">
-                        <div className={`p-4 rounded-xl ${isActive ? 'bg-success-bg text-success-text' : 'bg-destructive-bg text-destructive-text'}`}>
-                            <Zap className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-2xl font-bold text-foreground">
-                                    Plano {subscription.plan.name}
-                                </h2>
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                    isActive ? 'bg-success-bg text-success-text border-success/20' : 'bg-destructive-bg text-destructive-text border-destructive/20'
-                                }`}>
-                                    {subscription.status}
-                                </span>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                                {isTrial && `Período de teste gratuito até ${new Date(subscription.trial_ends_at!).toLocaleDateString()}.`}
-                                {!isTrial && !isCanceled && `Assinatura ativa — renova em ${new Date(subscription.ends_at!).toLocaleDateString()}.`}
-                                {isCanceled && `Cancelada — acesso até ${new Date(subscription.ends_at!).toLocaleDateString()}.`}
-                            </p>
-                        </div>
-                    </div>
+                {/* Subscription Overview */}
+                <SectionCard contentClassName="p-0 overflow-hidden">
+                    <div className={`p-8 flex flex-col md:flex-row gap-10 items-center justify-between relative overflow-hidden ${
+                        isActive ? 'bg-primary/[0.02]' : 'bg-destructive/[0.02]'
+                    }`}>
+                        {/* Abstract Background Element */}
+                        <Zap className="absolute -right-12 -bottom-12 w-64 h-64 opacity-[0.03] -rotate-12 text-primary" />
 
-                    <div className="flex items-center gap-3">
-                        {!isCanceled && !isOverdue && (
-                            <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+                        <div className="flex flex-col md:flex-row gap-8 items-center relative z-10 text-center md:text-left">
+                            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl ${
+                                isActive ? 'bg-primary text-white shadow-primary/20' : 'bg-destructive text-white shadow-destructive/20'
+                            }`}>
+                                <Zap className="w-10 h-10" />
+                            </div>
+                            <div>
+                                <div className="flex flex-col md:flex-row items-center gap-4 mb-2">
+                                    <h2 className="text-4xl font-black text-foreground tracking-tightest">
+                                        Plano {subscription.plan.name}
+                                    </h2>
+                                    <StatusPill 
+                                        label={subscription.status.toUpperCase()} 
+                                        variant={isActive ? 'success' : 'destructive'} 
+                                        className="h-6 px-4 text-[10px] font-black"
+                                    />
+                                </div>
+                                <p className="text-sm text-muted-foreground font-semibold uppercase tracking-wider opacity-60">
+                                    {isTrial && `Avaliação gratuita encerra em ${new Date(subscription.trial_ends_at!).toLocaleDateString('pt-BR')}`}
+                                    {!isTrial && !isCanceled && `Próxima renovação automática: ${new Date(subscription.ends_at!).toLocaleDateString('pt-BR')}`}
+                                    {isCanceled && `Acesso garantido até: ${new Date(subscription.ends_at!).toLocaleDateString('pt-BR')}`}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 relative z-10">
+                            {!isCanceled && !isOverdue && (
+                                <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-black text-[10px] uppercase tracking-widest px-6 h-12 rounded-2xl">
+                                            Cancelar Assinatura
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="rounded-3xl border-border/40 shadow-2xl">
+                                        <DialogHeader>
+                                            <DialogTitle className="font-black text-2xl tracking-tight text-foreground">Cancelar Plano?</DialogTitle>
+                                            <DialogDescription className="font-medium text-muted-foreground pt-2">
+                                                Você manterá o acesso total até o dia <span className="text-primary font-black">{subscription.ends_at ? new Date(subscription.ends_at).toLocaleDateString('pt-BR') : 'N/A'}</span>. Após esta data, o sistema entrará em modo leitura.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter className="mt-8 gap-3">
+                                            <Button variant="outline" onClick={() => setIsCancelModalOpen(false)} className="rounded-xl h-11 px-6 font-bold">Manter Assinatura</Button>
+                                            <Button variant="destructive" onClick={handleCancel} disabled={processing} className="rounded-xl h-11 px-6 font-black uppercase tracking-widest text-[10px]">Confirmar Cancelamento</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+
+                            <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
-                                        Cancelar
+                                    <Button className="bg-primary hover:bg-primary/90 text-white shadow-2xl shadow-primary/30 h-14 px-10 rounded-2xl font-black uppercase tracking-widest text-[10px] gap-3">
+                                        <ArrowUpCircle className="w-5 h-5" />
+                                        {mainCTALabel()}
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Cancelar Assinatura?</DialogTitle>
-                                        <DialogDescription>
-                                            Você manterá acesso a todas as funcionalidades até o final do ciclo atual (
-                                            {subscription.ends_at ? new Date(subscription.ends_at).toLocaleDateString() : 'N/A'}
-                                            ). Após isso, sua conta será bloqueada.
+                                <DialogContent className="max-w-4xl rounded-[2.5rem] border-border/20 shadow-2xl p-8">
+                                    <DialogHeader className="pb-6">
+                                        <DialogTitle className="text-3xl font-black tracking-tightest uppercase text-center">
+                                            {isTrial ? 'Escolha sua Jornada' : 'Upgrade de Escala'}
+                                        </DialogTitle>
+                                        <DialogDescription className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest text-center">
+                                            Selecione o plano ideal para a fase atual do seu negócio
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <DialogFooter>
-                                        <Button variant="outline" onClick={() => setIsCancelModalOpen(false)}>Manter Assinatura</Button>
-                                        <Button variant="destructive" onClick={handleCancel} disabled={processing}>Confirmar Cancelamento</Button>
-                                    </DialogFooter>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+                                        {availablePlans.map((plan) => {
+                                            const action          = getPlanCardAction(plan);
+                                            const isCurrent       = action === 'current';
+                                            const isActivateCard  = action === 'activate';
+
+                                            return (
+                                                <div
+                                                    key={plan.id}
+                                                    className={`p-8 rounded-[2rem] border-2 transition-all duration-500 flex flex-col relative group ${
+                                                        isCurrent
+                                                            ? 'border-primary bg-primary/[0.03] shadow-2xl shadow-primary/10'
+                                                            : 'border-border/60 hover:border-primary/30 bg-card hover:shadow-xl'
+                                                    }`}
+                                                >
+                                                    {isCurrent && (
+                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-black uppercase tracking-widest px-4 py-1 rounded-full shadow-lg">
+                                                            Plano Atual
+                                                        </div>
+                                                    )}
+                                                    <div className="mb-6">
+                                                        <h4 className="font-black text-xl text-foreground tracking-tight uppercase">{plan.name}</h4>
+                                                        <div className="flex items-baseline gap-1 mt-3">
+                                                            <span className="text-3xl font-black text-foreground">R$ {plan.price}</span>
+                                                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">/{plan.billing_cycle === 'monthly' ? 'mês' : 'ano'}</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="space-y-3 mb-8 flex-1">
+                                                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                                            <TrendingUp className="w-3 h-3 text-primary" />
+                                                            Entregas do Plano
+                                                        </p>
+                                                        {Object.entries(plan.features).slice(0, 5).map(([key, val]) => (
+                                                            <div key={key} className="flex items-center gap-3 text-[11px] font-bold text-foreground/70 uppercase tracking-tighter">
+                                                                <ShieldCheck className="w-4 h-4 text-primary shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" />
+                                                                <span className="truncate">{key.replace(/_/g, ' ')}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    <Button
+                                                        variant={isCurrent ? 'outline' : 'default'}
+                                                        className={`w-full h-12 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all ${isCurrent ? 'border-primary text-primary hover:bg-primary/5' : 'bg-primary shadow-lg shadow-primary/20'}`}
+                                                        disabled={isCurrent || processing}
+                                                        onClick={() => {
+                                                            if (isCurrent || processing) return;
+                                                            if (isActivateCard) handleActivate(plan.id);
+                                                            else handleUpgrade(plan.id);
+                                                        }}
+                                                    >
+                                                        {isActivateCard && `Assinar Plano`}
+                                                        {isCurrent  && 'Você está aqui'}
+                                                        {action === 'select'   && 'Migrar Agora'}
+                                                    </Button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </DialogContent>
                             </Dialog>
-                        )}
-
-                        <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="gap-2 shadow-lg h-12 px-8">
-                                    <ArrowUpCircle className="w-5 h-5" />
-                                    {mainCTALabel()}
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        {isTrial ? 'Ativar assinatura paga' : 'Escolha seu novo plano'}
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        {isTrial
-                                            ? 'Assine o seu plano atual ou faça upgrade para um plano superior.'
-                                            : 'O upgrade será aplicado imediatamente após a confirmação do pagamento.'
-                                        }
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-                                    {availablePlans.map((plan) => {
-                                        const action          = getPlanCardAction(plan);
-                                        const isDisabled      = action === 'current';
-                                        const isActivateCard  = action === 'activate';
-
-                                        return (
-                                            <div
-                                                key={plan.id}
-                                                className={`p-4 rounded-xl border-2 transition-all bg-card ${
-                                                    isDisabled
-                                                        ? 'border-primary bg-primary/5 opacity-60 cursor-not-allowed'
-                                                        : isActivateCard
-                                                            ? 'border-warning-text/40 bg-warning-bg cursor-pointer hover:border-warning-text'
-                                                            : 'border-border cursor-pointer hover:border-primary'
-                                                }`}
-                                                onClick={() => {
-                                                    if (isDisabled || processing) return;
-                                                    if (isActivateCard) handleActivate(plan.id);
-                                                    else handleUpgrade(plan.id);
-                                                }}
-                                            >
-                                                <h4 className="font-bold text-lg text-foreground">{plan.name}</h4>
-                                                <div className="text-2xl font-black my-2 text-foreground">R$ {plan.price}</div>
-                                                <p className="text-xs text-muted-foreground mb-4">{plan.billing_cycle}</p>
-                                                <Button
-                                                    variant={isDisabled ? 'outline' : 'default'}
-                                                    className={`w-full ${isActivateCard ? 'bg-warning text-warning-foreground hover:bg-warning/90' : ''}`}
-                                                    disabled={isDisabled || processing}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (isDisabled || processing) return;
-                                                        if (isActivateCard) handleActivate(plan.id);
-                                                        else handleUpgrade(plan.id);
-                                                    }}
-                                                >
-                                                    {action === 'activate' && `Assinar ${plan.name}`}
-                                                    {action === 'current'  && 'Atual'}
-                                                    {action === 'select'   && 'Selecionar'}
-                                                </Button>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-                </div>
-
-                {/* Usage + Features */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-card p-6 rounded-2xl border border-border space-y-6">
-                        <h3 className="font-bold flex items-center gap-2 text-foreground">
-                            <Users className="w-5 h-5 text-muted-foreground" />
-                            Uso de Recursos
-                        </h3>
-                        <div className="space-y-6">
-                            <UsageBar label="Profissionais" current={stats.professionals.current} limit={stats.professionals.limit} icon={HardHat} />
-                            <UsageBar label="Usuários (Equipe)" current={stats.users.current} limit={stats.users.limit} icon={Users} />
                         </div>
                     </div>
+                </SectionCard>
 
-                    <div className="bg-card p-6 rounded-2xl border border-border space-y-4">
-                        <h3 className="font-bold text-foreground">Incluso no seu plano:</h3>
-                        <ul className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Subscription Usage */}
+                    <SectionCard 
+                        title="Metricas de Escala" 
+                        subtitle="Acompanhe o consumo de recursos permitidos no seu plano."
+                    >
+                        <div className="space-y-10 py-2">
+                            <UsageBar label="Equipe de Especialistas" current={stats.professionals.current} limit={stats.professionals.limit} icon={HardHat} />
+                            <UsageBar label="Contas de Operadores" current={stats.users.current} limit={stats.users.limit} icon={Users} />
+                        </div>
+                    </SectionCard>
+
+                    {/* Active Features */}
+                    <SectionCard 
+                        title="Inteligência Ativa" 
+                        subtitle="Módulos e recursos desbloqueados na sua assinatura."
+                    >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {Object.entries(subscription.plan.features).map(([key, value]) => {
                                 if (typeof value !== 'boolean') return null;
                                 return (
-                                    <li key={key} className={`flex items-center gap-3 text-sm ${value ? 'text-foreground' : 'text-muted-foreground/50 line-through'}`}>
-                                        <CheckCircle2 className={`w-4 h-4 ${value ? 'text-success' : 'text-muted-foreground/30'}`} />
-                                        {key.replace(/_/g, ' ').toUpperCase()}
-                                    </li>
+                                    <div key={key} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${value ? 'bg-muted/20 border-border/40' : 'opacity-30 grayscale border-dashed'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${value ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                                                <CheckCircle2 className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground leading-none">
+                                                {key.replace(/_/g, ' ')}
+                                            </span>
+                                        </div>
+                                    </div>
                                 );
                             })}
-                        </ul>
-                    </div>
+                        </div>
+                    </SectionCard>
                 </div>
 
-                {/* Invoices Table */}
-                <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                    <div className="p-6 border-b border-border">
-                        <h3 className="font-bold flex items-center gap-2 text-lg text-foreground">
-                            <CreditCard className="w-5 h-5 text-muted-foreground" />
-                            Histórico de Faturamento (SaaS)
-                        </h3>
-                    </div>
+                {/* Billing History */}
+                <SectionCard 
+                    title="Histórico Transacional" 
+                    subtitle="Relatório completo de faturas, períodos de referência e status de pagamento."
+                    noPadding
+                >
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
-                                <tr>
-                                    <th className="px-6 py-4">Período</th>
-                                    <th className="px-6 py-4">Plano</th>
-                                    <th className="px-6 py-4">Valor</th>
-                                    <th className="px-6 py-4">Vencimento</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Ação</th>
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-muted/30 border-b border-border/40">
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Ciclo / Referência</th>
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Produto</th>
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Montante</th>
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Data Vencimento</th>
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Documento</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border">
+                            <tbody className="divide-y divide-border/40 bg-card">
                                 {invoices.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
-                                            Nenhuma fatura encontrada.
+                                        <td colSpan={6} className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center gap-4 opacity-30">
+                                                <Receipt className="w-12 h-12" />
+                                                <p className="text-sm font-black uppercase tracking-widest">Nenhuma movimentação financeira</p>
+                                            </div>
                                         </td>
                                     </tr>
                                 ) : (
                                     invoices.map((invoice) => (
-                                        <tr key={invoice.id} className="hover:bg-muted/30 transition-colors">
-                                            <td className="px-6 py-4 font-medium text-foreground">{invoice.reference_period}</td>
-                                            <td className="px-6 py-4 text-muted-foreground">{invoice.plan.name}</td>
-                                            <td className="px-6 py-4 font-bold text-foreground">R$ {invoice.amount}</td>
-                                            <td className="px-6 py-4 text-muted-foreground">{new Date(invoice.due_date).toLocaleDateString()}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${
-                                                    invoice.status === 'paid'    ? 'bg-success-bg text-success-text border-success/20' :
-                                                    invoice.status === 'overdue' ? 'bg-destructive-bg text-destructive-text border-destructive/20' :
-                                                    'bg-warning-bg text-warning-text border-warning/20'
-                                                }`}>
-                                                    {invoice.status}
-                                                </span>
+                                        <tr key={invoice.id} className="hover:bg-muted/20 transition-colors group">
+                                            <td className="px-6 py-5 font-black text-foreground text-sm tracking-tight">{invoice.reference_period}</td>
+                                            <td className="px-6 py-5 text-[10px] font-bold uppercase text-muted-foreground opacity-60 tracking-wider">{invoice.plan.name}</td>
+                                            <td className="px-6 py-5 font-black text-sm text-foreground text-center">R$ {invoice.amount}</td>
+                                            <td className="px-6 py-5 text-[11px] font-bold text-muted-foreground">{new Date(invoice.due_date).toLocaleDateString('pt-BR')}</td>
+                                            <td className="px-6 py-5 text-center">
+                                                <StatusPill 
+                                                    label={invoice.status.toUpperCase()} 
+                                                    variant={
+                                                        invoice.status === 'paid' ? 'success' : 
+                                                        invoice.status === 'overdue' ? 'destructive' : 'warning'
+                                                    } 
+                                                    className="font-black text-[9px]"
+                                                />
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-5 text-right">
                                                 {invoice.status !== 'paid' && invoice.provider_payment_link && (
                                                     <Button
-                                                        variant="link"
-                                                        className="h-auto p-0 font-bold"
+                                                        variant="outline"
+                                                        className="h-10 px-6 rounded-xl border-primary/20 text-primary hover:bg-primary/5 font-black text-[9px] uppercase tracking-widest shadow-sm"
                                                         onClick={() => window.open(invoice.provider_payment_link!, '_blank')}
                                                     >
-                                                        Pagar agora
+                                                        Regularizar
                                                     </Button>
+                                                )}
+                                                {invoice.status === 'paid' && (
+                                                    <div className="flex items-center justify-end gap-2 text-success opacity-50 font-black text-[9px] uppercase tracking-widest">
+                                                        <CheckCircle2 className="w-4 h-4" />
+                                                        Liquidada
+                                                    </div>
                                                 )}
                                             </td>
                                         </tr>
@@ -394,7 +438,7 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </SectionCard>
             </div>
         </>
     );
@@ -402,6 +446,6 @@ export default function Index({ subscription, stats, invoices, availablePlans }:
 
 Index.layout = (page: any) => (
     <AppLayout>
-        <ConfigLayout title="Faturamento e Assinatura">{page}</ConfigLayout>
+        <ConfigLayout title="Faturamento & Assinatura">{page}</ConfigLayout>
     </AppLayout>
 );

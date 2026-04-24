@@ -3,7 +3,8 @@ import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Save } from 'lucide-react';
+import { Save, Coffee, LogIn, LogOut, CheckCircle2, XCircle } from 'lucide-react';
+import { StatusPill } from '@/components/Shared/StatusPill';
 
 interface Schedule {
     id?: number;
@@ -45,7 +46,7 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
         break_end: s.break_end?.substring(0, 5) || '',
     }));
 
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post, processing, recentlySuccessful } = useForm({
         professional_id: professionalId,
         schedules: initialSchedules,
     });
@@ -77,73 +78,89 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="overflow-hidden rounded-xl border border-border shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-0">
+            <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-muted/50">
-                        <tr>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Dia</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Status</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Entrada</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Saída</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Intervalo (Início)</th>
-                            <th className="px-6 py-3 text-xs font-bold uppercase text-muted-foreground">Intervalo (Fim)</th>
+                    <thead>
+                        <tr className="bg-muted/30 border-b border-border/40">
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dia da Semana</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Expediente</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Intervalo de Descanso</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border bg-card">
+                    <tbody className="divide-y divide-border/40">
                         {data.schedules.map((day, idx) => (
-                            <tr key={idx} className={`${day.is_active ? '' : 'bg-muted/30 opacity-60'} transition-all`}>
-                                <td className="px-6 py-4 font-bold text-foreground">
+                            <tr key={idx} className={`${day.is_active ? 'hover:bg-muted/20' : 'bg-muted/10 opacity-60'} transition-all group`}>
+                                <td className="px-6 py-4 font-black text-foreground text-sm tracking-tight">
                                     {WEEKDAYS[day.weekday]}
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={day.is_active}
-                                            onChange={() => handleToggleDay(idx)}
-                                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleToggleDay(idx)}>
+                                        <div className="relative inline-flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={day.is_active}
+                                                onChange={() => handleToggleDay(idx)}
+                                            />
+                                            <div className="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                        </div>
+                                        <StatusPill 
+                                            label={day.is_active ? 'ABERTO' : 'FECHADO'} 
+                                            variant={day.is_active ? 'success' : 'muted'} 
                                         />
-                                        <span className="text-xs uppercase font-bold text-foreground">
-                                            {day.is_active ? 'Aberto' : 'Fechado'}
-                                        </span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <Input
-                                        type="time"
-                                        value={day.start_time}
-                                        disabled={!day.is_active}
-                                        onChange={(e) => handleTimeChange(idx, 'start_time', e.target.value)}
-                                        className="h-9 w-32"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <div className="relative">
+                                            <LogIn className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <Input
+                                                type="time"
+                                                value={day.start_time}
+                                                disabled={!day.is_active}
+                                                onChange={(e) => handleTimeChange(idx, 'start_time', e.target.value)}
+                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                            />
+                                        </div>
+                                        <span className="text-[10px] font-black text-muted-foreground/40 px-1">ATÉ</span>
+                                        <div className="relative">
+                                            <LogOut className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <Input
+                                                type="time"
+                                                value={day.end_time}
+                                                disabled={!day.is_active}
+                                                onChange={(e) => handleTimeChange(idx, 'end_time', e.target.value)}
+                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                            />
+                                        </div>
+                                    </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <Input
-                                        type="time"
-                                        value={day.end_time}
-                                        disabled={!day.is_active}
-                                        onChange={(e) => handleTimeChange(idx, 'end_time', e.target.value)}
-                                        className="h-9 w-32"
-                                    />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Input
-                                        type="time"
-                                        value={day.break_start || ''}
-                                        disabled={!day.is_active}
-                                        onChange={(e) => handleTimeChange(idx, 'break_start', e.target.value)}
-                                        className="h-9 w-32 text-muted-foreground"
-                                    />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Input
-                                        type="time"
-                                        value={day.break_end || ''}
-                                        disabled={!day.is_active}
-                                        onChange={(e) => handleTimeChange(idx, 'break_end', e.target.value)}
-                                        className="h-9 w-32 text-muted-foreground"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <div className="relative">
+                                            <Coffee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <Input
+                                                type="time"
+                                                value={day.break_start || ''}
+                                                disabled={!day.is_active}
+                                                onChange={(e) => handleTimeChange(idx, 'break_start', e.target.value)}
+                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                            />
+                                        </div>
+                                        <span className="text-[10px] font-black text-muted-foreground/40 px-1">—</span>
+                                        <div className="relative">
+                                            <Coffee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/60" />
+                                            <Input
+                                                type="time"
+                                                value={day.break_end || ''}
+                                                disabled={!day.is_active}
+                                                onChange={(e) => handleTimeChange(idx, 'break_end', e.target.value)}
+                                                className="h-9 pl-8 w-28 rounded-lg bg-muted/30 border-border/40 font-bold text-xs"
+                                            />
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -151,14 +168,22 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                 </table>
             </div>
 
-            <div className="flex justify-end p-4 bg-muted/20 rounded-xl border border-dashed border-border">
+            <div className="flex items-center justify-between p-6 border-t border-border/40 bg-muted/5 rounded-b-2xl">
+                <div>
+                    {recentlySuccessful && (
+                        <div className="flex items-center gap-2 text-success font-black uppercase text-[10px] tracking-widest animate-in fade-in slide-in-from-left-2 duration-300">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Escala salva com sucesso!
+                        </div>
+                    )}
+                </div>
                 <Button 
                     type="submit" 
                     disabled={processing} 
-                    className="gap-2 px-8 h-10 shadow-lg shadow-primary/20"
+                    className="bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 h-11 px-8 rounded-xl font-bold uppercase tracking-wider text-xs gap-2"
                 >
                     <Save className="w-4 h-4" />
-                    {processing ? 'Salvando...' : 'Salvar Horários de Trabalho'}
+                    {processing ? 'Salvando...' : 'Salvar Alterações'}
                 </Button>
             </div>
         </form>

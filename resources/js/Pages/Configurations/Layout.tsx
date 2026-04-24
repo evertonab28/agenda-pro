@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import AppLayout from '@/Layouts/AppLayout';
 import { Link, usePage } from '@inertiajs/react';
 import { route } from '@/utils/route';
 import { 
@@ -12,6 +11,7 @@ import {
     CreditCard,
     Palette
 } from 'lucide-react';
+import { PageHeader } from '@/components/Shared/PageHeader';
 
 interface ConfigLayoutProps {
     children: ReactNode;
@@ -36,45 +36,37 @@ export default function ConfigLayout({ children, title }: ConfigLayoutProps) {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-                <p className="text-muted-foreground">Gerencie as configurações do seu sistema.</p>
-            </div>
+            <PageHeader 
+                title="Configurações" 
+                subtitle="Gerencie as preferências e parâmetros do seu sistema." 
+            />
 
             {!props.auth.hide_nav && (
-                <div className="border-b border-border/60">
-                    <nav className="-mb-px flex space-x-1 overflow-x-auto">
-                        {tabs.map((tab) => {
-                            const Icon = tab.icon;
-                            const active = isCurrent(tab.pattern);
-                            return (
-                                <Link
-                                    key={tab.name}
-                                    href={tab.href}
-                                    prefetch
-                                    className={`
-                                        group inline-flex items-center py-4 px-4 border-b-2 font-bold text-sm whitespace-nowrap transition-all duration-200
-                                        ${active 
-                                            ? 'border-primary text-primary bg-primary/5' 
-                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                                        }
-                                    `}
-                                >
-                                    <div className={`
-                                        mr-2.5 flex items-center justify-center w-7 h-7 rounded-lg transition-colors
-                                        ${active ? 'bg-primary/10 text-primary' : 'bg-muted/50 text-muted-foreground group-hover:bg-muted group-hover:text-foreground'}
-                                    `}>
-                                        <Icon className="h-4 w-4" />
-                                    </div>
-                                    {tab.name}
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                <div className="bg-muted/30 p-1.5 rounded-2xl border border-border/40 inline-flex flex-wrap gap-1 w-full sm:w-auto">
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        const active = isCurrent(tab.pattern);
+                        return (
+                            <Link
+                                key={tab.name}
+                                href={tab.href}
+                                className={`
+                                    group flex items-center py-2 px-4 rounded-xl font-bold text-xs whitespace-nowrap transition-all duration-200
+                                    ${active 
+                                        ? 'bg-card text-primary shadow-sm ring-1 ring-border/60' 
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                    }
+                                `}
+                            >
+                                <Icon className={`h-3.5 w-3.5 mr-2 ${active ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                                {tab.name}
+                            </Link>
+                        );
+                    })}
                 </div>
             )}
 
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {children}
             </div>
         </div>

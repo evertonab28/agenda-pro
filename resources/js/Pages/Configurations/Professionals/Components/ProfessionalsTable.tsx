@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { Edit2, Trash2, UserCircle, Phone, Mail } from 'lucide-react';
+import { Edit2, Trash2, UserCircle, Phone, Mail, Award, Tags } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { route } from '@/utils/route';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/Shared/StatusPill';
 
 interface Professional {
     id: number;
@@ -21,84 +22,97 @@ interface Props {
 
 export default function ProfessionalsTable({ professionals }: Props) {
     return (
-        <div className="overflow-x-auto rounded-xl border border-border shadow-sm transition-all duration-300">
+        <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse">
                 <thead>
-                    <tr className="bg-muted/50">
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Profissional</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Contato</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Especialidade</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Serviços</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Status</th>
-                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground text-right">Ações</th>
+                    <tr className="bg-muted/30 border-b border-border/40">
+                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Especialista</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contatos Diretos</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Especialidade</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Serviços Ativos</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Gestão</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-border bg-card">
+                <tbody className="divide-y divide-border/40 bg-card">
                     {professionals.length === 0 ? (
                         <tr>
-                            <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">
-                                Nenhum profissional encontrado.
+                            <td colSpan={6} className="px-6 py-20 text-center">
+                                <div className="flex flex-col items-center justify-center text-muted-foreground gap-3 opacity-40">
+                                    <UserCircle className="w-10 h-10" />
+                                    <div className="flex flex-col gap-1">
+                                        <p className="font-black text-[10px] uppercase tracking-widest">Nenhum profissional listado</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-tighter">Inicie a escala adicionando o primeiro membro.</p>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     ) : (
                         professionals.map((pro) => (
-                            <tr key={pro.id} className="hover:bg-muted/30 transition-colors group">
-                                <td className="px-6 py-4">
+                            <tr key={pro.id} className="hover:bg-muted/20 transition-all group">
+                                <td className="px-6 py-5">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                            <UserCircle className="w-6 h-6" />
+                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-primary shadow-sm border border-primary/10 bg-primary/5 transition-transform group-hover:scale-105">
+                                            <UserCircle className="w-5 h-5" />
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-foreground group-hover:text-primary transition-colors">
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="font-black text-sm text-foreground tracking-tight truncate">
                                                 {pro.name}
                                             </span>
+                                            <span className="text-[9px] font-bold uppercase text-muted-foreground opacity-60 tracking-wider">ID: #{pro.id}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm">
+                                <td className="px-6 py-5">
                                     <div className="flex flex-col gap-1">
                                         {pro.email && (
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Mail className="w-3.5 h-3.5" />
-                                                {pro.email}
+                                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/80 truncate">
+                                                <Mail className="w-3 h-3 text-primary/40" />
+                                                {pro.email.toLowerCase()}
                                             </div>
                                         )}
                                         {pro.phone && (
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Phone className="w-3.5 h-3.5" />
+                                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/80">
+                                                <Phone className="w-3 h-3 text-primary/40" />
                                                 {pro.phone}
                                             </div>
                                         )}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-muted-foreground font-medium">
-                                    {pro.specialty || '-'}
+                                <td className="px-6 py-5">
+                                    <div className="flex items-center gap-2">
+                                        <Award className="w-3.5 h-3.5 text-info-text opacity-40" />
+                                        <span className="text-[11px] font-black uppercase text-foreground tracking-tight">
+                                            {pro.specialty || 'GERAL'}
+                                        </span>
+                                    </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                <td className="px-6 py-5">
+                                    <div className="flex flex-wrap gap-1.5 max-w-[220px]">
                                         {pro.services.slice(0, 3).map(svc => (
-                                            <Badge key={svc.id} variant="secondary" className="text-[10px] py-0 px-2">
+                                            <Badge key={svc.id} variant="outline" className="text-[9px] py-0.5 px-2 bg-muted/30 text-foreground/70 border-border/40 font-bold uppercase tracking-widest rounded-lg">
                                                 {svc.name}
                                             </Badge>
                                         ))}
                                         {pro.services.length > 3 && (
-                                            <span className="text-[10px] text-muted-foreground/60 ml-1">+{pro.services.length - 3}</span>
+                                            <span className="text-[10px] text-muted-foreground/40 font-black tracking-widest pl-1">+{pro.services.length - 3}</span>
+                                        )}
+                                        {pro.services.length === 0 && (
+                                            <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Sem serviços</span>
                                         )}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ring-1 ring-inset ${
-                                        pro.is_active 
-                                            ? 'bg-success-bg text-success-text ring-success/20' 
-                                            : 'bg-muted text-muted-foreground ring-border'
-                                    }`}>
-                                        {pro.is_active ? 'Ativo' : 'Inativo'}
-                                    </span>
+                                <td className="px-6 py-5 text-center">
+                                    <StatusPill 
+                                        label={pro.is_active ? 'ATIVO' : 'INATIVO'} 
+                                        variant={pro.is_active ? 'success' : 'muted'} 
+                                        className="font-black text-[9px] tracking-widest"
+                                    />
                                 </td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-6 py-5 text-right">
                                     <div className="flex justify-end gap-2">
                                         <Link href={route('configuracoes.professionals.edit', pro.id)}>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10">
+                                            <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-border/40 text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all">
                                                 <Edit2 className="w-4 h-4" />
                                             </Button>
                                         </Link>
@@ -107,7 +121,7 @@ export default function ProfessionalsTable({ professionals }: Props) {
                                             method="delete" 
                                             as="button"
                                         >
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                                            <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-border/40 text-muted-foreground hover:text-destructive hover:border-destructive/40 hover:bg-destructive/5 transition-all">
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </Link>
