@@ -149,7 +149,7 @@ export default function BookingWizard({
                     <div className="space-y-6">
                         <StepHeading
                             title="Escolha a data e o horário"
-                            sub={`com ${selectedProfessional?.name}`}
+                            sub={selectedProfessional?.id === 0 ? 'Qualquer profissional' : `com ${selectedProfessional?.name}`}
                         />
 
                         {/* Date strip — selecting a date reloads slots inline */}

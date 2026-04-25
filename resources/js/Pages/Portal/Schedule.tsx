@@ -36,6 +36,12 @@ function splitName(fullNameStr: string): [string, string] {
     return [first, last];
 }
 
+export const NO_PREFERENCE_PROFESSIONAL: Professional = {
+    id: 0,
+    name: 'Sem preferência',
+    specialty: 'Qualquer profissional disponível'
+};
+
 export default function Schedule({ workspace, customer }: Props) {
     // ── UI mode ──────────────────────────────────────────────────────────────
     const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -95,7 +101,9 @@ export default function Schedule({ workspace, customer }: Props) {
     // the date, then returns to step 4 — because `selectedDate` and `step`
     // both appear in the dependency array.
     const loadAvailability = useCallback(() => {
-        if (!selectedProfessional || !selectedService) return;
+        if (!selectedService) return;
+        // Permitir carregar se tiver profissional selecionado OU se for "sem preferência" (id 0)
+        if (selectedProfessional === null) return;
 
         setLoading(true);
         setSelectedSlot(null);
@@ -163,7 +171,7 @@ export default function Schedule({ workspace, customer }: Props) {
                 email:           formData.email,
                 phone:           formData.phone,
                 service_id:      selectedService?.id,
-                professional_id: selectedProfessional?.id,
+                professional_id: selectedProfessional?.id ?? 0,
                 start_time:      `${format(selectedDate, 'yyyy-MM-dd')} ${selectedSlot}`,
             })
             .then((res: any) => {

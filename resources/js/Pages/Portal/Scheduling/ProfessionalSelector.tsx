@@ -31,6 +31,22 @@ export default function ProfessionalSelector({ professionals, selected, onSelect
         <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-700">Profissional</label>
             <div className="flex flex-wrap gap-2">
+                {/* No preference option */}
+                <button
+                    onClick={() => onSelect({ id: 0, name: 'Sem preferência' } as Professional)}
+                    className={cn(
+                        'flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-150',
+                        selected?.id === 0
+                            ? 'border-indigo-600 bg-indigo-50 text-indigo-800'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:text-indigo-700',
+                    )}
+                >
+                    <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
+                        <User size={12} />
+                    </div>
+                    Sem preferência
+                </button>
+
                 {professionals.map((p) => (
                     <button
                         key={p.id}
