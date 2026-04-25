@@ -8,6 +8,7 @@ import type { Workspace, Customer, Service, Professional, BookingFormData } from
 interface Props {
     workspace: Workspace;
     service: Service | null;
+    addons?: Service[];
     professional: Professional | null;
     date: Date;
     slot: string | null;
@@ -18,6 +19,7 @@ interface Props {
 export default function BookingSuccess({
     workspace,
     service,
+    addons = [],
     professional,
     date,
     slot,
@@ -51,7 +53,13 @@ export default function BookingSuccess({
 
                 <div className="px-5 py-4 space-y-4">
                     {service && (
-                        <Row label="Serviço" value={service.name} />
+                        <Row label="Serviço principal" value={service.name} />
+                    )}
+                    {addons.length > 0 && (
+                        <Row 
+                            label="Adicionais" 
+                            value={addons.map(a => a.name).join(', ')} 
+                        />
                     )}
                     {professional && (
                         <Row label="Profissional" value={professional.name} />

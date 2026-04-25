@@ -35,6 +35,7 @@ export interface Service {
     price: string;
     description?: string | null;
     color?: string | null;
+    is_addon?: boolean;
 }
 
 export interface Professional {

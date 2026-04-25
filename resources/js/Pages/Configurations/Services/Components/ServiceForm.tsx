@@ -14,6 +14,7 @@ interface Service {
     price: string | number;
     color: string | null;
     is_active: boolean;
+    is_addon: boolean;
     description: string | null;
 }
 
@@ -30,6 +31,7 @@ export default function ServiceForm({ service, onSubmitSuccess }: Props) {
         price: service?.price || '',
         color: service?.color || '#3b82f6',
         is_active: service?.is_active ?? true,
+        is_addon: (service as any)?.is_addon ?? false,
         description: service?.description || '',
     });
 
@@ -41,6 +43,7 @@ export default function ServiceForm({ service, onSubmitSuccess }: Props) {
             price: service?.price || '',
             color: service?.color || '#3b82f6',
             is_active: service?.is_active ?? true,
+            is_addon: (service as any)?.is_addon ?? false,
             description: service?.description || '',
         });
     }, [service, setData]);
@@ -156,6 +159,20 @@ export default function ServiceForm({ service, onSubmitSuccess }: Props) {
                 <Label htmlFor="is_active" className="text-sm font-medium leading-none cursor-pointer">
                     Serviço Ativo
                 </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+                <input
+                    id="is_addon"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                    checked={data.is_addon}
+                    onChange={(e) => setData('is_addon', e.target.checked)}
+                />
+                <Label htmlFor="is_addon" className="text-sm font-medium leading-none cursor-pointer">
+                    Serviço Adicional (Add-on)
+                </Label>
+                <p className="text-[10px] text-slate-400 ml-1">(Opcional no fluxo de agendamento)</p>
             </div>
 
             <div className="flex justify-end pt-4 gap-3">

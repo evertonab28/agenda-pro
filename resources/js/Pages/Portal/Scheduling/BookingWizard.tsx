@@ -26,6 +26,7 @@ interface Props {
     step: number;
     services: Service[];
     selectedService: Service | null;
+    selectedAddons: Service[];
     professionals: Professional[];
     selectedProfessional: Professional | null;
     selectedDate: Date;
@@ -36,6 +37,7 @@ interface Props {
 
     // Handlers
     onSelectService:      (s: Service)       => void;
+    onSelectAddons:       (addons: Service[]) => void;
     onSelectProfessional: (p: Professional)  => void;
     onSelectDate:         (d: Date)          => void;
     onSelectSlot:         (slot: string)     => void;
@@ -49,10 +51,10 @@ interface Props {
 export default function BookingWizard({
     workspace, customer,
     step, services,
-    selectedService, professionals, selectedProfessional,
+    selectedService, selectedAddons, professionals, selectedProfessional,
     selectedDate, availableSlots, selectedSlot,
     loading, formData,
-    onSelectService, onSelectProfessional, onSelectDate, onSelectSlot,
+    onSelectService, onSelectAddons, onSelectProfessional, onSelectDate, onSelectSlot,
     onFormChange, onConfirm, onNext, onBack, onGoToStep,
 }: Props) {
 
@@ -63,6 +65,7 @@ export default function BookingWizard({
                 <BookingSuccess
                     workspace={workspace}
                     service={selectedService}
+                    addons={selectedAddons}
                     professional={selectedProfessional}
                     date={selectedDate}
                     slot={selectedSlot}
@@ -83,10 +86,35 @@ export default function BookingWizard({
                 <ServiceSelector
                     services={services}
                     selected={selectedService}
-                    onSelect={(s) => { onSelectService(s); onNext(); }}
+                    selectedAddons={selectedAddons}
+                    onSelect={(s) => { 
+                        onSelectService(s); 
+                        // If there are no addons available in the system at all, maybe jump? 
+                        // But usually we just let the user see the "Next" button if something is selected.
+                    }}
+                    onToggleAddon={(addon) => {
+                        const exists = selectedAddons.find(a => a.id === addon.id);
+                        if (exists) {
+                            onSelectAddons(selectedAddons.filter(a => a.id !== addon.id));
+                        } else {
+                            onSelectAddons([...selectedAddons, addon]);
+                        }
+                    }}
                     title="Qual serviço você precisa?"
-                    description="Clique em um serviço para continuar."
+                    description="Escolha o serviço principal e opcionais."
                 />
+            )}
+            
+            {step === 1 && selectedService && (
+                <div className="mt-8 flex justify-center">
+                    <Button 
+                        size="lg" 
+                        onClick={onNext}
+                        className="h-12 px-10 text-base font-bold shadow-lg shadow-indigo-200"
+                    >
+                        Continuar
+                    </Button>
+                </div>
             )}
 
             {/* ── Step 2: Professional ─────────────────────────────────────── */}
@@ -96,6 +124,7 @@ export default function BookingWizard({
                     sidebar={
                         <BookingSummary
                             service={selectedService}
+                            addons={selectedAddons}
                             professional={null}
                             date={null}
                             slot={null}
@@ -139,6 +168,7 @@ export default function BookingWizard({
                     sidebar={
                         <BookingSummary
                             service={selectedService}
+                            addons={selectedAddons}
                             professional={selectedProfessional}
                             date={selectedSlot ? selectedDate : null}
                             slot={selectedSlot}
@@ -186,6 +216,7 @@ export default function BookingWizard({
                     sidebar={
                         <BookingSummary
                             service={selectedService}
+                            addons={selectedAddons}
                             professional={selectedProfessional}
                             date={selectedDate}
                             slot={selectedSlot}
@@ -194,6 +225,7 @@ export default function BookingWizard({
                     mobileSummary={
                         <BookingSummary
                             service={selectedService}
+                            addons={selectedAddons}
                             professional={selectedProfessional}
                             date={selectedDate}
                             slot={selectedSlot}
@@ -221,6 +253,7 @@ export default function BookingWizard({
                     <BackButton onClick={onBack} label="Editar dados" />
                     <BookingReview
                         service={selectedService}
+                        addons={selectedAddons}
                         professional={selectedProfessional}
                         date={selectedDate}
                         slot={selectedSlot}

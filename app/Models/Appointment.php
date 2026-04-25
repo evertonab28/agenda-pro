@@ -26,37 +26,44 @@ class Appointment extends Model
         'source',
         'notes',
         'cancel_reason',
+        'total_price',
     ];
 
-public function professional(): BelongsTo
-{
-return $this->belongsTo(Professional::class, 'professional_id');
-}
+    protected $casts = [
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'buffered_ends_at' => 'datetime',
+        'confirmed_at' => 'datetime',
+        'total_price' => 'decimal:2',
+    ];
 
-protected $casts = [
-'starts_at' => 'datetime',
-'ends_at' => 'datetime',
-'buffered_ends_at' => 'datetime',
-'confirmed_at' => 'datetime',
-];
+    public function professional(): BelongsTo
+    {
+        return $this->belongsTo(Professional::class, 'professional_id');
+    }
 
-public function customer(): BelongsTo
-{
-return $this->belongsTo(Customer::class);
-}
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
-public function service(): BelongsTo
-{
-return $this->belongsTo(Service::class);
-}
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class);
+    }
 
-public function charge(): HasOne
-{
-return $this->hasOne(Charge::class);
-}
+    public function charge(): HasOne
+    {
+        return $this->hasOne(Charge::class);
+    }
 
-public function reminders(): HasMany
-{
-return $this->hasMany(ReminderLog::class);
-}
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(ReminderLog::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(AppointmentItem::class);
+    }
 }

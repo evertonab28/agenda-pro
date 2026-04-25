@@ -20,11 +20,13 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|unique:services,name',
+            'name' => 'required|string',
             'duration_minutes' => 'required|integer|min:1',
+            'buffer_minutes' => 'nullable|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6})$/'],
+            'color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{3,6})$/'],
             'is_active' => 'required|boolean',
+            'is_addon' => 'required|boolean',
             'description' => 'nullable|string',
         ];
     }

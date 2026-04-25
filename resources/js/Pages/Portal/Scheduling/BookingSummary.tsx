@@ -7,22 +7,18 @@ import type { Service, Professional } from './types';
 
 interface Props {
     service: Service | null;
+    addons?: Service[];
     professional: Professional | null;
     date: Date | null;
     slot: string | null;
     className?: string;
 }
 
-/**
- * Persistent booking summary card.
- *
- * Used as a sticky sidebar on desktop (steps 2 and 3) and as an inline card
- * on mobile below the main step content.
- *
- * Renders nothing until at least one value is selected (avoids empty state flash).
- */
-export default function BookingSummary({ service, professional, date, slot, className }: Props) {
+export default function BookingSummary({ service, addons = [], professional, date, slot, className }: Props) {
     if (!service && !professional && !slot) return null;
+
+    const totalDuration = (service?.duration_minutes || 0) + addons.reduce((acc, curr) => acc + curr.duration_minutes, 0);
+    const totalPrice = parseFloat(service?.price || '0') + addons.reduce((acc, curr) => acc + parseFloat(curr.price), 0);
 
     return (
         <div
@@ -37,20 +33,30 @@ export default function BookingSummary({ service, professional, date, slot, clas
                 </h3>
             </div>
 
-            <div className="px-5 py-4 space-y-4">
-                {/* Service */}
+            <div className="px-5 py-4 space-y-5">
+                {/* Main Service */}
                 {service && (
                     <Row icon={<Layers size={14} className="text-indigo-500" />}>
-                        <span className="font-semibold text-slate-900 text-sm">{service.name}</span>
-                        <span className="text-xs text-slate-400 block mt-0.5">
-                            {service.duration_minutes} min ·{' '}
-                            R${' '}
-                            {parseFloat(service.price).toLocaleString('pt-BR', {
-                                minimumFractionDigits: 2,
-                            })}
-                        </span>
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-slate-900 text-sm leading-tight">{service.name}</span>
+                            <span className="text-[11px] text-slate-400 mt-0.5">
+                                {service.duration_minutes} min · R$ {parseFloat(service.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                        </div>
                     </Row>
                 )}
+
+                {/* Addons */}
+                {addons.map((addon) => (
+                    <Row key={addon.id} icon={<Layers size={14} className="text-emerald-500" />}>
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-slate-800 text-sm leading-tight">{addon.name}</span>
+                            <span className="text-[11px] text-slate-400 mt-0.5">
+                                +{addon.duration_minutes} min · +R$ {parseFloat(addon.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                    </Row>
+                ))}
 
                 {/* Professional */}
                 {professional && (
@@ -68,23 +74,25 @@ export default function BookingSummary({ service, professional, date, slot, clas
                         <span className="font-semibold text-slate-900 text-sm capitalize">
                             {format(date, "EEEE, dd 'de' MMMM", { locale: ptBR })}
                         </span>
-                        <span className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
-                            <Clock size={11} />
-                            {slot}
-                        </span>
+                        <div className="flex flex-col mt-0.5">
+                            <span className="flex items-center gap-1 text-xs text-slate-400">
+                                <Clock size={11} />
+                                {slot}
+                            </span>
+                            <span className="text-[10px] text-slate-300 mt-0.5">
+                                Duração total: {totalDuration} min
+                            </span>
+                        </div>
                     </Row>
                 )}
             </div>
 
-            {/* Total — only show when both service and slot are selected */}
-            {service && slot && (
-                <div className="px-5 py-3 border-t border-slate-100 flex justify-between items-center">
+            {/* Total */}
+            {service && (
+                <div className="px-5 py-3 border-t border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total</span>
                     <span className="text-base font-bold text-slate-900">
-                        R${' '}
-                        {parseFloat(service.price).toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                        })}
+                        R$ {totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                 </div>
             )}

@@ -18,11 +18,13 @@ class Service extends Model
         'price',
         'color',
         'is_active',
+        'is_addon',
         'description',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_addon' => 'boolean',
         'price' => 'decimal:2',
     ];
 

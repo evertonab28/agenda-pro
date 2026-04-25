@@ -8,6 +8,7 @@ import type { Service, Professional, BookingFormData } from './types';
 
 interface Props {
     service: Service | null;
+    addons?: Service[];
     professional: Professional | null;
     date: Date;
     slot: string | null;
@@ -20,10 +21,11 @@ interface Props {
 }
 
 export default function BookingReview({
-    service, professional, date, slot, formData,
+    service, addons = [], professional, date, slot, formData,
     onEditStep, onConfirm, loading,
 }: Props) {
     const name = fullName(formData);
+    const totalPrice = parseFloat(service?.price || '0') + addons.reduce((acc, curr) => acc + parseFloat(curr.price), 0);
 
     return (
         <div className="space-y-6">
@@ -37,20 +39,31 @@ export default function BookingReview({
             {/* Review card */}
             <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm divide-y divide-slate-50">
 
-                {/* Service */}
+                {/* Service & Addons */}
                 <ReviewRow
                     icon={<Layers size={14} className="text-indigo-500" />}
-                    label="Serviço"
+                    label="Serviços"
                     onEdit={() => onEditStep(1)}
                 >
-                    <span className="font-semibold text-slate-900">{service?.name}</span>
-                    {service && (
-                        <span className="text-xs text-slate-400 block mt-0.5">
-                            {service.duration_minutes} min ·{' '}
-                            R${' '}
-                            {parseFloat(service.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </span>
-                    )}
+                    <div className="space-y-3">
+                        {/* Main */}
+                        <div>
+                            <span className="font-semibold text-slate-900">{service?.name}</span>
+                            <span className="text-xs text-slate-400 block mt-0.5">
+                                {service?.duration_minutes} min · R$ {parseFloat(service?.price || '0').toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                        
+                        {/* Addons */}
+                        {addons.map(addon => (
+                            <div key={addon.id} className="pl-4 border-l-2 border-emerald-100">
+                                <span className="font-semibold text-slate-800 text-sm">{addon.name}</span>
+                                <span className="text-[11px] text-slate-400 block mt-0.5">
+                                    +{addon.duration_minutes} min · +R$ {parseFloat(addon.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 </ReviewRow>
 
                 {/* Professional */}
@@ -104,8 +117,7 @@ export default function BookingReview({
                 <div className="flex items-center justify-between px-5 py-4 bg-indigo-50 rounded-2xl border border-indigo-100">
                     <span className="text-sm font-semibold text-indigo-900">Total</span>
                     <span className="text-xl font-bold text-indigo-700">
-                        R${' '}
-                        {parseFloat(service.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        R$ {totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                 </div>
             )}

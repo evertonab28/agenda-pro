@@ -52,6 +52,7 @@ export default function Schedule({ workspace, customer }: Props) {
     // ── Data ─────────────────────────────────────────────────────────────────
     const [services,             setServices]             = useState<Service[]>([]);
     const [selectedService,      setSelectedService]      = useState<Service | null>(null);
+    const [selectedAddons,       setSelectedAddons]       = useState<Service[]>([]);
     const [professionals,        setProfessionals]        = useState<Professional[]>([]);
     const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
     const [selectedDate,         setSelectedDate]         = useState<Date>(startOfToday());
@@ -113,6 +114,7 @@ export default function Schedule({ workspace, customer }: Props) {
                 params: {
                     professional_id: selectedProfessional.id,
                     service_id:      selectedService.id,
+                    addon_ids:       selectedAddons.map(a => a.id),
                     date:            format(selectedDate, 'yyyy-MM-dd'),
                 },
             })
@@ -134,6 +136,7 @@ export default function Schedule({ workspace, customer }: Props) {
     const openWizard = useCallback((service?: Service) => {
         setSelectedProfessional(null);
         setSelectedSlot(null);
+        setSelectedAddons([]);
         setAvailableSlots([]);
         setProfessionals([]);
 
@@ -154,6 +157,7 @@ export default function Schedule({ workspace, customer }: Props) {
         setIsWizardOpen(false);
         setStep(STEP_SERVICE);
         setSelectedService(null);
+        setSelectedAddons([]);
         setSelectedProfessional(null);
         setSelectedSlot(null);
         setAvailableSlots([]);
@@ -171,6 +175,7 @@ export default function Schedule({ workspace, customer }: Props) {
                 email:           formData.email,
                 phone:           formData.phone,
                 service_id:      selectedService?.id,
+                addon_ids:       selectedAddons.map(a => a.id),
                 professional_id: selectedProfessional?.id ?? 0,
                 start_time:      `${format(selectedDate, 'yyyy-MM-dd')} ${selectedSlot}`,
             })
@@ -229,6 +234,7 @@ export default function Schedule({ workspace, customer }: Props) {
                         step={step}
                         services={services}
                         selectedService={selectedService}
+                        selectedAddons={selectedAddons}
                         professionals={professionals}
                         selectedProfessional={selectedProfessional}
                         selectedDate={selectedDate}
@@ -237,6 +243,7 @@ export default function Schedule({ workspace, customer }: Props) {
                         loading={loading}
                         formData={formData}
                         onSelectService={setSelectedService}
+                        onSelectAddons={setSelectedAddons}
                         onSelectProfessional={setSelectedProfessional}
                         onSelectDate={setSelectedDate}
                         onSelectSlot={setSelectedSlot}

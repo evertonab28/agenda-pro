@@ -13,7 +13,22 @@ interface Props {
     description?: string;
 }
 
-export default function ServiceSelector({ services, selected, onSelect, title, description }: Props) {
+interface Props {
+    services: Service[];
+    /** Currently selected main service */
+    selected: Service | null;
+    onSelect: (service: Service) => void;
+    /** Currently selected addons */
+    selectedAddons: Service[];
+    onToggleAddon: (service: Service) => void;
+    /** Title shown above the grid. Omit in profile view to let the parent control headings. */
+    title?: string;
+    description?: string;
+}
+
+export default function ServiceSelector({ 
+    services, selected, onSelect, selectedAddons, onToggleAddon, title, description 
+}: Props) {
     if (services.length === 0) {
         return (
             <div className="py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center text-slate-400 text-sm">
@@ -22,65 +37,124 @@ export default function ServiceSelector({ services, selected, onSelect, title, d
         );
     }
 
-    return (
-        <div className="space-y-6">
-            {title && (
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-slate-900 mb-1">{title}</h2>
-                    {description && <p className="text-slate-500">{description}</p>}
-                </div>
-            )}
+    const mainServices = services.filter(s => !s.is_addon);
+    const addonServices = services.filter(s => s.is_addon);
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {services.map((s) => (
-                    <button
-                        key={s.id}
-                        onClick={() => onSelect(s)}
-                        className={cn(
-                            'w-full text-left p-5 rounded-2xl border-2 transition-all duration-150 group hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
-                            selected?.id === s.id
-                                ? 'border-indigo-600 bg-indigo-50 shadow-md'
-                                : 'border-slate-100 bg-white hover:border-indigo-200',
-                        )}
-                    >
-                        <div className="flex items-start justify-between gap-4">
-                            {/* Left: name + description */}
-                            <div className="flex-1 min-w-0">
-                                <div
-                                    className={cn(
+    return (
+        <div className="space-y-8">
+            <div className="space-y-4">
+                {title && (
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-1">{title}</h2>
+                        {description && <p className="text-slate-500">{description}</p>}
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {mainServices.map((s) => (
+                        <button
+                            key={s.id}
+                            onClick={() => onSelect(s)}
+                            className={cn(
+                                'w-full text-left p-5 rounded-2xl border-2 transition-all duration-150 group hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
+                                selected?.id === s.id
+                                    ? 'border-indigo-600 bg-indigo-50 shadow-md'
+                                    : 'border-slate-100 bg-white hover:border-indigo-200',
+                            )}
+                        >
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <div className={cn(
                                         'font-semibold text-base transition-colors',
                                         selected?.id === s.id ? 'text-indigo-800' : 'text-slate-900 group-hover:text-indigo-700',
+                                    )}>
+                                        {s.name}
+                                    </div>
+                                    {s.description && (
+                                        <div className="text-sm text-slate-500 mt-1 line-clamp-2">{s.description}</div>
                                     )}
-                                >
-                                    {s.name}
+                                    <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
+                                        <Clock size={12} />
+                                        <span>{s.duration_minutes} min</span>
+                                    </div>
                                 </div>
-                                {s.description && (
-                                    <div className="text-sm text-slate-500 mt-1 line-clamp-2">{s.description}</div>
-                                )}
-                                <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
-                                    <Clock size={12} />
-                                    <span>{s.duration_minutes} min</span>
-                                </div>
-                            </div>
-
-                            {/* Right: price */}
-                            <div className="shrink-0 text-right">
-                                <div
-                                    className={cn(
+                                <div className="shrink-0 text-right">
+                                    <div className={cn(
                                         'text-lg font-bold',
                                         selected?.id === s.id ? 'text-indigo-700' : 'text-indigo-600',
-                                    )}
-                                >
-                                    R${' '}
-                                    {parseFloat(s.price).toLocaleString('pt-BR', {
-                                        minimumFractionDigits: 2,
-                                    })}
+                                    )}>
+                                        R${' '}
+                                        {parseFloat(s.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </button>
-                ))}
+                        </button>
+                    ))}
+                </div>
             </div>
+
+            {/* Addons Section — only shown if a main service is selected and addons exist */}
+            {selected && addonServices.length > 0 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 ml-1">
+                            Adicionais Opcionais
+                        </h3>
+                        <p className="text-xs text-slate-400 ml-1 mt-0.5">
+                            Melhore sua experiência com serviços extras.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {addonServices.map((s) => {
+                            const isSelected = selectedAddons.some(a => a.id === s.id);
+                            return (
+                                <button
+                                    key={s.id}
+                                    onClick={() => onToggleAddon(s)}
+                                    className={cn(
+                                        'w-full text-left p-4 rounded-xl border-2 transition-all duration-150 flex items-center justify-between gap-4',
+                                        isSelected
+                                            ? 'border-emerald-500 bg-emerald-50'
+                                            : 'border-slate-100 bg-white hover:border-slate-200',
+                                    )}
+                                >
+                                    <div className="min-w-0 flex-1">
+                                        <div className={cn(
+                                            'font-bold text-sm',
+                                            isSelected ? 'text-emerald-900' : 'text-slate-700'
+                                        )}>
+                                            {s.name}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 mt-1">
+                                            <span className="text-xs font-medium text-slate-400">
+                                                +{s.duration_minutes} min
+                                            </span>
+                                            <span className="text-[10px] text-slate-300">•</span>
+                                            <span className={cn(
+                                                'text-xs font-bold',
+                                                isSelected ? 'text-emerald-600' : 'text-indigo-600'
+                                            )}>
+                                                +R${parseFloat(s.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className={cn(
+                                        'h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
+                                        isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-slate-200'
+                                    )}>
+                                        {isSelected && (
+                                            <svg className="w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
+                                                <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
+                                            </svg>
+                                        )}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

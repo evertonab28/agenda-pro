@@ -40,6 +40,8 @@ class PublicSchedulingController extends Controller
         $request->validate([
             'professional_id' => ['required', 'integer'], // Allow 0 for no preference
             'service_id'      => ['required', Rule::exists('services', 'id')->where('workspace_id', $workspace->id)],
+            'addon_ids'       => ['nullable', 'array'],
+            'addon_ids.*'     => [Rule::exists('services', 'id')->where('workspace_id', $workspace->id)],
             'date'            => 'required|date_format:Y-m-d',
         ]);
 
@@ -76,7 +78,16 @@ class PublicSchedulingController extends Controller
         $weekday = $date->dayOfWeek;
         $minAdvanceHours = $workspace->min_advance_hours ?? 0;
         $earliestAllowed = now()->addHours($minAdvanceHours);
-        $totalDuration = $service->duration_minutes + ($service->buffer_minutes ?? 0);
+
+        // Addons duration
+        $addons = collect();
+        if ($request->addon_ids) {
+            $addons = $workspace->services()->whereIn('id', $request->addon_ids)->get();
+        }
+        $addonDuration = $addons->sum('duration_minutes');
+        
+        $combinedDuration = $service->duration_minutes + $addonDuration;
+        $totalDurationWithBuffer = $combinedDuration + ($service->buffer_minutes ?? 0);
 
         foreach ($professionals as $professional) {
             $schedule = $professional->schedules()
@@ -90,11 +101,11 @@ class PublicSchedulingController extends Controller
             $endTime   = Carbon::parse($request->date . ' ' . $schedule->end_time);
             $current   = $startTime->copy();
 
-            while ($current->copy()->addMinutes($totalDuration)->lte($endTime)) {
+            while ($current->copy()->addMinutes($totalDurationWithBuffer)->lte($endTime)) {
                 $slotStart = $current->copy();
 
                 if ($slotStart->gt($earliestAllowed)) {
-                    $slotEnd = $slotStart->copy()->addMinutes($service->duration_minutes);
+                    $slotEnd = $slotStart->copy()->addMinutes($combinedDuration);
 
                     $check = $this->agendaService->isAvailable(
                         $professional->id,
@@ -108,6 +119,9 @@ class PublicSchedulingController extends Controller
                         $allSlots[] = $slotStart->format('H:i');
                     }
                 }
+                // Step for next slot remains the main service duration or slot duration?
+                // Usually we step by main service duration or slot_duration from settings.
+                // Here it's using main service duration.
                 $current->addMinutes($service->duration_minutes);
             }
         }
@@ -123,6 +137,8 @@ class PublicSchedulingController extends Controller
     {
         $request->validate([
             'service_id'      => ['required', Rule::exists('services', 'id')->where('workspace_id', $workspace->id)],
+            'addon_ids'       => ['nullable', 'array'],
+            'addon_ids.*'     => [Rule::exists('services', 'id')->where('workspace_id', $workspace->id)],
             'professional_id' => ['required', 'integer'], // Allow 0
             'start_time'      => 'required|date_format:Y-m-d H:i',
             'name'            => 'required|string|max:255',
@@ -131,8 +147,13 @@ class PublicSchedulingController extends Controller
         ]);
 
         $service   = $workspace->services()->findOrFail($request->service_id);
+        $addons    = $request->addon_ids ? $workspace->services()->whereIn('id', $request->addon_ids)->get() : collect();
+        
+        $totalDuration = $service->duration_minutes + $addons->sum('duration_minutes');
+        $totalPrice    = $service->price + $addons->sum('price');
+
         $startTime = Carbon::parse($request->start_time);
-        $endTime   = $startTime->copy()->addMinutes($service->duration_minutes);
+        $endTime   = $startTime->copy()->addMinutes($totalDuration);
 
         // Basic boundary checks
         if ($startTime->lte(now())) {
@@ -215,7 +236,27 @@ class PublicSchedulingController extends Controller
             'ends_at'         => $endTime,
             'status'          => 'scheduled',
             'source'          => 'public_link',
+            'total_price'     => $totalPrice,
         ]);
+
+        // Create Snapshot Items
+        $appointment->items()->create([
+            'service_id'       => $service->id,
+            'name'             => $service->name,
+            'price'            => $service->price,
+            'duration_minutes' => $service->duration_minutes,
+            'is_main'          => true,
+        ]);
+
+        foreach ($addons as $addon) {
+            $appointment->items()->create([
+                'service_id'       => $addon->id,
+                'name'             => $addon->name,
+                'price'            => $addon->price,
+                'duration_minutes' => $addon->duration_minutes,
+                'is_main'          => false,
+            ]);
+        }
 
         return response()->json([
             'ok'             => true,
