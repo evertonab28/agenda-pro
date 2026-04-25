@@ -23,7 +23,8 @@
       "Bash(git show *)",
       "Bash(php -r \"echo PHP_VERSION;\")",
       "Bash(php -r ' *)",
-      "PowerShell(Get-ChildItem -Path C:\\\\Users\\\\Everton\\\\Downloads\\\\agendaNexos_extracted -Recurse -File | Select-Object FullName, @{Name=\"Size\";Expression={$_.Length}})"
+      "PowerShell(Get-ChildItem -Path C:\\\\Users\\\\Everton\\\\Downloads\\\\agendaNexos_extracted -Recurse -File | Select-Object FullName, @{Name=\"Size\";Expression={$_.Length}})",
+      "Bash(grep -rn \"agendanexo\\\\|APP_URL\\\\|app_url\" /Users/evertonab/www/antigravity/agenda-pro/.env*)"
     ]
   }
 }

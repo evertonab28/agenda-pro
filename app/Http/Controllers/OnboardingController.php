@@ -31,7 +31,7 @@ class OnboardingController extends Controller
         $hasAvailableSlot = $availableSlot !== null;
         $workspace = auth()->user()->workspace;
         $publicBookingPath = "/p/{$workspace->slug}";
-        $officialAppUrl = 'https://app.agendanexo.com.br';
+        $officialAppUrl = config('app.saas_url');
 
         // Calculate current step (1 to 4)
         $step = 1;

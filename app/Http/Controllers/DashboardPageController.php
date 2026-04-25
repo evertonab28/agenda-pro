@@ -21,7 +21,7 @@ class DashboardPageController extends Controller
         if (!isset($filters['status'])) $filters['status'] = [];
 
         $workspace = auth()->user()->workspace;
-        $officialAppUrl = 'https://app.agendanexo.com.br';
+        $officialAppUrl = config('app.saas_url');
         $publicBookingUrl = $workspace ? $officialAppUrl . '/p/' . $workspace->slug : '';
 
         // Otimização: Buscamos dados leves imediatamente

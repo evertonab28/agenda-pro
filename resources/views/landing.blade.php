@@ -56,8 +56,8 @@
         </nav>
 
         <div class="flex items-center gap-3">
-            <a href="{{ url('/login') }}" class="hidden sm:inline text-sm font-medium text-ink-muted hover:text-ink transition-colors">Entrar</a>
-            <a href="{{ url('/register') }}" class="landing-btn-primary text-sm px-4 py-2">Começar grátis</a>
+            <a href="{{ config('app.saas_url') }}/login" class="hidden sm:inline text-sm font-medium text-ink-muted hover:text-ink transition-colors">Entrar</a>
+            <a href="{{ config('app.saas_url') }}/register" class="landing-btn-primary text-sm px-4 py-2">Começar grátis</a>
         </div>
     </div>
 </header>
@@ -95,7 +95,7 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3">
-                <a href="{{ url('/register') }}"
+                <a href="{{ config('app.saas_url') }}/register"
                    class="landing-btn-primary px-7 py-3.5 text-base"
                    style="box-shadow: 0 4px 20px rgba(31,78,121,.25);">
                     Começar 14 dias grátis
@@ -389,7 +389,7 @@
         <p class="text-ink-muted text-base leading-relaxed mb-10">
             14 dias grátis, sem cartão de crédito. Depois, escolha o plano que cabe na sua operação.
         </p>
-        <a href="{{ url('/register') }}"
+        <a href="{{ config('app.saas_url') }}/register"
            class="landing-btn-primary px-10 py-4 text-base"
            style="box-shadow: 0 6px 24px rgba(31,78,121,.28);">
             Começar 14 dias grátis
@@ -468,7 +468,7 @@
             O AgendaNexo fecha o ciclo — do agendamento à cobrança — para que você não perca horário, cliente ou receita por falta de controle.
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="{{ url('/register') }}"
+            <a href="{{ config('app.saas_url') }}/register"
                class="landing-btn-primary w-full sm:w-auto px-10 py-4 text-base"
                style="box-shadow: 0 6px 24px rgba(31,78,121,.28);">
                 Começar 14 dias grátis
