@@ -129,6 +129,13 @@ export default function Schedule({ workspace, customer }: Props) {
         }
     }, [step, selectedProfessional, selectedDate, selectedService]);
 
+    // ── Global Scroll Fix ───────────────────────────────────────────────────
+    useEffect(() => {
+        if (isWizardOpen) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [step, isWizardOpen]);
+
     // ── Open wizard ──────────────────────────────────────────────────────────
     // When called with a service (from profile service card), jump straight to
     // the Professional step — service is already decided.
@@ -166,6 +173,7 @@ export default function Schedule({ workspace, customer }: Props) {
 
     // ── Booking submission (POST) ─────────────────────────────────────────────
     const handleConfirm = () => {
+        if (loading) return;
         setLoading(true);
 
         (window as any).axios

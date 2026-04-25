@@ -12,15 +12,18 @@ interface Props {
 export default function ProfessionalSelector({ professionals, selected, onSelect }: Props) {
     if (professionals.length === 0) return null;
 
-    // Single professional: show as a static info strip — no interaction needed
+    // Single professional: show as selected chip
     if (professionals.length === 1) {
         const p = professionals[0];
         return (
-            <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100">
-                <Avatar name={p.name} />
-                <div>
-                    <div className="text-sm font-semibold text-slate-900">{p.name}</div>
-                    <div className="text-xs text-slate-400">{p.specialty || 'Especialista'}</div>
+            <div className="space-y-2">
+                <label className="block text-sm font-semibold text-slate-700">Profissional selecionado</label>
+                <div className="flex items-center gap-3 px-4 py-3 bg-indigo-50 rounded-2xl border-2 border-indigo-600 shadow-md shadow-indigo-100">
+                    <Avatar name={p.name} />
+                    <div>
+                        <div className="text-sm font-bold text-indigo-900">{p.name}</div>
+                        <div className="text-xs text-indigo-400 font-medium">{p.specialty || 'Especialista'}</div>
+                    </div>
                 </div>
             </div>
         );
@@ -33,6 +36,7 @@ export default function ProfessionalSelector({ professionals, selected, onSelect
             <div className="flex flex-wrap gap-2">
                 {/* No preference option */}
                 <button
+                    type="button"
                     onClick={() => onSelect({ id: 0, name: 'Sem preferência' } as Professional)}
                     className={cn(
                         'flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-150',
@@ -50,6 +54,7 @@ export default function ProfessionalSelector({ professionals, selected, onSelect
                 {professionals.map((p) => (
                     <button
                         key={p.id}
+                        type="button"
                         onClick={() => onSelect(p)}
                         className={cn(
                             'flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-150',

@@ -139,8 +139,12 @@ export default function BookingWizard({
                         />
 
                         {professionals.length === 0 ? (
-                            <div className="py-10 text-center text-slate-400 text-sm">
-                                Carregando profissionais...
+                            <div className="py-12 flex flex-col items-center justify-center space-y-4 animate-pulse">
+                                <div className="h-10 w-40 bg-slate-100 rounded-full" />
+                                <div className="h-4 w-60 bg-slate-100 rounded-full" />
+                                <span className="text-xs font-bold text-slate-300 uppercase tracking-widest mt-2">
+                                    Buscando profissionais...
+                                </span>
                             </div>
                         ) : (
                             <ProfessionalSelector

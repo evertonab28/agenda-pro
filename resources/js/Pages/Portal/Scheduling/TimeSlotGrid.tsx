@@ -56,8 +56,15 @@ export default function TimeSlotGrid({ slots, selected, loading, noProfessionals
 
 function EmptyState({ message }: { message: string }) {
     return (
-        <div className="py-8 bg-slate-50 rounded-2xl text-center text-slate-400 text-sm border border-slate-100">
-            {message}
+        <div className="py-12 bg-slate-50 rounded-2xl text-center border border-dashed border-slate-200 px-6">
+            <div className="mx-auto h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 mb-4">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-[240px] mx-auto">
+                {message}
+            </p>
         </div>
     );
 }

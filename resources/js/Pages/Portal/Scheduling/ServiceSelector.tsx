@@ -5,16 +5,6 @@ import type { Service } from './types';
 
 interface Props {
     services: Service[];
-    /** Currently selected service — pass null when used in the profile view (no pre-selection) */
-    selected: Service | null;
-    onSelect: (service: Service) => void;
-    /** Title shown above the grid. Omit in profile view to let the parent control headings. */
-    title?: string;
-    description?: string;
-}
-
-interface Props {
-    services: Service[];
     /** Currently selected main service */
     selected: Service | null;
     onSelect: (service: Service) => void;
@@ -54,6 +44,7 @@ export default function ServiceSelector({
                     {mainServices.map((s) => (
                         <button
                             key={s.id}
+                            type="button"
                             onClick={() => onSelect(s)}
                             className={cn(
                                 'w-full text-left p-5 rounded-2xl border-2 transition-all duration-150 group hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
@@ -111,6 +102,7 @@ export default function ServiceSelector({
                             return (
                                 <button
                                     key={s.id}
+                                    type="button"
                                     onClick={() => onToggleAddon(s)}
                                     className={cn(
                                         'w-full text-left p-4 rounded-xl border-2 transition-all duration-150 flex items-center justify-between gap-4',
