@@ -22,11 +22,10 @@ interface Props {
 // Changing STEP_* here is the only change needed if the wizard order ever shifts.
 const STEP_SERVICE      = 1;
 const STEP_PROFESSIONAL = 2;
-const STEP_DATE         = 3;
-const STEP_TIME         = 4;
-const STEP_CONTACT      = 5;
-const STEP_REVIEW       = 6;
-const STEP_SUCCESS      = 7;
+const STEP_DATE_TIME    = 3; // Date + time selection combined in one view
+const STEP_CONTACT      = 4;
+const STEP_REVIEW       = 5;
+const STEP_SUCCESS      = 6;
 
 /** Split a full name string into [firstName, lastName] for form initialisation */
 function splitName(fullNameStr: string): [string, string] {
@@ -115,7 +114,7 @@ export default function Schedule({ workspace, customer }: Props) {
     }, [selectedProfessional, selectedService, selectedDate, workspace.slug]);
 
     useEffect(() => {
-        if (step === STEP_TIME && selectedProfessional && selectedService) {
+        if (step === STEP_DATE_TIME && selectedProfessional && selectedService) {
             loadAvailability();
         }
     }, [step, selectedProfessional, selectedDate, selectedService]);
@@ -175,8 +174,8 @@ export default function Schedule({ workspace, customer }: Props) {
                     toast.error(
                         'Esse horário acabou de ficar indisponível. Escolha outro horário.',
                     );
-                    // Return user to time step and reload slots
-                    setStep(STEP_TIME);
+                    // Return user to date/time step and reload slots
+                    setStep(STEP_DATE_TIME);
                     loadAvailability();
                     return;
                 }

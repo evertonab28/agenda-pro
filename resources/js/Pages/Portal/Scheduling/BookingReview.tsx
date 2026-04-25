@@ -65,31 +65,28 @@ export default function BookingReview({
                     </span>
                 </ReviewRow>
 
-                {/* Date */}
+                {/* Date + Time — both point to the combined step 3 */}
                 <ReviewRow
                     icon={<Calendar size={14} className="text-slate-400" />}
-                    label="Data"
+                    label="Data e Horário"
                     onEdit={() => onEditStep(3)}
                 >
                     <span className="font-semibold text-slate-900 capitalize">
                         {format(date, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                     </span>
-                </ReviewRow>
-
-                {/* Time */}
-                <ReviewRow
-                    icon={<Clock size={14} className="text-slate-400" />}
-                    label="Horário"
-                    onEdit={() => onEditStep(4)}
-                >
-                    <span className="font-semibold text-slate-900">{slot}</span>
+                    {slot && (
+                        <span className="flex items-center gap-1 text-sm font-semibold text-slate-700 mt-0.5">
+                            <Clock size={12} className="text-slate-400" />
+                            {slot}
+                        </span>
+                    )}
                 </ReviewRow>
 
                 {/* Contact */}
                 <ReviewRow
                     icon={<Phone size={14} className="text-slate-400" />}
                     label="Seus dados"
-                    onEdit={() => onEditStep(5)}
+                    onEdit={() => onEditStep(4)}
                 >
                     <span className="font-semibold text-slate-900">{name || '—'}</span>
                     <span className="text-xs text-slate-400 block mt-0.5">{formData.phone}</span>

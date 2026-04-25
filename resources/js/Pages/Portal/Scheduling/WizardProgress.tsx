@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils';
 export const WIZARD_STEPS = [
     { label: 'Serviço',      short: 'Serviço'      },
     { label: 'Profissional', short: 'Profissional'  },
-    { label: 'Data',         short: 'Data'          },
-    { label: 'Horário',      short: 'Horário'       },
+    { label: 'Data e Hora',  short: 'Data/Hora'     },
     { label: 'Seus dados',   short: 'Dados'         },
     { label: 'Revisão',      short: 'Revisão'       },
 ];

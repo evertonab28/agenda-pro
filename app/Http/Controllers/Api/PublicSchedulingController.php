@@ -29,6 +29,7 @@ class PublicSchedulingController extends Controller
 
         $professionals = $service->professionals()
             ->where('is_active', true)
+            ->whereHas('schedules', fn ($q) => $q->where('is_active', true))
             ->get();
 
         return response()->json($professionals);

@@ -47,7 +47,7 @@ class ScheduleController extends Controller
         $this->authorize('create', \App\Models\ProfessionalSchedule::class);
         
         $request->validate([
-            'professional_id' => 'required|exists:professionals,id',
+            'professional_id' => ['required', \Illuminate\Validation\Rule::exists('professionals', 'id')->where('workspace_id', auth()->user()->workspace_id)],
             'schedules' => 'required|array',
             'schedules.*.weekday' => 'required|integer|between:0,6',
             'schedules.*.start_time' => 'required|date_format:H:i',

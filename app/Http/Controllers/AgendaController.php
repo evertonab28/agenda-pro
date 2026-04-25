@@ -26,10 +26,11 @@ class AgendaController extends Controller
     {
         $filters = $request->only(['from', 'to', 'professional_id', 'service_id', 'status', 'customer_id']);
         
-        // Default range to current week if not provided (Sunday to Saturday)
+        // Default to a rolling 7-day window starting today.
+        // A Sunday–Saturday fixed week would hide Monday appointments booked on Fri/Sat.
         if (empty($filters['from']) || empty($filters['to'])) {
-            $filters['from'] = now()->startOfWeek(\Carbon\Carbon::SUNDAY)->toDateString();
-            $filters['to'] = now()->endOfWeek(\Carbon\Carbon::SATURDAY)->toDateString();
+            $filters['from'] = now()->toDateString();
+            $filters['to']   = now()->addDays(6)->toDateString();
         }
     
 

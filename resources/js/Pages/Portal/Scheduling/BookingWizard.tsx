@@ -56,8 +56,8 @@ export default function BookingWizard({
     onFormChange, onConfirm, onNext, onBack, onGoToStep,
 }: Props) {
 
-    // ── Step 7: success — full-width, no progress, no back ───────────────────
-    if (step === 7) {
+    // ── Step 6: success — full-width, no progress, no back ───────────────────
+    if (step === 6) {
         return (
             <div className="max-w-5xl mx-auto px-4">
                 <BookingSuccess
@@ -75,7 +75,7 @@ export default function BookingWizard({
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
-            {/* Progress bar — visible on steps 1–6 */}
+            {/* Progress bar — visible on steps 1–5 */}
             <WizardProgress step={step} />
 
             {/* ── Step 1: Service ──────────────────────────────────────────── */}
@@ -132,7 +132,7 @@ export default function BookingWizard({
                 </StepLayout>
             )}
 
-            {/* ── Step 3: Date ─────────────────────────────────────────────── */}
+            {/* ── Step 3: Date + Time (combined) ───────────────────────────── */}
             {step === 3 && (
                 <StepLayout
                     back={<BackButton onClick={onBack} label="Alterar profissional" />}
@@ -140,64 +140,26 @@ export default function BookingWizard({
                         <BookingSummary
                             service={selectedService}
                             professional={selectedProfessional}
-                            date={null}
-                            slot={null}
+                            date={selectedSlot ? selectedDate : null}
+                            slot={selectedSlot}
                         />
                     }
-                    mobileSummary={
-                        <BookingSummary
-                            service={selectedService}
-                            professional={selectedProfessional}
-                            date={null}
-                            slot={null}
-                        />
-                    }
+                    mobileSummary={null}
                 >
                     <div className="space-y-6">
                         <StepHeading
-                            title="Qual data prefere?"
+                            title="Escolha a data e o horário"
                             sub={`com ${selectedProfessional?.name}`}
                         />
 
-                        <DateSelector days={DAYS} selected={selectedDate} onSelect={onSelectDate} />
-
-                        <Button
-                            className="w-full h-12 text-base font-semibold shadow-md shadow-indigo-100"
-                            onClick={onNext}
-                        >
-                            Ver horários disponíveis
-                        </Button>
-                    </div>
-                </StepLayout>
-            )}
-
-            {/* ── Step 4: Time slot ────────────────────────────────────────── */}
-            {step === 4 && (
-                <StepLayout
-                    back={<BackButton onClick={onBack} label="Alterar data" />}
-                    sidebar={
-                        <BookingSummary
-                            service={selectedService}
-                            professional={selectedProfessional}
-                            date={selectedDate}
-                            slot={null}
-                        />
-                    }
-                    mobileSummary={
-                        <BookingSummary
-                            service={selectedService}
-                            professional={selectedProfessional}
-                            date={selectedDate}
-                            slot={null}
-                        />
-                    }
-                >
-                    <div className="space-y-6">
-                        <StepHeading
-                            title="Qual horário?"
-                            sub={selectedProfessional?.name}
+                        {/* Date strip — selecting a date reloads slots inline */}
+                        <DateSelector
+                            days={DAYS}
+                            selected={selectedDate}
+                            onSelect={onSelectDate}
                         />
 
+                        {/* Time slots load below, no page navigation needed */}
                         <TimeSlotGrid
                             slots={availableSlots}
                             selected={selectedSlot}
@@ -217,10 +179,10 @@ export default function BookingWizard({
                 </StepLayout>
             )}
 
-            {/* ── Step 5: Contact ──────────────────────────────────────────── */}
-            {step === 5 && (
+            {/* ── Step 4: Contact ──────────────────────────────────────────── */}
+            {step === 4 && (
                 <StepLayout
-                    back={<BackButton onClick={onBack} label="Alterar horário" />}
+                    back={<BackButton onClick={onBack} label="Alterar data / horário" />}
                     sidebar={
                         <BookingSummary
                             service={selectedService}
@@ -253,8 +215,8 @@ export default function BookingWizard({
                 </StepLayout>
             )}
 
-            {/* ── Step 6: Review + Confirm ─────────────────────────────────── */}
-            {step === 6 && (
+            {/* ── Step 5: Review + Confirm ─────────────────────────────────── */}
+            {step === 5 && (
                 <div className="max-w-lg mx-auto">
                     <BackButton onClick={onBack} label="Editar dados" />
                     <BookingReview

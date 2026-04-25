@@ -28,9 +28,10 @@ interface Props {
     schedules: Schedule[];
 }
 
+declare var route: any;
+
 export default function Index({ professionals, selectedProfessionalId, schedules }: Props) {
     const handleProfessionalChange = (value: string) => {
-        // @ts-expect-error
         router.get(route('configuracoes.schedules.index'), { professional_id: value }, {
             preserveState: true,
             replace: true

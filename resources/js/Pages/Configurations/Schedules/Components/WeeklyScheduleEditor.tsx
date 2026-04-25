@@ -25,9 +25,10 @@ const WEEKDAYS = [
     'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'
 ];
 
-export default function WeeklyScheduleEditor({ professionalId, schedules }: Props) {
-    // Initialize form with 7 days
-    const initialSchedules = Array.from({ length: 7 }, (_, i) => {
+declare var route: any;
+
+function buildSchedules(schedules: Schedule[]) {
+    return Array.from({ length: 7 }, (_, i) => {
         const existing = schedules.find(s => s.weekday === i);
         return existing || {
             weekday: i,
@@ -35,28 +36,30 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
             end_time: '18:00',
             break_start: '12:00',
             break_end: '13:00',
-            is_active: i !== 0 && i !== 6, // Default inactive on weekends
+            is_active: i !== 0 && i !== 6,
         };
     }).map(s => ({
         ...s,
-        // Format H:i:s to H:i
         start_time: s.start_time.substring(0, 5),
         end_time: s.end_time.substring(0, 5),
         break_start: s.break_start?.substring(0, 5) || '',
         break_end: s.break_end?.substring(0, 5) || '',
     }));
+}
 
+export default function WeeklyScheduleEditor({ professionalId, schedules }: Props) {
     const { data, setData, post, processing, recentlySuccessful } = useForm({
         professional_id: professionalId,
-        schedules: initialSchedules,
+        schedules: buildSchedules(schedules),
     });
 
-    // Update form when professionalId or schedules change
+    // Sync form whenever the selected professional (and their schedules) changes
     React.useEffect(() => {
         setData({
             professional_id: professionalId,
-            schedules: initialSchedules,
+            schedules: buildSchedules(schedules),
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [professionalId, schedules]);
 
     const handleToggleDay = (index: number) => {
@@ -73,7 +76,6 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // @ts-expect-error
         post(route('configuracoes.schedules.store'));
     };
 

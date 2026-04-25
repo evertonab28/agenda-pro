@@ -82,7 +82,7 @@ class AgendaService
     /**
      * Check if a professional is available at a given time.
      */
-    public function isAvailable(int $professionalId, string $startsAt, string $endsAt, $excludeId = null, int $serviceId = null): array
+    public function isAvailable(int $professionalId, string $startsAt, string $endsAt, $excludeId = null, ?int $serviceId = null): array
     {
         $start = Carbon::parse($startsAt);
         $end = Carbon::parse($endsAt);

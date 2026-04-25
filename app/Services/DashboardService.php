@@ -44,7 +44,9 @@ class DashboardService
         $fromStr = $metricFilters['from'] ?? null;
         $toStr = $metricFilters['to'] ?? null;
         $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->startOfMonth();
-        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
+        // Default to end-of-month so future scheduled appointments in the current
+        // month are visible without the user having to set a custom date range.
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfMonth()->endOfDay();
 
         $durationInDays = $from->diffInDays($to);
         $prevTo = (clone $from)->subDay()->endOfDay();
@@ -345,7 +347,7 @@ class DashboardService
         $fromStr = $filters['from'] ?? null;
         $toStr = $filters['to'] ?? null;
         $from = $fromStr ? Carbon::parse($fromStr)->startOfDay() : now()->startOfMonth();
-        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfDay();
+        $to = $toStr ? Carbon::parse($toStr)->endOfDay() : now()->endOfMonth()->endOfDay();
 
         $query = Charge::with('appointment.customer')
             ->whereHas('appointment', function ($q) use ($from, $to, $filters) {
