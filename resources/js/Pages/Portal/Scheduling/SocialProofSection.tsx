@@ -16,17 +16,17 @@ export default function SocialProofSection({ workspace }: Props) {
     const highlights = [
         {
             id: 1,
-            image: '/Users/evertonab/.gemini/antigravity/brain/da6cadbf-a0e4-49da-ae41-e8ae5a585692/instagram_post_1_1777087544459.png',
+            image: '/assets/placeholders/instagram_post_1.png',
             caption: 'Nosso espaço pensado em você'
         },
         {
             id: 2,
-            image: '/Users/evertonab/.gemini/antigravity/brain/da6cadbf-a0e4-49da-ae41-e8ae5a585692/instagram_post_2_1777087557807.png',
+            image: '/assets/placeholders/instagram_post_2.png',
             caption: 'Excelência em cada detalhe'
         },
         {
             id: 3,
-            image: '/Users/evertonab/.gemini/antigravity/brain/da6cadbf-a0e4-49da-ae41-e8ae5a585692/instagram_post_3_1777087570545.png',
+            image: '/assets/placeholders/instagram_post_3.png',
             caption: 'Experiência relaxante e única'
         }
     ];
