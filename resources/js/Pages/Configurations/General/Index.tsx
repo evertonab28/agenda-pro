@@ -21,9 +21,24 @@ interface Props {
         no_show_fee_amount: number;
         default_buffer_minutes: number;
     };
+    workspace: {
+        public_name: string | null;
+        public_description: string | null;
+        whatsapp_number: string | null;
+        instagram_handle: string | null;
+        address_street: string | null;
+        address_number: string | null;
+        address_complement: string | null;
+        address_district: string | null;
+        address_city: string | null;
+        address_state: string | null;
+        address_zip: string | null;
+        show_location: boolean;
+        show_contact_button: boolean;
+    };
 }
 
-export default function Index({ settings }: Props) {
+export default function Index({ settings, workspace }: Props) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         company_name: settings.company_name || '',
         slot_duration: settings.slot_duration || 30,
@@ -33,7 +48,22 @@ export default function Index({ settings }: Props) {
         currency: settings.currency || 'BRL',
         no_show_fee_enabled: Boolean(settings.no_show_fee_enabled),
         no_show_fee_amount: Number(settings.no_show_fee_amount),
-        default_buffer_minutes: Number(settings.default_buffer_minutes)
+        default_buffer_minutes: Number(settings.default_buffer_minutes),
+
+        // Public Profile fields
+        public_name: workspace.public_name || '',
+        public_description: workspace.public_description || '',
+        whatsapp_number: workspace.whatsapp_number || '',
+        instagram_handle: workspace.instagram_handle || '',
+        address_street: workspace.address_street || '',
+        address_number: workspace.address_number || '',
+        address_complement: workspace.address_complement || '',
+        address_district: workspace.address_district || '',
+        address_city: workspace.address_city || '',
+        address_state: workspace.address_state || '',
+        address_zip: workspace.address_zip || '',
+        show_location: workspace.show_location,
+        show_contact_button: workspace.show_contact_button,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -46,7 +76,7 @@ export default function Index({ settings }: Props) {
             <Head title="Geral - Configurações" />
             
             <div className="max-w-4xl space-y-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6 pb-20">
                     {/* Identificação */}
                     <SectionCard 
                         title="Identificação da Empresa" 
@@ -63,17 +93,172 @@ export default function Index({ settings }: Props) {
                                 </div>
                             </div>
 
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="company_name" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Nome Fantasia (Interno)</Label>
+                                    <Input
+                                        id="company_name"
+                                        className="h-12 rounded-xl bg-muted/30 text-base font-medium"
+                                        value={data.company_name}
+                                        onChange={(e) => setData('company_name', e.target.value)}
+                                        placeholder="Ex: Barber Shop Premium"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="public_name" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Nome Público</Label>
+                                    <Input
+                                        id="public_name"
+                                        className="h-12 rounded-xl bg-muted/30 text-base font-medium"
+                                        value={data.public_name}
+                                        onChange={(e) => setData('public_name', e.target.value)}
+                                        placeholder="Como os clientes verão seu nome"
+                                    />
+                                </div>
+                            </div>
+
                             <div className="space-y-2">
-                                <Label htmlFor="company_name" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Nome Fantasia</Label>
+                                <Label htmlFor="public_description" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Descrição / Bio Pública</Label>
                                 <Input
-                                    id="company_name"
-                                    className="h-12 rounded-xl bg-muted/30 text-base font-medium"
-                                    value={data.company_name}
-                                    onChange={(e) => setData('company_name', e.target.value)}
-                                    placeholder="Ex: Barber Shop Premium"
-                                    required
+                                    id="public_description"
+                                    className="h-12 rounded-xl bg-muted/30 text-base"
+                                    value={data.public_description}
+                                    onChange={(e) => setData('public_description', e.target.value)}
+                                    placeholder="Breve descrição do seu negócio para a página inicial"
                                 />
-                                {errors.company_name && <p className="text-sm text-destructive font-bold uppercase tracking-wider mt-1 ml-1">{errors.company_name}</p>}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="whatsapp_number" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">WhatsApp de Contato</Label>
+                                    <Input
+                                        id="whatsapp_number"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.whatsapp_number}
+                                        onChange={(e) => setData('whatsapp_number', e.target.value)}
+                                        placeholder="Ex: 11999999999"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="instagram_handle" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Instagram (@usuario)</Label>
+                                    <Input
+                                        id="instagram_handle"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.instagram_handle}
+                                        onChange={(e) => setData('instagram_handle', e.target.value)}
+                                        placeholder="Ex: barber.premium"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </SectionCard>
+
+                    {/* Localização */}
+                    <SectionCard 
+                        title="Localização" 
+                        subtitle="Onde seus clientes devem comparecer."
+                    >
+                        <div className="space-y-6 py-2">
+                            <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl border border-border/40">
+                                <div className="flex items-center gap-3">
+                                    <div>
+                                        <Label htmlFor="show_location" className="text-sm font-black text-foreground tracking-tight cursor-pointer">
+                                            Exibir Localização na Página Pública
+                                        </Label>
+                                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Ativa/desativa a seção de mapa e endereço</p>
+                                    </div>
+                                </div>
+                                <div className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        id="show_location"
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={data.show_location}
+                                        onChange={(e) => setData('show_location', e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-[1fr_120px] gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_street" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Logradouro / Rua</Label>
+                                    <Input
+                                        id="address_street"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_street}
+                                        onChange={(e) => setData('address_street', e.target.value)}
+                                        placeholder="Rua Exemplo"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_number" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Número</Label>
+                                    <Input
+                                        id="address_number"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_number}
+                                        onChange={(e) => setData('address_number', e.target.value)}
+                                        placeholder="123"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_complement" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Complemento</Label>
+                                    <Input
+                                        id="address_complement"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_complement}
+                                        onChange={(e) => setData('address_complement', e.target.value)}
+                                        placeholder="Sala 1, Bloco A"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_district" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Bairro</Label>
+                                    <Input
+                                        id="address_district"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_district}
+                                        onChange={(e) => setData('address_district', e.target.value)}
+                                        placeholder="Centro"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-[1fr_100px_140px] gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_city" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Cidade</Label>
+                                    <Input
+                                        id="address_city"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_city}
+                                        onChange={(e) => setData('address_city', e.target.value)}
+                                        placeholder="São Paulo"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_state" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Estado (UF)</Label>
+                                    <Input
+                                        id="address_state"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_state}
+                                        onChange={(e) => setData('address_state', e.target.value.toUpperCase().slice(0, 2))}
+                                        placeholder="SP"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_zip" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">CEP</Label>
+                                    <Input
+                                        id="address_zip"
+                                        className="h-12 rounded-xl bg-muted/30 text-base"
+                                        value={data.address_zip}
+                                        onChange={(e) => setData('address_zip', e.target.value)}
+                                        placeholder="00000-000"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </SectionCard>
@@ -226,23 +411,25 @@ export default function Index({ settings }: Props) {
                     </SectionCard>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-4">
-                        <div className="flex items-center gap-2">
-                            {recentlySuccessful && (
-                                <div className="flex items-center gap-2 text-success font-black uppercase text-xs tracking-widest animate-in fade-in slide-in-from-left-2 duration-300 bg-success/10 px-3 py-1.5 rounded-lg border border-success/20">
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                    Configurações atualizadas!
-                                </div>
-                            )}
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border/40 z-50 lg:left-64">
+                        <div className="max-w-4xl mx-auto flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                {recentlySuccessful && (
+                                    <div className="flex items-center gap-2 text-success font-black uppercase text-xs tracking-widest animate-in fade-in slide-in-from-left-2 duration-300 bg-success/10 px-3 py-1.5 rounded-lg border border-success/20">
+                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                        Configurações atualizadas!
+                                    </div>
+                                )}
+                            </div>
+                            <Button 
+                                type="submit" 
+                                disabled={processing}
+                                className="bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 h-12 px-10 rounded-xl font-bold uppercase tracking-wider text-xs gap-2"
+                            >
+                                <Save className="w-5 h-5" />
+                                {processing ? 'Salvando...' : 'Salvar Alterações'}
+                            </Button>
                         </div>
-                        <Button 
-                            type="submit" 
-                            disabled={processing}
-                            className="bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 h-12 px-10 rounded-xl font-bold uppercase tracking-wider text-xs gap-2"
-                        >
-                            <Save className="w-5 h-5" />
-                            {processing ? 'Salvando...' : 'Salvar Alterações'}
-                        </Button>
                     </div>
                 </form>
             </div>

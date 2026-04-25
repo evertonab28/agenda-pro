@@ -11,7 +11,8 @@ interface Props {
 }
 
 export default function PublicHeader({ workspace, customer, isWizardOpen, onCloseWizard }: Props) {
-    const initials = workspace.name
+    const displayName = workspace.public_name || workspace.name;
+    const initials = displayName
         .split(' ')
         .slice(0, 2)
         .map((w) => w[0])
@@ -36,7 +37,7 @@ export default function PublicHeader({ workspace, customer, isWizardOpen, onClos
                         {initials}
                     </div>
                     <span className="font-semibold text-slate-900 truncate max-w-[180px] sm:max-w-none">
-                        {workspace.name}
+                        {displayName}
                     </span>
                 </div>
 

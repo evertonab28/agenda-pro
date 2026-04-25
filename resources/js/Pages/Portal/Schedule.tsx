@@ -272,7 +272,7 @@ export default function Schedule({ workspace, customer }: Props) {
                         </div>
                     </section>
 
-                    <SocialProofSection />
+                    <SocialProofSection workspace={workspace} />
                     <LocationSection workspace={workspace} />
                 </main>
             )}

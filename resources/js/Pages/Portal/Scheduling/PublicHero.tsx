@@ -19,11 +19,11 @@ export default function PublicHero({ workspace, onBookNow }: Props) {
                 </div>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight mb-5">
-                    {workspace.name}
+                    {workspace.public_name || workspace.name}
                 </h1>
 
                 <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-lg mx-auto leading-relaxed">
-                    Escolha seu serviço, profissional e horário preferido. Rápido, fácil e sem ligações.
+                    {workspace.public_description || 'Escolha seu serviço, profissional e horário preferido. Rápido, fácil e sem ligações.'}
                 </p>
 
                 <Button

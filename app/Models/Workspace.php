@@ -9,11 +9,21 @@ class Workspace extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'status', 'theme_preset', 'min_advance_hours', 'max_advance_days'];
+    protected $fillable = [
+        'name', 'slug', 'status', 'theme_preset', 'min_advance_hours', 'max_advance_days',
+        'public_name', 'public_description', 'logo_url', 'cover_url',
+        'address_street', 'address_number', 'address_complement', 'address_district', 
+        'address_city', 'address_state', 'address_zip', 'latitude', 'longitude',
+        'whatsapp_number', 'instagram_handle', 'show_location', 'show_contact_button'
+    ];
 
     protected $casts = [
-        'min_advance_hours' => 'integer',
-        'max_advance_days'  => 'integer',
+        'min_advance_hours'   => 'integer',
+        'max_advance_days'    => 'integer',
+        'show_location'       => 'boolean',
+        'show_contact_button' => 'boolean',
+        'latitude'            => 'decimal:8',
+        'longitude'           => 'decimal:8',
     ];
 
     public function services()

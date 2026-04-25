@@ -7,7 +7,15 @@ import { Star, Instagram } from 'lucide-react';
  * Sprint A: structural placeholder with skeleton cards.
  * Future sprint: replace with real Instagram feed / review integration.
  */
-export default function SocialProofSection() {
+interface Props {
+    workspace: Workspace;
+}
+
+export default function SocialProofSection({ workspace }: Props) {
+    const instagramUrl = workspace.instagram_handle 
+        ? `https://instagram.com/${workspace.instagram_handle.replace('@', '')}` 
+        : null;
+
     return (
         <section className="bg-white border-t border-slate-100 py-14 px-4">
             <div className="max-w-5xl mx-auto">
@@ -16,11 +24,23 @@ export default function SocialProofSection() {
                         <h2 className="text-xl font-bold text-slate-800">O que nossos clientes dizem</h2>
                         <p className="text-slate-400 text-sm mt-1">Avaliações reais de quem já agendou</p>
                     </div>
-                    {/* Instagram badge — future integration hook */}
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 shrink-0 mt-1">
-                        <Instagram size={14} />
-                        <span className="hidden sm:inline">Instagram em breve</span>
-                    </div>
+                    {/* Instagram badge */}
+                    {instagramUrl ? (
+                        <a 
+                            href={instagramUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-semibold text-indigo-500 hover:text-indigo-700 transition-colors shrink-0 mt-1"
+                        >
+                            <Instagram size={14} />
+                            <span>{workspace.instagram_handle}</span>
+                        </a>
+                    ) : (
+                        <div className="flex items-center gap-1.5 text-xs text-slate-400 shrink-0 mt-1">
+                            <Instagram size={14} />
+                            <span className="hidden sm:inline">Instagram em breve</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Skeleton placeholders */}

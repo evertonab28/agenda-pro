@@ -3,6 +3,21 @@ export interface Workspace {
     name: string;
     slug: string;
     theme_preset?: string | null;
+    public_name?: string | null;
+    public_description?: string | null;
+    logo_url?: string | null;
+    cover_url?: string | null;
+    whatsapp_number?: string | null;
+    instagram_handle?: string | null;
+    address_street?: string | null;
+    address_number?: string | null;
+    address_complement?: string | null;
+    address_district?: string | null;
+    address_city?: string | null;
+    address_state?: string | null;
+    address_zip?: string | null;
+    show_location: boolean;
+    show_contact_button: boolean;
 }
 
 export interface Customer {
