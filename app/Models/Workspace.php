@@ -37,6 +37,11 @@ class Workspace extends Model
         return $this->hasMany(User::class);
     }
 
+    public function photos()
+    {
+        return $this->hasMany(WorkspacePhoto::class)->orderBy('sort_order');
+    }
+
     public function professionals()
     {
         return $this->hasMany(Professional::class);

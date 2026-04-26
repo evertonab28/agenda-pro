@@ -147,6 +147,8 @@ Route::prefix('p/{workspace}')->name('portal.')->group(function () {
     })->name('login');
 
     Route::get('/agendar', function (\App\Models\Workspace $workspace) {
+        $workspace->load(['services', 'professionals', 'photos']);
+        
         $openingHours = \App\Models\ProfessionalSchedule::where('workspace_id', $workspace->id)
             ->where('is_active', true)
             ->get()

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import ConfigLayout from '../Layout';
-import { Settings2, Save, Building2, CalendarRange, Wallet, CheckCircle2 } from 'lucide-react';
+import { Settings2, Save, Building2, CalendarRange, Wallet, CheckCircle2, Camera, X, Plus, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,12 @@ interface Props {
         show_contact_button: boolean;
         primary_color: string | null;
         secondary_color: string | null;
+        photos: {
+            id: number;
+            url: string;
+            image_path: string;
+            sort_order: number;
+        }[];
     };
 }
 
@@ -68,11 +74,23 @@ export default function Index({ settings, workspace }: Props) {
         show_contact_button: workspace.show_contact_button,
         primary_color: workspace.primary_color || '#4f46e5',
         secondary_color: workspace.secondary_color || '#f43f5e',
+        
+        // Gallery
+        photos: [] as File[],
+        delete_photo_ids: [] as number[],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/configuracoes/geral');
+        post('/configuracoes/geral', {
+            onSuccess: () => {
+                setData(prev => ({
+                    ...prev,
+                    photos: [],
+                    delete_photo_ids: []
+                }));
+            }
+        });
     };
 
     return (
@@ -309,6 +327,75 @@ export default function Index({ settings, workspace }: Props) {
                                         placeholder="00000-000"
                                     />
                                 </div>
+                            </div>
+                        </div>
+                    </SectionCard>
+
+                    {/* Galeria do Negócio (Estilo Instagram) */}
+                    <SectionCard 
+                        title="Galeria do Negócio" 
+                        subtitle="Fotos reais que aparecerão no grid da sua página pública. Recomendado: 9 fotos."
+                    >
+                        <div className="space-y-6 py-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                                {/* Existing Photos */}
+                                {(workspace.photos || [])
+                                    .filter(p => !data.delete_photo_ids.includes(p.id))
+                                    .map((photo) => (
+                                    <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden group border border-border/40 shadow-sm">
+                                        <img src={photo.url} alt="Galeria" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('delete_photo_ids', [...data.delete_photo_ids, photo.id])}
+                                            className="absolute top-1 right-1 bg-destructive/90 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {/* New Photo Previews */}
+                                {data.photos.map((file, idx) => (
+                                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden group border border-primary/20 shadow-sm">
+                                        <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-[10px] font-black uppercase text-primary bg-white/80 px-2 py-1 rounded-md shadow-sm">Novo</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('photos', data.photos.filter((_, i) => i !== idx))}
+                                            className="absolute top-1 right-1 bg-slate-800/90 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {/* Upload Button */}
+                                {workspace.photos.length - data.delete_photo_ids.length + data.photos.length < 9 && (
+                                    <label className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group">
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                if (e.target.files) {
+                                                    setData('photos', [...data.photos, ...Array.from(e.target.files)]);
+                                                }
+                                            }}
+                                        />
+                                        <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-2 group-hover:text-primary">Add Foto</span>
+                                    </label>
+                                )}
+                            </div>
+                            
+                            <div className="flex items-center gap-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+                                <Instagram className="w-5 h-5 text-indigo-500" />
+                                <p className="text-xs text-indigo-700 font-medium leading-relaxed">
+                                    Essas fotos serão exibidas no seu <span className="font-bold">Social Hub</span> da página pública, recriando a estética do Instagram com conteúdo 100% real do seu negócio.
+                                </p>
                             </div>
                         </div>
                     </SectionCard>

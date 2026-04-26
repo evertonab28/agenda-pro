@@ -18,7 +18,7 @@ class GeneralSettingsController extends Controller
     {
         $this->authorize('manage-settings');
 
-        $workspace = auth()->user()->workspace;
+        $workspace = auth()->user()->workspace->load('photos');
 
         $settings = [
             'company_name' => Setting::get('company_name', 'Agenda Pro'),
@@ -83,8 +83,34 @@ class GeneralSettingsController extends Controller
         }
 
         // Update Workspace
+        $workspace = auth()->user()->workspace;
         $workspaceFields = collect($validated)->except($settingKeys)->toArray();
-        auth()->user()->workspace->update($workspaceFields);
+        $workspace->update($workspaceFields);
+
+        // --- Handle Gallery Photos ---
+        if ($request->has('delete_photo_ids')) {
+            $deleteIds = is_array($request->delete_photo_ids) ? $request->delete_photo_ids : [$request->delete_photo_ids];
+            $photosToDelete = $workspace->photos()->whereIn('id', $deleteIds)->get();
+            foreach ($photosToDelete as $photo) {
+                \Illuminate\Support\Facades\Storage::delete($photo->image_path);
+                $photo->delete();
+            }
+        }
+
+        if ($request->hasFile('photos')) {
+            $currentCount = $workspace->photos()->count();
+            $files = is_array($request->file('photos')) ? $request->file('photos') : [$request->file('photos')];
+            
+            foreach ($files as $index => $file) {
+                if ($currentCount + $index >= 9) break;
+
+                $path = $file->store("workspaces/{$workspace->id}/gallery", 'public');
+                $workspace->photos()->create([
+                    'image_path' => $path,
+                    'sort_order' => $currentCount + $index,
+                ]);
+            }
+        }
 
         AuditService::log(auth()->user(), 'settings.updated', null, $validated);
 
@@ -92,6 +118,6 @@ class GeneralSettingsController extends Controller
             return redirect()->route('onboarding.index')->with('success', 'Configurações salvas. Próximo passo!');
         }
 
-        return redirect()->back()->with('success', 'Configurações salvas.');
+        return redirect()->back()->with('success', 'Configurações atualizadas com sucesso.');
     }
 }

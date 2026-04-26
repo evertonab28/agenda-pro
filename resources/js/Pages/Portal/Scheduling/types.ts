@@ -20,6 +20,12 @@ export interface Workspace {
     show_contact_button: boolean;
     primary_color?: string | null;
     secondary_color?: string | null;
+    photos?: {
+        id: number;
+        url: string;
+        image_path: string;
+        sort_order: number;
+    }[];
 }
 
 export interface DaySchedule {
