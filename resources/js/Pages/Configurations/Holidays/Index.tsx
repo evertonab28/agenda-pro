@@ -142,7 +142,7 @@ export default function Index({ holidays, professionals }: Props) {
                                 <p className="text-xs text-muted-foreground uppercase font-black tracking-widest ml-1 mt-1">Afeta apenas o profissional selecionado ou todos.</p>
                             </div>
 
-                            <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-2xl border border-border/40 cursor-pointer group" onClick={() => setData('repeats_yearly', !data.repeats_yearly)}>
+                            <label htmlFor="repeats_yearly" className="flex items-center gap-3 p-4 bg-muted/20 rounded-2xl border border-border/40 cursor-pointer group">
                                 <div className="relative inline-flex items-center">
                                     <input
                                         id="repeats_yearly"
@@ -154,12 +154,12 @@ export default function Index({ holidays, professionals }: Props) {
                                     <div className="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                                 </div>
                                 <div>
-                                    <Label htmlFor="repeats_yearly" className="text-sm font-black text-foreground tracking-tight cursor-pointer leading-none">
+                                    <span className="text-sm font-black text-foreground tracking-tight cursor-pointer leading-none">
                                         Repete Anualmente
-                                    </Label>
+                                    </span>
                                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mt-0.5">Útil para feriados fixos</p>
                                 </div>
-                            </div>
+                            </label>
 
                             <div className="pt-2 flex gap-3">
                                 <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 h-11 rounded-xl font-bold uppercase tracking-wider text-xs gap-2" disabled={processing}>

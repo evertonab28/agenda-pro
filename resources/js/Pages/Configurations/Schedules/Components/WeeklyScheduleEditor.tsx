@@ -98,9 +98,10 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                     {WEEKDAYS[day.weekday]}
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleToggleDay(idx)}>
+                                    <label htmlFor={`active-${idx}`} className="flex items-center gap-3 cursor-pointer">
                                         <div className="relative inline-flex items-center">
                                             <input
+                                                id={`active-${idx}`}
                                                 type="checkbox"
                                                 className="sr-only peer"
                                                 checked={day.is_active}
@@ -112,7 +113,7 @@ export default function WeeklyScheduleEditor({ professionalId, schedules }: Prop
                                             label={day.is_active ? 'ABERTO' : 'FECHADO'} 
                                             variant={day.is_active ? 'success' : 'muted'} 
                                         />
-                                    </div>
+                                    </label>
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">

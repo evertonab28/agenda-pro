@@ -170,7 +170,7 @@ export default function Index({ settings, workspace }: Props) {
                                         <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Ativa/desativa a seção de mapa e endereço</p>
                                     </div>
                                 </div>
-                                <div className="relative inline-flex items-center cursor-pointer">
+                                <label htmlFor="show_location" className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         id="show_location"
                                         type="checkbox"
@@ -179,7 +179,7 @@ export default function Index({ settings, workspace }: Props) {
                                         onChange={(e) => setData('show_location', e.target.checked)}
                                     />
                                     <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </div>
+                                </label>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-[1fr_120px] gap-6">
@@ -375,7 +375,7 @@ export default function Index({ settings, workspace }: Props) {
                                         <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Cobrança por não comparecimento</p>
                                     </div>
                                 </div>
-                                <div className="relative inline-flex items-center cursor-pointer">
+                                <label htmlFor="no_show_fee_enabled" className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         id="no_show_fee_enabled"
                                         type="checkbox"
@@ -384,7 +384,7 @@ export default function Index({ settings, workspace }: Props) {
                                         onChange={(e) => setData('no_show_fee_enabled', e.target.checked)}
                                     />
                                     <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </div>
+                                </label>
                             </div>
 
                             {data.no_show_fee_enabled && (
