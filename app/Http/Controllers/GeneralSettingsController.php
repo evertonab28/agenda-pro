@@ -65,6 +65,8 @@ class GeneralSettingsController extends Controller
             'address_zip' => 'nullable|string|max:10',
             'show_location' => 'boolean',
             'show_contact_button' => 'boolean',
+            'primary_color' => 'nullable|string|max:7',
+            'secondary_color' => 'nullable|string|max:7',
         ]);
 
         // Split data between Setting and Workspace

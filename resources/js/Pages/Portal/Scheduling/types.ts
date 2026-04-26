@@ -18,6 +18,17 @@ export interface Workspace {
     address_zip?: string | null;
     show_location: boolean;
     show_contact_button: boolean;
+    primary_color?: string | null;
+    secondary_color?: string | null;
+}
+
+export interface DaySchedule {
+    start_time: string;
+    end_time: string;
+}
+
+export interface OpeningHours {
+    [weekday: number]: DaySchedule;
 }
 
 export interface Customer {

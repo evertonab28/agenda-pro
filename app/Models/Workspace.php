@@ -10,7 +10,8 @@ class Workspace extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'slug', 'status', 'theme_preset', 'min_advance_hours', 'max_advance_days',
+        'name', 'slug', 'status', 'theme_preset', 'primary_color', 'secondary_color',
+        'min_advance_hours', 'max_advance_days',
         'public_name', 'public_description', 'logo_url', 'cover_url',
         'address_street', 'address_number', 'address_complement', 'address_district', 
         'address_city', 'address_state', 'address_zip', 'latitude', 'longitude',

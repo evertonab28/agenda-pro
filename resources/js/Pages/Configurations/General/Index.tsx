@@ -35,6 +35,8 @@ interface Props {
         address_zip: string | null;
         show_location: boolean;
         show_contact_button: boolean;
+        primary_color: string | null;
+        secondary_color: string | null;
     };
 }
 
@@ -64,6 +66,8 @@ export default function Index({ settings, workspace }: Props) {
         address_zip: workspace.address_zip || '',
         show_location: workspace.show_location,
         show_contact_button: workspace.show_contact_button,
+        primary_color: workspace.primary_color || '#4f46e5',
+        secondary_color: workspace.secondary_color || '#f43f5e',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -150,6 +154,52 @@ export default function Index({ settings, workspace }: Props) {
                                         onChange={(e) => setData('instagram_handle', e.target.value)}
                                         placeholder="Ex: barber.premium"
                                     />
+                                </div>
+                            </div>
+                        </div>
+                    </SectionCard>
+
+                    {/* Personalização Visual */}
+                    <SectionCard 
+                        title="Personalização Visual" 
+                        subtitle="Defina a identidade visual da sua página pública de agendamento."
+                    >
+                        <div className="space-y-6 py-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <Label htmlFor="primary_color" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Cor Primária</Label>
+                                    <div className="flex items-center gap-4">
+                                        <div 
+                                            className="w-12 h-12 rounded-xl border-2 border-white shadow-lg shrink-0 transition-transform hover:scale-110" 
+                                            style={{ backgroundColor: data.primary_color }} 
+                                        />
+                                        <Input
+                                            id="primary_color"
+                                            type="color"
+                                            className="h-12 w-full rounded-xl bg-muted/30 p-1 cursor-pointer"
+                                            value={data.primary_color}
+                                            onChange={(e) => setData('primary_color', e.target.value)}
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest ml-1">Botões principais, seleções e destaques</p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="secondary_color" className="text-sm font-black uppercase tracking-widest text-muted-foreground ml-1">Cor de Acento</Label>
+                                    <div className="flex items-center gap-4">
+                                        <div 
+                                            className="w-12 h-12 rounded-xl border-2 border-white shadow-lg shrink-0 transition-transform hover:scale-110" 
+                                            style={{ backgroundColor: data.secondary_color }} 
+                                        />
+                                        <Input
+                                            id="secondary_color"
+                                            type="color"
+                                            className="h-12 w-full rounded-xl bg-muted/30 p-1 cursor-pointer"
+                                            value={data.secondary_color}
+                                            onChange={(e) => setData('secondary_color', e.target.value)}
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest ml-1">Detalhes, estados ativos e badges</p>
                                 </div>
                             </div>
                         </div>

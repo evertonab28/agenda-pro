@@ -16,6 +16,7 @@ import type { Workspace, Customer, Service, Professional, BookingFormData } from
 interface Props {
     workspace: Workspace;
     customer?: Customer;
+    openingHours?: OpeningHours;
 }
 
 // ── Step constants — single source of truth ───────────────────────────────────
@@ -42,7 +43,47 @@ export const NO_PREFERENCE_PROFESSIONAL: Professional = {
     specialty: 'Qualquer profissional disponível'
 };
 
-export default function Schedule({ workspace, customer }: Props) {
+export default function Schedule({ workspace, customer, openingHours }: Props) {
+    // ── Brand Colors Injection ──────────────────────────────────────────────
+    useEffect(() => {
+        const style = document.createElement('style');
+        style.id = 'brand-colors-style';
+        
+        const primary = workspace.primary_color || '#4f46e5';
+        const accent  = workspace.secondary_color || '#f43f5e';
+
+        style.innerHTML = `
+            :root {
+                --brand-primary: ${primary};
+                --brand-primary-hover: ${primary}dd;
+                --brand-accent: ${accent};
+            }
+            
+            /* Overrides for common Indigo elements */
+            .bg-indigo-600, .bg-indigo-500 { background-color: var(--brand-primary) !important; }
+            .text-indigo-600, .text-indigo-500, .text-indigo-700 { color: var(--brand-primary) !important; }
+            .border-indigo-600, .border-indigo-500, .border-indigo-100 { border-color: var(--brand-primary) !important; }
+            .shadow-indigo-200 { --tw-shadow-color: var(--brand-primary) !important; }
+            .bg-indigo-50 { background-color: var(--brand-primary)15 !important; }
+            
+            /* Custom Brand Utilities */
+            .btn-brand {
+                background-color: var(--brand-primary) !important;
+                color: white !important;
+                transition: all 0.2s;
+            }
+            .btn-brand:hover {
+                background-color: var(--brand-primary-hover) !important;
+                transform: translateY(-1px);
+            }
+        `;
+        document.head.appendChild(style);
+        
+        return () => {
+            const existing = document.getElementById('brand-colors-style');
+            if (existing) existing.remove();
+        };
+    }, [workspace.primary_color, workspace.secondary_color]);
     // ── UI mode ──────────────────────────────────────────────────────────────
     const [isWizardOpen, setIsWizardOpen] = useState(false);
 
@@ -288,7 +329,7 @@ export default function Schedule({ workspace, customer }: Props) {
                     </section>
 
                     <SocialProofSection workspace={workspace} />
-                    <LocationSection workspace={workspace} />
+                    <LocationSection workspace={workspace} openingHours={openingHours} />
                 </main>
             )}
 

@@ -147,9 +147,21 @@ Route::prefix('p/{workspace}')->name('portal.')->group(function () {
     })->name('login');
 
     Route::get('/agendar', function (\App\Models\Workspace $workspace) {
+        $openingHours = \App\Models\ProfessionalSchedule::where('workspace_id', $workspace->id)
+            ->where('is_active', true)
+            ->get()
+            ->groupBy('weekday')
+            ->map(function ($daySchedules) {
+                return [
+                    'start_time' => collect($daySchedules)->min('start_time'),
+                    'end_time'   => collect($daySchedules)->max('end_time'),
+                ];
+            });
+
         return Inertia::render('Portal/Schedule', [
             'workspace' => $workspace,
-            'customer' => Auth::guard('customer')->user()
+            'customer' => Auth::guard('customer')->user(),
+            'openingHours' => $openingHours
         ]);
     })->name('schedule');
 
