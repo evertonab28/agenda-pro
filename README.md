@@ -45,6 +45,12 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
 - **Gestão Financeira**: Visualização de faturas e botão "Pagar Agora" integrado.
 - **Meu Perfil**: Autonomia para o cliente atualizar seus próprios dados cadastrais.
 
+### 📸 Social Proof & Instagram Hub (Página Pública)
+- **Modo Híbrido**: Escolha entre alimentação automática via Widget Externo (Behold.so, LightWidget) ou Galeria Manual de fotos reais.
+- **Grid Premium**: Visualização estilo Instagram com suporte a modal de fotos e métricas sociais realistas.
+- **Personalização de Cores**: Identidade visual do Workspace (Cores Primária e Secundária) refletida instantaneamente na página pública.
+- **Fallback Elegante**: Lógica inteligente que exibe o melhor conteúdo disponível (Widget > Galeria > CTA Instagram).
+
 ### 💰 Módulo Financeiro
 - **Gestão de Cobranças**: Controle granular de faturas (Pago, Parcial, Pendente, Vencido) com UUIDs para segurança.
 - **Checkout e Quitação**: Fluxo unificado para registrar pagamentos parciais ou totais, com geração automática de recibos.
@@ -82,6 +88,7 @@ Construído como uma **Single Page Application (SPA)** de alta performance, o Ag
    composer install
    cp .env.example .env
    php artisan key:generate
+   php artisan storage:link
    php artisan migrate --seed
    ```
 
@@ -183,6 +190,7 @@ Adicione ao `crontab -e` do servidor:
 | Acesso negado (403) | Verificar `role` do usuário no banco |
 | Login em loop | `php artisan cache:clear` + verificar `SESSION_DRIVER` |
 | Agenda sem eventos | Verificar filtros de data (from/to) na URL |
+| Imagens não aparecem | Rodar `php artisan storage:link` e verificar `APP_URL` no `.env` |
 
 ---
 
