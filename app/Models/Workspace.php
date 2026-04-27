@@ -15,7 +15,7 @@ class Workspace extends Model
         'public_name', 'public_description', 'logo_url', 'cover_url',
         'address_street', 'address_number', 'address_complement', 'address_district', 
         'address_city', 'address_state', 'address_zip', 'latitude', 'longitude',
-        'whatsapp_number', 'instagram_handle', 'show_location', 'show_contact_button'
+        'whatsapp_number', 'instagram_handle', 'instagram_feed_mode', 'instagram_feed_widget_url', 'show_location', 'show_contact_button'
     ];
 
     protected $casts = [

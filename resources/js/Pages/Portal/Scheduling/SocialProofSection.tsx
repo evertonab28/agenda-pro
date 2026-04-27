@@ -286,6 +286,8 @@ export default function SocialProofSection({ workspace }: Props) {
     const displayPhotos = realPhotos.slice(0, visibleCount);
     const hasMore = visibleCount < realPhotos.length;
 
+    const isAutomaticMode = workspace.instagram_feed_mode === 'automatic' && workspace.instagram_feed_widget_url;
+
     return (
         <section className="bg-white border-t border-slate-100 py-16 px-4">
             <style>{`
@@ -474,6 +476,15 @@ export default function SocialProofSection({ workspace }: Props) {
                     text-decoration: none;
                 }
 
+                .ig-widget-container {
+                    width: 100%;
+                    min-height: 500px;
+                    margin: 24px 0;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    background: #fafafa;
+                }
+
                 @media (max-width: 480px) {
                     .ig-profile-section { gap: 20px; }
                     .ig-avatar { width: 77px; height: 77px; }
@@ -525,7 +536,18 @@ export default function SocialProofSection({ workspace }: Props) {
                     </div>
                 </div>
 
-                {realPhotos.length > 0 ? (
+                {isAutomaticMode ? (
+                    <div className="ig-widget-container animate-in fade-in duration-1000">
+                        <iframe
+                            src={workspace.instagram_feed_widget_url!}
+                            width="100%"
+                            height="100%"
+                            style={{ border: 'none', minHeight: '600px' }}
+                            loading="lazy"
+                            sandbox="allow-scripts allow-same-origin allow-popups"
+                        />
+                    </div>
+                ) : realPhotos.length > 0 ? (
                     <>
                         <div className="ig-grid">
                             {displayPhotos.map((photo, i) => (
@@ -573,6 +595,8 @@ export default function SocialProofSection({ workspace }: Props) {
                         </a>
                     </div>
                 )}
+
+                <div className="ig-divider" />
 
                 <div className="ig-footer">
                     <a href={instagramUrl} target="_blank" rel="noopener noreferrer">

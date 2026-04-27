@@ -56,6 +56,8 @@ class GeneralSettingsController extends Controller
             'public_description' => 'nullable|string',
             'whatsapp_number' => 'nullable|string|max:20',
             'instagram_handle' => 'nullable|string|max:100',
+            'instagram_feed_mode' => 'nullable|string|in:manual,automatic',
+            'instagram_feed_widget_url' => 'nullable|string',
             'address_street' => 'nullable|string|max:255',
             'address_number' => 'nullable|string|max:20',
             'address_complement' => 'nullable|string|max:255',
@@ -97,9 +99,10 @@ class GeneralSettingsController extends Controller
             }
         }
 
-        if ($request->hasFile('photos')) {
+        $photoFiles = $request->file('photos') ?? $request->file('photos[]') ?? [];
+        if ($photoFiles) {
             $currentCount = $workspace->photos()->count();
-            $files = is_array($request->file('photos')) ? $request->file('photos') : [$request->file('photos')];
+            $files = is_array($photoFiles) ? $photoFiles : [$photoFiles];
             
             foreach ($files as $index => $file) {
                 if ($currentCount + $index >= 9) break;

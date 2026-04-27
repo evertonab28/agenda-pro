@@ -9,6 +9,8 @@ export interface Workspace {
     cover_url?: string | null;
     whatsapp_number?: string | null;
     instagram_handle?: string | null;
+    instagram_feed_mode?: 'manual' | 'automatic' | null;
+    instagram_feed_widget_url?: string | null;
     address_street?: string | null;
     address_number?: string | null;
     address_complement?: string | null;

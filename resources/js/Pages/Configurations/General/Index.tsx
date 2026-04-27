@@ -26,6 +26,8 @@ interface Props {
         public_description: string | null;
         whatsapp_number: string | null;
         instagram_handle: string | null;
+        instagram_feed_mode: string | null;
+        instagram_feed_widget_url: string | null;
         address_street: string | null;
         address_number: string | null;
         address_complement: string | null;
@@ -63,6 +65,8 @@ export default function Index({ settings, workspace }: Props) {
         public_description: workspace.public_description || '',
         whatsapp_number: workspace.whatsapp_number || '',
         instagram_handle: workspace.instagram_handle || '',
+        instagram_feed_mode: workspace.instagram_feed_mode || 'manual',
+        instagram_feed_widget_url: workspace.instagram_feed_widget_url || '',
         address_street: workspace.address_street || '',
         address_number: workspace.address_number || '',
         address_complement: workspace.address_complement || '',
@@ -334,11 +338,56 @@ export default function Index({ settings, workspace }: Props) {
                     {/* Galeria do Negócio (Estilo Instagram) */}
                     <SectionCard 
                         title="Galeria do Negócio" 
-                        subtitle="Fotos reais que aparecerão no grid da sua página pública. Recomendado: 9 fotos."
+                        subtitle="Escolha como exibir suas fotos reais na página pública."
                     >
                         <div className="space-y-6 py-2">
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                                {/* Existing Photos */}
+                            {/* Feed Mode Selector */}
+                            <div className="flex p-1 bg-muted/40 rounded-xl w-fit">
+                                <button
+                                    type="button"
+                                    onClick={() => setData('instagram_feed_mode', 'manual')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${data.instagram_feed_mode === 'manual' ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                                >
+                                    Modo Manual
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setData('instagram_feed_mode', 'automatic')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${data.instagram_feed_mode === 'automatic' ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                                >
+                                    Feed Automático
+                                </button>
+                            </div>
+
+                            {data.instagram_feed_mode === 'automatic' ? (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="instagram_feed_widget_url" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">URL do Widget (Embed Iframe)</Label>
+                                        <Input
+                                            id="instagram_feed_widget_url"
+                                            className="h-12 rounded-xl bg-muted/30 text-sm font-medium"
+                                            value={data.instagram_feed_widget_url}
+                                            onChange={(e) => setData('instagram_feed_widget_url', e.target.value)}
+                                            placeholder="https://behold.so/w/..."
+                                        />
+                                    </div>
+                                    <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                                        <div className="flex items-start gap-3">
+                                            <div className="mt-0.5">
+                                                <Instagram className="w-4 h-4 text-primary" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h5 className="text-xs font-black uppercase tracking-tight text-primary">Como funciona o modo automático?</h5>
+                                                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                                    Use um agregador como o <a href="https://behold.so" target="_blank" className="underline font-bold text-primary">Behold.so</a> (gratuito) para conectar seu Instagram. Basta colar a URL do widget acima para que suas fotos sejam atualizadas automaticamente na sua página.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    {/* Existing Photos */}
                                 {(workspace.photos || [])
                                     .filter(p => !data.delete_photo_ids.includes(p.id))
                                     .map((photo) => (
@@ -388,9 +437,10 @@ export default function Index({ settings, workspace }: Props) {
                                         <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
                                         <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-2 group-hover:text-primary">Add Foto</span>
                                     </label>
-                                )}
-                            </div>
-                            
+                                    )}
+                                </div>
+                            )}
+
                             <div className="flex items-center gap-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                                 <Instagram className="w-5 h-5 text-indigo-500" />
                                 <p className="text-xs text-indigo-700 font-medium leading-relaxed">
